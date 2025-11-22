@@ -3,17 +3,32 @@
     <!-- 物流状态进度条 -->
     <view class="logistics-status-section">
       <view class="status-progress">
-        <view class="progress-item" :class="{ completed: isStatusCompleted('shipped') }">
+        <view
+          class="progress-item"
+          :class="{ completed: isStatusCompleted('shipped') }"
+        >
           <view class="progress-icon">📦</view>
           <view class="progress-label">已发货</view>
         </view>
-        <view class="progress-line" :class="{ completed: isStatusCompleted('transit') }"></view>
-        <view class="progress-item" :class="{ completed: isStatusCompleted('transit') }">
+        <view
+          class="progress-line"
+          :class="{ completed: isStatusCompleted('transit') }"
+        ></view>
+        <view
+          class="progress-item"
+          :class="{ completed: isStatusCompleted('transit') }"
+        >
           <view class="progress-icon">🚚</view>
           <view class="progress-label">运输中</view>
         </view>
-        <view class="progress-line" :class="{ completed: isStatusCompleted('signed') }"></view>
-        <view class="progress-item" :class="{ completed: isStatusCompleted('signed') }">
+        <view
+          class="progress-line"
+          :class="{ completed: isStatusCompleted('signed') }"
+        ></view>
+        <view
+          class="progress-item"
+          :class="{ completed: isStatusCompleted('signed') }"
+        >
           <view class="progress-icon">✓</view>
           <view class="progress-label">已签收</view>
         </view>
@@ -61,7 +76,9 @@
           <view class="track-marker" :class="{ latest: track.isLatest }"></view>
           <view class="track-content">
             <view class="track-time">{{ formatTime(track.operateTime) }}</view>
-            <view class="track-location">{{ track.operateCity }} {{ track.operateLocation }}</view>
+            <view class="track-location"
+              >{{ track.operateCity }} {{ track.operateLocation }}</view
+            >
             <view class="track-description">{{ track.description }}</view>
             <view v-if="track.courierName" class="track-courier">
               快递员：{{ track.courierName }}
@@ -74,7 +91,9 @@
 
     <!-- 操作按钮 -->
     <view class="action-section">
-      <button v-if="!isReceived" class="action-btn" @click="confirmReceipt">确认收货</button>
+      <button v-if="!isReceived" class="action-btn" @click="confirmReceipt">
+        确认收货
+      </button>
       <button
         v-if="isReceived && !logisticsInfo.hasEvaluated"
         class="action-btn evaluate-btn"
@@ -150,7 +169,9 @@
 
         <!-- 操作按钮 -->
         <view class="modal-actions">
-          <button class="btn-cancel" @click="showEvaluationModal = false">取消</button>
+          <button class="btn-cancel" @click="showEvaluationModal = false">
+            取消
+          </button>
           <button class="btn-submit" @click="submitEvaluation">提交评价</button>
         </view>
       </view>
@@ -162,8 +183,12 @@
         <view class="modal-title">确认收货</view>
         <view class="modal-message">确认已收到快递吗？</view>
         <view class="modal-actions">
-          <button class="btn-cancel" @click="showConfirmModal = false">取消</button>
-          <button class="btn-confirm" @click="handleConfirmReceipt">确认</button>
+          <button class="btn-cancel" @click="showConfirmModal = false">
+            取消
+          </button>
+          <button class="btn-confirm" @click="handleConfirmReceipt">
+            确认
+          </button>
         </view>
       </view>
     </view>
@@ -171,7 +196,8 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import request from "@/utils/request";
+import { onMounted, ref } from "vue";
 
 interface LogisticsTrack {
   operateTime: number;
@@ -200,15 +226,15 @@ interface LogisticsInfo {
 }
 
 const logisticsInfo = ref<LogisticsInfo>({
-  id: '',
-  orderNo: '',
-  courierCompany: '顺丰速运',
-  trackingNo: 'SF123456789',
-  receiverName: '张三',
-  receiverPhone: '1360****0001',
-  receiverAddress: '北京市朝阳区xxx',
-  status: 'transit',
-  statusDesc: '您的快递正在运输中',
+  id: "",
+  orderNo: "",
+  courierCompany: "顺丰速运",
+  trackingNo: "SF123456789",
+  receiverName: "张三",
+  receiverPhone: "1360****0001",
+  receiverAddress: "北京市朝阳区xxx",
+  status: "transit",
+  statusDesc: "您的快递正在运输中",
   tracks: [],
   hasEvaluated: false,
 });
@@ -221,14 +247,15 @@ const evaluation = ref({
   speedRating: 0,
   serviceRating: 0,
   qualityRating: 0,
-  content: '',
+  content: "",
 });
 
 // 获取物流信息
 onMounted(() => {
   const pages = getCurrentPages() as any;
   const currentPage = pages[pages.length - 1];
-  const orderId = currentPage?.options?.orderId || currentPage?.route?.query?.orderId || '';
+  const orderId =
+    currentPage?.options?.orderId || currentPage?.route?.query?.orderId || "";
   if (orderId) {
     fetchLogisticsInfo(orderId);
   }
@@ -237,60 +264,31 @@ onMounted(() => {
 // 获取物流信息
 const fetchLogisticsInfo = async (orderId: string) => {
   try {
-    // TODO: 调用 API 获取物流信息
-    logisticsInfo.value = {
-      id: 'logistics-123',
-      orderNo: 'ORD20231120001',
-      courierCompany: '顺丰速运',
-      trackingNo: 'SF123456789',
-      receiverName: '张三',
-      receiverPhone: '1360****0001',
-      receiverAddress: '北京市朝阳区xxx',
-      status: 'transit',
-      statusDesc: '您的快递正在运输中',
-      tracks: [
-        {
-          operateTime: Date.now() - 2 * 60 * 60 * 1000,
-          operateCity: '北京',
-          operateLocation: '朝阳转运中心',
-          description: '快件已送达转运中心',
-          isLatest: true,
-        },
-        {
-          operateTime: Date.now() - 6 * 60 * 60 * 1000,
-          operateCity: '北京',
-          operateLocation: '亦庄中转',
-          description: '快件已送达中转中心',
-          isLatest: false,
-        },
-        {
-          operateTime: Date.now() - 12 * 60 * 60 * 1000,
-          operateCity: '北京',
-          operateLocation: '顺义营业部',
-          description: '快递员已揽收',
-          isLatest: false,
-        },
-      ],
-      hasEvaluated: false,
-    };
+    const res: any = await request.get(`/logistics/order/${orderId}`);
+    logisticsInfo.value = res;
   } catch (error) {
-    uni.showToast({ title: '获取物流信息失败', icon: 'error' });
+    console.error("获取物流信息失败", error);
+    uni.showToast({ title: "获取物流信息失败", icon: "error" });
   }
 };
 
 // 判断状态是否完成
 const isStatusCompleted = (status: string): boolean => {
-  const statusOrder = ['shipped', 'transit', 'signed'];
+  const statusOrder = ["shipped", "transit", "signed"];
   const currentIndex = statusOrder.indexOf(logisticsInfo.value.status);
   return currentIndex >= statusOrder.indexOf(status);
 };
 
 // 格式化时间
 const formatTime = (timestamp: number): string => {
+  if (!timestamp) return "";
   const date = new Date(timestamp);
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${hours}:${minutes}`;
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day} ${hours}:${minutes}`;
 };
 
 // 确认收货
@@ -301,12 +299,15 @@ const confirmReceipt = () => {
 // 处理确认收货
 const handleConfirmReceipt = async () => {
   try {
-    // TODO: 调用 API 确认收货
+    await request.post(`/order/${logisticsInfo.value.id}/confirm-receipt`);
     showConfirmModal.value = false;
     isReceived.value = true;
-    uni.showToast({ title: '已确认收货', icon: 'success' });
+    uni.showToast({ title: "已确认收货", icon: "success" });
+    // 刷新物流信息
+    await fetchLogisticsInfo(logisticsInfo.value.id);
   } catch (error) {
-    uni.showToast({ title: '操作失败，请重试', icon: 'error' });
+    console.error("操作失败", error);
+    uni.showToast({ title: "操作失败，请重试", icon: "error" });
   }
 };
 
@@ -317,16 +318,24 @@ const submitEvaluation = async () => {
     !evaluation.value.serviceRating ||
     !evaluation.value.qualityRating
   ) {
-    uni.showToast({ title: '请完成所有评分', icon: 'none' });
+    uni.showToast({ title: "请完成所有评分", icon: "none" });
     return;
   }
 
   try {
-    // TODO: 调用 API 提交评价
+    await request.post(`/logistics/${logisticsInfo.value.id}/evaluate`, {
+      speedRating: evaluation.value.speedRating,
+      serviceRating: evaluation.value.serviceRating,
+      qualityRating: evaluation.value.qualityRating,
+      content: evaluation.value.content,
+    });
     showEvaluationModal.value = false;
-    uni.showToast({ title: '感谢您的评价', icon: 'success' });
+    uni.showToast({ title: "感谢您的评价", icon: "success" });
+    // 刷新物流信息
+    await fetchLogisticsInfo(logisticsInfo.value.id);
   } catch (error) {
-    uni.showToast({ title: '提交失败，请重试', icon: 'error' });
+    console.error("提交失败", error);
+    uni.showToast({ title: "提交失败，请重试", icon: "error" });
   }
 };
 </script>
@@ -450,7 +459,7 @@ const submitEvaluation = async () => {
 }
 
 .track-timeline:before {
-  content: '';
+  content: "";
   position: absolute;
   left: 11px;
   top: 0;
@@ -758,3 +767,4 @@ const submitEvaluation = async () => {
     opacity: 1;
   }
 }
+</style>

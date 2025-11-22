@@ -31,7 +31,9 @@
           <image :src="item.mainImage" mode="aspectFill" class="product-img" />
           <view class="product-info">
             <view class="product-name">{{ item.name }}</view>
-            <view class="product-price">¥{{ (item.price / 100).toFixed(2) }}</view>
+            <view class="product-price"
+              >¥{{ (item.price / 100).toFixed(2) }}</view
+            >
           </view>
         </view>
       </view>
@@ -42,8 +44,8 @@
 </template>
 
 <script setup lang="ts">
-import { listProducts } from '@/api/product';
-import { onMounted, ref } from 'vue';
+import { listProducts } from "@/api/product";
+import { onMounted, ref } from "vue";
 
 interface Category {
   id: string;
@@ -57,8 +59,8 @@ interface Product {
   mainImage: string;
 }
 
-const keyword = ref('');
-const categoryId = ref('');
+const keyword = ref("");
+const categoryId = ref("");
 const productList = ref<Product[]>([]);
 const loading = ref(false);
 const hasMore = ref(true);
@@ -66,12 +68,12 @@ const page = ref(1);
 const pageSize = 20;
 
 const categories = ref<Category[]>([
-  { id: '', name: '全部' },
-  { id: '1', name: '电子产品' },
-  { id: '2', name: '服装' },
-  { id: '3', name: '食品' },
-  { id: '4', name: '图书' },
-  { id: '5', name: '家居' },
+  { id: "", name: "全部" },
+  { id: "1", name: "电子产品" },
+  { id: "2", name: "服装" },
+  { id: "3", name: "食品" },
+  { id: "4", name: "图书" },
+  { id: "5", name: "家居" },
 ]);
 
 onMounted(() => {
@@ -83,17 +85,39 @@ const loadProducts = async () => {
 
   loading.value = true;
   try {
-    const res = await listProducts(page.value, pageSize, categoryId.value, keyword.value);
+    const res = await listProducts(
+      page.value,
+      pageSize,
+      categoryId.value,
+      keyword.value
+    );
 
-    if (res.data && res.data.length > 0) {
-      productList.value.push(...res.data);
+    // 处理分页响应数据结构
+    let products = [];
+    if (res.data && Array.isArray(res.data)) {
+      // 简单数组
+      products = res.data;
+    } else if (
+      res.data &&
+      res.data.records &&
+      Array.isArray(res.data.records)
+    ) {
+      // 分页对象的 records 字段
+      products = res.data.records;
+    } else if (res.data && res.data.list && Array.isArray(res.data.list)) {
+      // 分页对象的 list 字段
+      products = res.data.list;
+    }
+
+    if (products.length > 0) {
+      productList.value.push(...products);
       page.value++;
-      hasMore.value = res.data.length === pageSize;
+      hasMore.value = products.length === pageSize;
     } else {
       hasMore.value = false;
     }
   } catch (error) {
-    console.error('加载商品失败', error);
+    console.error("加载商品失败", error);
     // 模拟数据
     const mockData = Array.from({ length: 10 }, (_, i) => ({
       id: `${page.value}-${i}`,
@@ -133,118 +157,165 @@ const goToDetail = (id: string) => {
 </script>
 
 <style scoped lang="scss">
-.container {
-  padding: 16px;
-  background: #f5f5f5;
-  min-height: 100vh;
+.product-list {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f8f9ff;
 }
 
 .search-bar {
   display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 8px;
+  padding: 12px;
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
 }
 
 .search-bar input {
   flex: 1;
-  padding: 12px 16px;
-  border: 1px solid #ddd;
-  border-radius: 24px;
+  padding: 10px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
   font-size: 14px;
+  background: #f5f5f5;
+  height: 36px;
+  line-height: 36px;
+}
+
+.search-bar input:focus {
+  background: white;
+  border-color: #548163;
+  outline: none;
 }
 
 .search-bar button {
-  padding: 12px 20px;
+  padding: 8px 20px;
   background: #548163;
   color: white;
   border: none;
-  border-radius: 24px;
+  border-radius: 20px;
   font-size: 14px;
+  font-weight: 600;
+  height: 36px;
+  line-height: 36px;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
-.tabs {
+.search-bar button:active {
+  opacity: 0.9;
+}
+
+.category-tabs {
   display: flex;
-  gap: 20px;
-  margin-bottom: 16px;
-  padding: 0 16px;
+  padding: 12px 12px 0;
   background: white;
-  border-radius: 8px;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
 }
 
 .tab-item {
-  padding: 12px 0;
+  padding: 12px 20px;
+  margin-right: 12px;
   font-size: 14px;
   color: #666;
+  white-space: nowrap;
+  transition: all 0.3s ease;
   cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  font-weight: 500;
+}
+
+.tab-item:active {
+  background: rgba(84, 129, 99, 0.05);
 }
 
 .tab-item.active {
   color: #548163;
   font-weight: 600;
-  border-bottom: 2px solid #548163;
 }
 
-.tab-item:first-child {
-  margin-left: 0;
+.tab-item.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 20px;
+  right: 20px;
+  height: 3px;
+  background: #548163;
+  border-radius: 1.5px;
 }
 
-.product-list {
+.product-scroll {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.product-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 12px;
+  padding: 12px;
+  background: #f8f9ff;
 }
 
 .product-card {
   background: white;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
 }
 
 .product-card:active {
-  transform: scale(0.98);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
-.product-image {
+.product-img {
   width: 100%;
   height: 150px;
+  display: block;
   background: #f0f0f0;
+  object-fit: cover;
 }
 
 .product-info {
-  padding: 12px;
+  padding: 12px 8px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .product-name {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13px;
   color: #333;
-  margin-bottom: 8px;
+  font-weight: 500;
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 26px;
 }
 
-.price-section {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.price {
-  font-size: 16px;
-  font-weight: bold;
+.product-price {
+  font-size: 15px;
   color: #e74c3c;
+  font-weight: bold;
+  margin-top: 4px;
 }
 
-.original-price {
-  font-size: 12px;
-  color: #999;
-  text-decoration: line-through;
-}
 .loading,
 .no-more {
   text-align: center;

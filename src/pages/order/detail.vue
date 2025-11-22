@@ -13,7 +13,9 @@
     <view class="section">
       <view class="section-title">收货信息</view>
       <view class="address-info">
-        <view class="receiver">{{ orderInfo.receiverName }} {{ orderInfo.receiverPhone }}</view>
+        <view class="receiver"
+          >{{ orderInfo.receiverName }} {{ orderInfo.receiverPhone }}</view
+        >
         <view class="address">{{ orderInfo.receiverAddress }}</view>
       </view>
     </view>
@@ -28,7 +30,9 @@
             <view class="item-name">{{ item.productName }}</view>
             <view class="item-spec">{{ item.specInfo }}</view>
             <view class="item-bottom">
-              <text class="item-price">¥{{ (item.price / 100).toFixed(2) }}</text>
+              <text class="item-price"
+                >¥{{ (item.price / 100).toFixed(2) }}</text
+              >
               <text class="item-quantity">x{{ item.quantity }}</text>
             </view>
           </view>
@@ -50,11 +54,15 @@
         </view>
         <view class="info-row">
           <text class="label">支付方式：</text>
-          <text class="value">{{ getPaymentMethodText(orderInfo.paymentMethod) }}</text>
+          <text class="value">{{
+            getPaymentMethodText(orderInfo.paymentMethod)
+          }}</text>
         </view>
         <view class="info-row">
           <text class="label">配送方式：</text>
-          <text class="value">{{ getShippingMethodText(orderInfo.shippingMethod) }}</text>
+          <text class="value">{{
+            getShippingMethodText(orderInfo.shippingMethod)
+          }}</text>
         </view>
       </view>
     </view>
@@ -73,26 +81,48 @@
         </view>
         <view class="detail-row total">
           <text>实付款</text>
-          <text class="total-price">¥{{ (orderInfo.totalAmount / 100).toFixed(2) }}</text>
+          <text class="total-price"
+            >¥{{ (orderInfo.totalAmount / 100).toFixed(2) }}</text
+          >
         </view>
       </view>
     </view>
 
     <!-- 操作按钮 -->
     <view class="action-bar">
-      <button v-if="orderInfo.status === 'PENDING'" class="btn-cancel" @click="cancelOrder">
+      <button
+        v-if="orderInfo.status === 'PENDING'"
+        class="btn-cancel"
+        @click="cancelOrder"
+      >
         取消订单
       </button>
-      <button v-if="orderInfo.status === 'PENDING'" class="btn-pay" @click="payOrder">
+      <button
+        v-if="orderInfo.status === 'PENDING'"
+        class="btn-pay"
+        @click="payOrder"
+      >
         去支付
       </button>
-      <button v-if="orderInfo.status === 'SHIPPED'" class="btn-confirm" @click="confirmReceipt">
+      <button
+        v-if="orderInfo.status === 'SHIPPED'"
+        class="btn-confirm"
+        @click="confirmReceipt"
+      >
         确认收货
       </button>
-      <button v-if="orderInfo.status === 'SHIPPED'" class="btn-logistics" @click="viewLogistics">
+      <button
+        v-if="orderInfo.status === 'SHIPPED'"
+        class="btn-logistics"
+        @click="viewLogistics"
+      >
         查看物流
       </button>
-      <button v-if="orderInfo.status === 'COMPLETED'" class="btn-evaluate" @click="evaluateOrder">
+      <button
+        v-if="orderInfo.status === 'COMPLETED'"
+        class="btn-evaluate"
+        @click="evaluateOrder"
+      >
         评价
       </button>
     </view>
@@ -100,7 +130,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref } from "vue";
+import request from "@/utils/request";
 
 interface OrderItem {
   id: string;
@@ -128,18 +159,18 @@ interface OrderInfo {
 }
 
 const orderInfo = ref<OrderInfo>({
-  id: '',
-  orderNo: '',
-  status: 'PENDING',
+  id: "",
+  orderNo: "",
+  status: "PENDING",
   totalAmount: 0,
   productAmount: 0,
   shippingFee: 0,
-  paymentMethod: 'weixin',
-  shippingMethod: 'normal',
-  receiverName: '',
-  receiverPhone: '',
-  receiverAddress: '',
-  createTime: '',
+  paymentMethod: "weixin",
+  shippingMethod: "normal",
+  receiverName: "",
+  receiverPhone: "",
+  receiverAddress: "",
+  createTime: "",
   items: [],
 });
 
@@ -153,140 +184,134 @@ onMounted(() => {
 const getOrderId = () => {
   const pages = getCurrentPages() as any;
   const currentPage = pages[pages.length - 1];
-  return currentPage?.options?.orderId || '';
+  return currentPage?.options?.orderId || "";
 };
 
 const loadOrderDetail = async (orderId: string) => {
   try {
-    // TODO: 调用API获取订单详情
-    // 模拟数据
-    orderInfo.value = {
-      id: orderId,
-      orderNo: `ORD${Date.now()}`,
-      status: ['PENDING', 'PAID', 'SHIPPED', 'COMPLETED'][Math.floor(Math.random() * 4)],
-      totalAmount: 9999,
-      productAmount: 8999,
-      shippingFee: 1000,
-      paymentMethod: 'weixin',
-      shippingMethod: 'normal',
-      receiverName: '张三',
-      receiverPhone: '138****0001',
-      receiverAddress: '北京市朝阳区xxx街道xxx号',
-      createTime: new Date().toISOString(),
-      items: [
-        {
-          id: '1',
-          productName: '示例商品1',
-          price: 5999,
-          quantity: 1,
-          mainImage: 'https://via.placeholder.com/80x80?text=Item1',
-          specInfo: '红色 M',
-        },
-        {
-          id: '2',
-          productName: '示例商品2',
-          price: 3000,
-          quantity: 1,
-          mainImage: 'https://via.placeholder.com/80x80?text=Item2',
-          specInfo: '蓝色 S',
-        },
-      ],
-    };
+    const response = await request.get(`/order/${orderId}`);
+    if (response.code === 0) {
+      orderInfo.value = response.data;
+    }
   } catch (error) {
-    console.error('加载订单详情失败', error);
-    uni.showToast({ title: '加载订单详情失败', icon: 'error' });
+    console.error("加载订单详情失败", error);
+    uni.showToast({ title: "加载订单详情失败", icon: "error" });
   }
 };
 
 const getStatusText = (status: string) => {
   const statusMap: Record<string, string> = {
-    PENDING: '等待付款',
-    PAID: '等待发货',
-    SHIPPED: '已发货',
-    COMPLETED: '已完成',
-    CANCELLED: '已取消',
+    PENDING: "等待付款",
+    PAID: "等待发货",
+    SHIPPED: "已发货",
+    COMPLETED: "已完成",
+    CANCELLED: "已取消",
   };
-  return statusMap[status] || '未知状态';
+  return statusMap[status] || "未知状态";
 };
 
 const getStatusDesc = (status: string) => {
   const descMap: Record<string, string> = {
-    PENDING: '请尽快完成支付',
-    PAID: '商家正在备货中',
-    SHIPPED: '商品正在运输中',
-    COMPLETED: '感谢您的购买',
-    CANCELLED: '订单已取消',
+    PENDING: "请尽快完成支付",
+    PAID: "商家正在备货中",
+    SHIPPED: "商品正在运输中",
+    COMPLETED: "感谢您的购买",
+    CANCELLED: "订单已取消",
   };
-  return descMap[status] || '';
+  return descMap[status] || "";
 };
 
 const getStatusIcon = () => {
   const iconMap: Record<string, string> = {
-    PENDING: '💳',
-    PAID: '📦',
-    SHIPPED: '🚚',
-    COMPLETED: '✅',
-    CANCELLED: '❌',
+    PENDING: "💳",
+    PAID: "📦",
+    SHIPPED: "🚚",
+    COMPLETED: "✅",
+    CANCELLED: "❌",
   };
-  return iconMap[orderInfo.value.status] || '❓';
+  return iconMap[orderInfo.value.status] || "❓";
 };
 
 const getPaymentMethodText = (method: string) => {
   const methodMap: Record<string, string> = {
-    weixin: '微信支付',
-    alipay: '支付宝',
+    weixin: "微信支付",
+    alipay: "支付宝",
   };
-  return methodMap[method] || '未知支付方式';
+  return methodMap[method] || "未知支付方式";
 };
 
 const getShippingMethodText = (method: string) => {
   const methodMap: Record<string, string> = {
-    normal: '标准快递',
-    express: '次日达',
+    normal: "标准快递",
+    express: "次日达",
   };
-  return methodMap[method] || '标准快递';
+  return methodMap[method] || "标准快递";
 };
 
 const formatTime = (time: string) => {
-  return new Date(time).toLocaleString('zh-CN');
+  return new Date(time).toLocaleString("zh-CN");
 };
 
 const cancelOrder = () => {
   uni.showModal({
-    title: '提示',
-    content: '确定要取消订单吗？',
-    success: (res) => {
+    title: "提示",
+    content: "确定要取消订单吗？",
+    success: async (res) => {
       if (res.confirm) {
-        uni.showToast({ title: '订单已取消', icon: 'success' });
-        // TODO: 调用API取消订单
+        try {
+          const response = await request.post(
+            `/order/${orderInfo.value.id}/cancel`
+          );
+          if (response.code === 0) {
+            uni.showToast({ title: "订单已取消", icon: "success" });
+            uni.navigateBack();
+          }
+        } catch (error) {
+          uni.showToast({ title: "取消失败", icon: "error" });
+        }
       }
     },
   });
 };
 
 const payOrder = () => {
-  uni.navigateTo({ url: `/pages/payment/payment?orderId=${orderInfo.value.id}` });
+  uni.navigateTo({
+    url: `/pages/payment/payment?orderId=${orderInfo.value.id}`,
+  });
 };
 
 const confirmReceipt = () => {
   uni.showModal({
-    title: '提示',
-    content: '确认已收到货物吗？',
-    success: (res) => {
+    title: "提示",
+    content: "确认已收到货物吗？",
+    success: async (res) => {
       if (res.confirm) {
-        uni.showToast({ title: '确认收货成功', icon: 'success' });
-        // TODO: 调用API确认收货
+        try {
+          const response = await request.post(
+            `/order/${orderInfo.value.id}/confirm-receipt`
+          );
+          if (response.code === 0) {
+            uni.showToast({ title: "确认收货成功", icon: "success" });
+            // 刷新订单信息
+            const orderId = orderInfo.value.id;
+            await loadOrderDetail(orderId);
+          }
+        } catch (error) {
+          uni.showToast({ title: "确认失败", icon: "error" });
+        }
       }
     },
   });
 };
 
 const viewLogistics = () => {
-  uni.navigateTo({ url: `/pages/logistics/detail?orderId=${orderInfo.value.id}` });
+  uni.navigateTo({
+    url: `/pages/logistics/detail?orderId=${orderInfo.value.id}`,
+  });
 };
 
 const evaluateOrder = () => {
-  uni.showToast({ title: '评价功能开发中', icon: 'none' });
+  uni.showToast({ title: "评价功能开发中", icon: "none" });
 };
 </script>
 
@@ -361,7 +386,7 @@ const evaluateOrder = () => {
 }
 
 .section-title:before {
-  content: '';
+  content: "";
   display: inline-block;
   width: 4px;
   height: 16px;

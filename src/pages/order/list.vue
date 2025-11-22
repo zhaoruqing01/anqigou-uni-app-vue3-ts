@@ -36,7 +36,9 @@
               <view class="item-name">{{ item.productName }}</view>
               <view class="item-spec">{{ item.specInfo }}</view>
               <view class="item-bottom">
-                <text class="item-price">¥{{ (item.price / 100).toFixed(2) }}</text>
+                <text class="item-price"
+                  >¥{{ (item.price / 100).toFixed(2) }}</text
+                >
                 <text class="item-quantity">x{{ item.quantity }}</text>
               </view>
             </view>
@@ -46,7 +48,9 @@
         <view class="order-footer">
           <view class="order-total">
             共{{ order.items.length }}件商品 合计：
-            <text class="total-price">¥{{ (order.totalAmount / 100).toFixed(2) }}</text>
+            <text class="total-price"
+              >¥{{ (order.totalAmount / 100).toFixed(2) }}</text
+            >
           </view>
           <view class="order-actions">
             <button
@@ -89,7 +93,9 @@
       </view>
 
       <view v-if="loading" class="loading">加载中...</view>
-      <view v-if="!hasMore && orderList.length > 0" class="no-more">没有更多了</view>
+      <view v-if="!hasMore && orderList.length > 0" class="no-more"
+        >没有更多了</view
+      >
       <view v-if="!loading && orderList.length === 0" class="empty">
         <text>暂无订单</text>
       </view>
@@ -98,7 +104,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref } from "vue";
+import request from "@/utils/request";
 
 interface OrderItem {
   id: string;
@@ -118,18 +125,18 @@ interface Order {
   createTime: string;
 }
 
-const currentStatus = ref('');
+const currentStatus = ref("");
 const orderList = ref<Order[]>([]);
 const loading = ref(false);
 const hasMore = ref(true);
 const page = ref(1);
 
 const tabs = ref([
-  { label: '全部', status: '', count: 0 },
-  { label: '待付款', status: 'PENDING', count: 0 },
-  { label: '待发货', status: 'PAID', count: 0 },
-  { label: '待收货', status: 'SHIPPED', count: 0 },
-  { label: '已完成', status: 'COMPLETED', count: 0 },
+  { label: "全部", status: "", count: 0 },
+  { label: "待付款", status: "PENDING", count: 0 },
+  { label: "待发货", status: "PAID", count: 0 },
+  { label: "待收货", status: "SHIPPED", count: 0 },
+  { label: "已完成", status: "COMPLETED", count: 0 },
 ]);
 
 onMounted(() => {
@@ -141,34 +148,22 @@ const loadOrders = async () => {
 
   loading.value = true;
   try {
-    // TODO: 调用API获取订单列表
-    // 模拟数据
-    const mockOrders: Order[] = Array.from({ length: 5 }, (_, i) => ({
-      id: `order-${page.value}-${i}`,
-      orderNo: `ORD${Date.now()}${i}`,
-      status: ['PENDING', 'PAID', 'SHIPPED', 'COMPLETED'][Math.floor(Math.random() * 4)],
-      totalAmount: Math.floor(Math.random() * 50000) + 5000,
-      createTime: new Date().toISOString(),
-      items: Array.from({ length: Math.floor(Math.random() * 3) + 1 }, (_, j) => ({
-        id: `item-${i}-${j}`,
-        productName: `商品名称 ${i}-${j}`,
-        price: Math.floor(Math.random() * 10000) + 1000,
-        quantity: Math.floor(Math.random() * 3) + 1,
-        mainImage: `https://via.placeholder.com/80x80?text=Item${j}`,
-        specInfo: '规格信息',
-      })),
-    }));
+    const response = await request.get("/order/list", {
+      params: {
+        pageNum: page.value,
+        pageSize: 10,
+        status: currentStatus.value,
+      },
+    });
 
-    if (currentStatus.value) {
-      orderList.value.push(...mockOrders.filter((o) => o.status === currentStatus.value));
-    } else {
-      orderList.value.push(...mockOrders);
+    if (response.code === 0) {
+      const data = response.data;
+      orderList.value.push(...data.records);
+      page.value++;
+      hasMore.value = data.records.length > 0;
     }
-
-    page.value++;
-    hasMore.value = mockOrders.length > 0;
   } catch (error) {
-    console.error('加载订单失败', error);
+    console.error("加载订单失败", error);
   } finally {
     loading.value = false;
   }
@@ -188,27 +183,36 @@ const loadMore = () => {
 
 const getStatusText = (status: string) => {
   const statusMap: Record<string, string> = {
-    PENDING: '待付款',
-    PAID: '待发货',
-    SHIPPED: '待收货',
-    COMPLETED: '已完成',
-    CANCELLED: '已取消',
+    PENDING: "待付款",
+    PAID: "待发货",
+    SHIPPED: "待收货",
+    COMPLETED: "已完成",
+    CANCELLED: "已取消",
   };
-  return statusMap[status] || '未知';
+  return statusMap[status] || "未知";
 };
 
 const goToOrderDetail = (orderId: string) => {
-  uni.showToast({ title: '订单详情开发中', icon: 'none' });
+  uni.navigateTo({ url: `/pages/order/detail?orderId=${orderId}` });
 };
 
 const cancelOrder = (orderId: string) => {
   uni.showModal({
-    title: '提示',
-    content: '确定要取消订单吗？',
-    success: (res) => {
+    title: "提示",
+    content: "确定要取消订单吗？",
+    success: async (res) => {
       if (res.confirm) {
-        uni.showToast({ title: '订单已取消', icon: 'success' });
-        // TODO: 调用API取消订单
+        try {
+          const response = await request.post(`/order/${orderId}/cancel`);
+          if (response.code === 0) {
+            uni.showToast({ title: "订单已取消", icon: "success" });
+            orderList.value = [];
+            page.value = 1;
+            loadOrders();
+          }
+        } catch (error) {
+          uni.showToast({ title: "取消失败", icon: "error" });
+        }
       }
     },
   });
@@ -220,12 +224,23 @@ const payOrder = (orderId: string) => {
 
 const confirmReceipt = (orderId: string) => {
   uni.showModal({
-    title: '提示',
-    content: '确认已收到货物吗？',
-    success: (res) => {
+    title: "提示",
+    content: "确认已收到货物吗？",
+    success: async (res) => {
       if (res.confirm) {
-        uni.showToast({ title: '确认收货成功', icon: 'success' });
-        // TODO: 调用API确认收货
+        try {
+          const response = await request.post(
+            `/order/${orderId}/confirm-receipt`
+          );
+          if (response.code === 0) {
+            uni.showToast({ title: "确认收货成功", icon: "success" });
+            orderList.value = [];
+            page.value = 1;
+            loadOrders();
+          }
+        } catch (error) {
+          uni.showToast({ title: "确认失败", icon: "error" });
+        }
       }
     },
   });
@@ -236,7 +251,7 @@ const viewLogistics = (orderId: string) => {
 };
 
 const evaluate = (orderId: string) => {
-  uni.showToast({ title: '评价功能开发中', icon: 'none' });
+  uni.showToast({ title: "评价功能开发中", icon: "none" });
 };
 </script>
 

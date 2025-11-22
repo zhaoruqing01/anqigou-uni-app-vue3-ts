@@ -10,7 +10,9 @@
         </view>
         <view class="info-row">
           <text class="label">应付金额：</text>
-          <text class="value amount">¥{{ (orderInfo.totalAmount / 100).toFixed(2) }}</text>
+          <text class="value amount"
+            >¥{{ (orderInfo.totalAmount / 100).toFixed(2) }}</text
+          >
         </view>
         <view class="info-row">
           <text class="label">商品数量：</text>
@@ -65,8 +67,12 @@
     <!-- 支付按钮 -->
     <view class="payment-button-container">
       <button class="cancel-btn" @click="goBack">返回修改</button>
-      <button class="pay-btn" :loading="isPaymentProcessing" @click="handlePayment">
-        {{ isPaymentProcessing ? '处理中...' : '立即支付' }}
+      <button
+        class="pay-btn"
+        :loading="isPaymentProcessing"
+        @click="handlePayment"
+      >
+        {{ isPaymentProcessing ? "处理中..." : "立即支付" }}
       </button>
     </view>
 
@@ -74,20 +80,22 @@
     <view v-if="showPaymentResult" class="payment-result-modal">
       <view class="result-container">
         <view class="result-icon" :class="paymentSuccess ? 'success' : 'fail'">
-          <text>{{ paymentSuccess ? '✓' : '✕' }}</text>
+          <text>{{ paymentSuccess ? "✓" : "✕" }}</text>
         </view>
         <view class="result-text">
-          <view class="result-title">{{ paymentSuccess ? '支付成功' : '支付失败' }}</view>
+          <view class="result-title">{{
+            paymentSuccess ? "支付成功" : "支付失败"
+          }}</view>
           <view class="result-desc">
             {{
               paymentSuccess
-                ? '您的订单已创建，商家将尽快发货'
-                : '支付失败，请重试或选择其他支付方式'
+                ? "您的订单已创建，商家将尽快发货"
+                : "支付失败，请重试或选择其他支付方式"
             }}
           </view>
         </view>
         <button class="result-btn" @click="handlePaymentResultConfirm">
-          {{ paymentSuccess ? '查看订单' : '重新支付' }}
+          {{ paymentSuccess ? "查看订单" : "重新支付" }}
         </button>
       </view>
     </view>
@@ -95,7 +103,8 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref } from "vue";
+import request from "@/utils/request";
 
 // uni-app 环境
 
@@ -107,23 +116,25 @@ interface OrderInfo {
 }
 
 const orderInfo = ref<OrderInfo>({
-  orderId: '',
-  orderNo: '',
+  orderId: "",
+  orderNo: "",
   totalAmount: 0,
   itemCount: 0,
 });
 
-const paymentMethod = ref('wechat');
+const paymentMethod = ref("wechat");
 const isPaymentProcessing = ref(false);
 const showPaymentResult = ref(false);
 const paymentSuccess = ref(false);
 
 // uni-app 中获取订单 ID
-let orderId = '';
+let orderId = "";
 const getOrderId = () => {
   const pages = getCurrentPages() as any;
   const currentPage = pages[pages.length - 1];
-  return currentPage?.route?.query?.orderId || currentPage?.options?.orderId || '';
+  return (
+    currentPage?.route?.query?.orderId || currentPage?.options?.orderId || ""
+  );
 };
 
 // 获取订单信息
@@ -137,15 +148,18 @@ onMounted(() => {
 // 获取订单信息
 const fetchOrderInfo = async (orderId: string) => {
   try {
-    // TODO: 调用 API 获取订单信息
-    orderInfo.value = {
-      orderId: orderId,
-      orderNo: 'ORD20231120001',
-      totalAmount: 9999,
-      itemCount: 2,
-    };
+    const response = await request.get(`/order/${orderId}`);
+    if (response.code === 0) {
+      const order = response.data;
+      orderInfo.value = {
+        orderId: order.id,
+        orderNo: order.orderNo,
+        totalAmount: order.actualPayment,
+        itemCount: order.productCount,
+      };
+    }
   } catch (error) {
-    uni.showToast({ title: '获取订单信息失败', icon: 'error' });
+    uni.showToast({ title: "获取订单信息失败", icon: "error" });
   }
 };
 
@@ -157,20 +171,20 @@ const selectPaymentMethod = (method: string) => {
 // 处理支付
 const handlePayment = async () => {
   if (!orderInfo.value.orderId) {
-    uni.showToast({ title: '订单信息不完整', icon: 'error' });
+    uni.showToast({ title: "订单信息不完整", icon: "error" });
     return;
   }
 
   isPaymentProcessing.value = true;
 
   try {
-    if (paymentMethod.value === 'wechat') {
+    if (paymentMethod.value === "wechat") {
       await handleWechatPayment();
-    } else if (paymentMethod.value === 'alipay') {
+    } else if (paymentMethod.value === "alipay") {
       await handleAlipayPayment();
     }
   } catch (error) {
-    uni.showToast({ title: '支付失败，请重试', icon: 'error' });
+    uni.showToast({ title: "支付失败，请重试", icon: "error" });
     paymentSuccess.value = false;
     showPaymentResult.value = true;
   } finally {
@@ -181,31 +195,21 @@ const handlePayment = async () => {
 // 微信支付
 const handleWechatPayment = async () => {
   try {
-    // TODO: 调用后端 API 获取预支付信息
-    const response = await uni.request({
-      url: 'http://localhost:8082/api/payment/wechat/prepare',
-      method: 'POST',
-      data: {
-        orderId: orderInfo.value.orderId,
-        amount: orderInfo.value.totalAmount,
-        description: '商品购买',
-      },
+    const response = await request.post("/payment/wechat/prepare", {
+      orderId: orderInfo.value.orderId,
+      amount: orderInfo.value.totalAmount,
+      description: "商品购买",
     });
 
-    const result = (response as any)[1];
-    if (result?.data?.code === 0) {
-      // TODO: 调起微信支付
-      // const prepayId = result.data.data.prepayId
+    if (response.code === 0) {
       // 实际环境中应调起微信支付
-
+      // const prepayId = response.data.prepayId
       paymentSuccess.value = true;
       showPaymentResult.value = true;
-
-      // 更新订单状态
-      uni.showToast({ title: '支付成功', icon: 'success' });
+      uni.showToast({ title: "支付成功", icon: "success" });
     }
   } catch (error) {
-    console.error('微信支付失败:', error);
+    console.error("微信支付失败:", error);
     throw error;
   }
 };
@@ -213,31 +217,21 @@ const handleWechatPayment = async () => {
 // 支付宝支付
 const handleAlipayPayment = async () => {
   try {
-    // TODO: 调用后端 API 获取支付表单
-    const response = await uni.request({
-      url: 'http://localhost:8082/api/payment/alipay/prepare',
-      method: 'POST',
-      data: {
-        orderId: orderInfo.value.orderId,
-        amount: orderInfo.value.totalAmount,
-        description: '商品购买',
-      },
+    const response = await request.post("/payment/alipay/prepare", {
+      orderId: orderInfo.value.orderId,
+      amount: orderInfo.value.totalAmount,
+      description: "商品购买",
     });
 
-    const result = (response as any)[1];
-    if (result?.data?.code === 0) {
-      // TODO: 在 WebView 中显示支付表单
-      // const paymentForm = result.data.data
+    if (response.code === 0) {
       // 实际环境中应显示支付表单或跳转到支付页面
-
+      // const paymentForm = response.data
       paymentSuccess.value = true;
       showPaymentResult.value = true;
-
-      // 更新订单状态
-      uni.showToast({ title: '支付成功', icon: 'success' });
+      uni.showToast({ title: "支付成功", icon: "success" });
     }
   } catch (error) {
-    console.error('支付宝支付失败:', error);
+    console.error("支付宝支付失败:", error);
     throw error;
   }
 };
@@ -279,7 +273,7 @@ const goBack = () => {
 }
 
 .section-title:before {
-  content: '';
+  content: "";
   display: inline-block;
   width: 4px;
   height: 16px;

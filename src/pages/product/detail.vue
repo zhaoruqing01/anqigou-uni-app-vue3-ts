@@ -11,7 +11,9 @@
     <view class="product-info">
       <view class="price-section">
         <text class="price">¥{{ (product.price / 100).toFixed(2) }}</text>
-        <text class="original-price">¥{{ (product.originalPrice / 100).toFixed(2) }}</text>
+        <text class="original-price"
+          >¥{{ (product.originalPrice / 100).toFixed(2) }}</text
+        >
       </view>
       <view class="product-name">{{ product.name }}</view>
       <view class="product-desc">{{ product.description }}</view>
@@ -20,7 +22,7 @@
     <!-- 规格选择 -->
     <view class="spec-section" @click="showSpecModal = true">
       <view class="spec-label">已选</view>
-      <view class="spec-value">{{ selectedSpec || '请选择规格' }}</view>
+      <view class="spec-value">{{ selectedSpec || "请选择规格" }}</view>
       <text class="arrow">›</text>
     </view>
 
@@ -41,7 +43,11 @@
     </view>
 
     <!-- 规格选择弹窗 -->
-    <view v-if="showSpecModal" class="spec-modal" @click="showSpecModal = false">
+    <view
+      v-if="showSpecModal"
+      class="spec-modal"
+      @click="showSpecModal = false"
+    >
       <view class="modal-content" @click.stop>
         <view class="modal-header">
           <text class="modal-title">选择规格</text>
@@ -74,8 +80,9 @@
 </template>
 
 <script setup lang="ts">
-import { useCartStore } from '@/stores/cart';
-import { onMounted, ref } from 'vue';
+import { useCartStore } from "@/stores/cart";
+import { onMounted, ref } from "vue";
+import request from "@/utils/request";
 
 interface ProductSku {
   id: string;
@@ -97,25 +104,25 @@ interface Product {
 
 const cartStore = useCartStore();
 const product = ref<Product>({
-  id: '',
-  name: '',
-  description: '',
+  id: "",
+  name: "",
+  description: "",
   price: 0,
   originalPrice: 0,
   images: [],
-  detailHtml: '',
+  detailHtml: "",
   skus: [],
 });
 
 const showSpecModal = ref(false);
-const selectedSkuId = ref('');
-const selectedSpec = ref('');
+const selectedSkuId = ref("");
+const selectedSpec = ref("");
 const quantity = ref(1);
 
 const getProductId = () => {
   const pages = getCurrentPages() as any;
   const currentPage = pages[pages.length - 1];
-  return currentPage?.options?.id || '';
+  return currentPage?.options?.id || "";
 };
 
 onMounted(async () => {
@@ -127,28 +134,12 @@ onMounted(async () => {
 
 const fetchProductDetail = async (productId: string) => {
   try {
-    // TODO: 调用API获取商品详情
-    // 模拟数据
-    product.value = {
-      id: productId,
-      name: '示例商品',
-      description: '这是一个示例商品描述',
-      price: 9999,
-      originalPrice: 12999,
-      images: [
-        'https://via.placeholder.com/375x375?text=Image1',
-        'https://via.placeholder.com/375x375?text=Image2',
-        'https://via.placeholder.com/375x375?text=Image3',
-      ],
-      detailHtml: '<p>商品详情内容</p>',
-      skus: [
-        { id: '1', specValue: '红色 S', price: 9999, stock: 100 },
-        { id: '2', specValue: '红色 M', price: 9999, stock: 100 },
-        { id: '3', specValue: '蓝色 S', price: 10999, stock: 50 },
-      ],
-    };
+    const response = await request.get(`/product/${productId}`);
+    if (response.code === 0) {
+      product.value = response.data;
+    }
   } catch (error) {
-    uni.showToast({ title: '获取商品详情失败', icon: 'error' });
+    uni.showToast({ title: "获取商品详情失败", icon: "error" });
   }
 };
 
@@ -170,7 +161,7 @@ const decreaseQuantity = () => {
 
 const confirmSpec = () => {
   if (!selectedSkuId.value) {
-    uni.showToast({ title: '请选择规格', icon: 'none' });
+    uni.showToast({ title: "请选择规格", icon: "none" });
     return;
   }
   showSpecModal.value = false;
@@ -194,7 +185,7 @@ const addToCart = () => {
     checked: true,
   });
 
-  uni.showToast({ title: '已加入购物车', icon: 'success' });
+  uni.showToast({ title: "已加入购物车", icon: "success" });
 };
 
 const buyNow = () => {
@@ -205,7 +196,7 @@ const buyNow = () => {
 
   addToCart();
   setTimeout(() => {
-    uni.navigateTo({ url: '/pages/order/checkout' });
+    uni.navigateTo({ url: "/pages/order/checkout" });
   }, 500);
 };
 </script>

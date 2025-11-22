@@ -18,8 +18,12 @@
           <view class="address-detail">{{ address.fullAddress }}</view>
         </view>
         <view class="address-actions">
-          <button class="btn-edit" @click.stop="editAddress(address)">编辑</button>
-          <button class="btn-delete" @click.stop="deleteAddress(address.id)">删除</button>
+          <button class="btn-edit" @click.stop="editAddress(address)">
+            编辑
+          </button>
+          <button class="btn-delete" @click.stop="deleteAddress(address.id)">
+            删除
+          </button>
         </view>
       </view>
 
@@ -35,7 +39,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref } from "vue";
+import request from "@/utils/request";
 
 interface Address {
   id: string;
@@ -57,34 +62,13 @@ onMounted(() => {
 
 const loadAddressList = async () => {
   try {
-    // TODO: 调用API获取地址列表
-    // 模拟数据
-    addressList.value = [
-      {
-        id: '1',
-        receiverName: '张三',
-        receiverPhone: '138****0001',
-        province: '北京市',
-        city: '北京市',
-        district: '朝阳区',
-        detailAddress: 'xxx街道xxx号',
-        fullAddress: '北京市 北京市 朝阳区 xxx街道xxx号',
-        isDefault: true,
-      },
-      {
-        id: '2',
-        receiverName: '李四',
-        receiverPhone: '139****0002',
-        province: '上海市',
-        city: '上海市',
-        district: '浦东新区',
-        detailAddress: 'yyy路yyy号',
-        fullAddress: '上海市 上海市 浦东新区 yyy路yyy号',
-        isDefault: false,
-      },
-    ];
+    const response = await request.get("/user/address/list");
+    if (response.code === 0) {
+      addressList.value = response.data || [];
+    }
   } catch (error) {
-    console.error('加载地址列表失败', error);
+    console.error("加载地址列表失败", error);
+    uni.showToast({ title: "加载地址失败", icon: "error" });
   }
 };
 
@@ -93,7 +77,7 @@ const selectAddress = (address: Address) => {
   const pages = getCurrentPages();
   if (pages.length > 1) {
     const prevPage = pages[pages.length - 2] as any;
-    if (prevPage.route && prevPage.route.includes('checkout')) {
+    if (prevPage.route && prevPage.route.includes("checkout")) {
       // 设置页面数据并返回
       const currentPage = pages[pages.length - 1] as any;
       if (!currentPage.pageData) currentPage.pageData = {};
@@ -107,22 +91,28 @@ const selectAddress = (address: Address) => {
 };
 
 const addAddress = () => {
-  uni.navigateTo({ url: '/pages/user/address-edit' });
+  uni.navigateTo({ url: "/pages/user/address-edit" });
 };
 
 const editAddress = (address: Address) => {
   uni.navigateTo({ url: `/pages/user/address-edit?id=${address.id}` });
 };
 
-const deleteAddress = (id: string) => {
+const deleteAddress = async (id: string) => {
   uni.showModal({
-    title: '提示',
-    content: '确定要删除该地址吗？',
-    success: (res) => {
+    title: "提示",
+    content: "确定要删除该地址吗？",
+    success: async (res) => {
       if (res.confirm) {
-        addressList.value = addressList.value.filter((a) => a.id !== id);
-        uni.showToast({ title: '删除成功', icon: 'success' });
-        // TODO: 调用API删除地址
+        try {
+          const response = await request.delete(`/user/address/${id}`);
+          if (response.code === 0) {
+            addressList.value = addressList.value.filter((a) => a.id !== id);
+            uni.showToast({ title: "删除成功", icon: "success" });
+          }
+        } catch (error) {
+          uni.showToast({ title: "删除失败", icon: "error" });
+        }
       }
     },
   });

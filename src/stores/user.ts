@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { defineStore } from "pinia";
+import { ref } from "vue";
 
 interface User {
   userId: string;
@@ -9,11 +9,12 @@ interface User {
   memberLevel: number;
   totalConsumption: number;
   availablePoints: number;
+  role?: string; // 用户角色: user, seller, admin
 }
 
-export const useUserStore = defineStore('user', () => {
+export const useUserStore = defineStore("user", () => {
   const user = ref<User | null>(null);
-  const token = ref<string>('');
+  const token = ref<string>("");
   const isLogin = ref<boolean>(false);
 
   // 设置用户信息
@@ -25,21 +26,21 @@ export const useUserStore = defineStore('user', () => {
   // 设置 Token
   const setToken = (newToken: string) => {
     token.value = newToken;
-    uni.setStorageSync('token', newToken);
+    uni.setStorageSync("token", newToken);
   };
 
   // 清除用户信息
   const logout = () => {
     user.value = null;
-    token.value = '';
+    token.value = "";
     isLogin.value = false;
-    uni.removeStorageSync('token');
-    uni.removeStorageSync('userId');
+    uni.removeStorageSync("token");
+    uni.removeStorageSync("userId");
   };
 
   // 从存储恢复用户信息
   const restoreFromStorage = () => {
-    const storedToken = uni.getStorageSync('token');
+    const storedToken = uni.getStorageSync("token");
     if (storedToken) {
       token.value = storedToken;
       isLogin.value = true;

@@ -32,7 +32,10 @@
       </view>
 
       <view class="form-item checkbox-item">
-        <checkbox :checked="form.isDefault" @change="form.isDefault = !form.isDefault" />
+        <checkbox
+          :checked="form.isDefault"
+          @change="form.isDefault = !form.isDefault"
+        />
         <text>设为默认地址</text>
       </view>
     </view>
@@ -44,7 +47,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from "vue";
+import request from "@/utils/request";
 
 interface AddressForm {
   receiverName: string;
@@ -57,12 +61,12 @@ interface AddressForm {
 }
 
 const form = ref<AddressForm>({
-  receiverName: '',
-  receiverPhone: '',
-  province: '',
-  city: '',
-  district: '',
-  detailAddress: '',
+  receiverName: "",
+  receiverPhone: "",
+  province: "",
+  city: "",
+  district: "",
+  detailAddress: "",
   isDefault: false,
 });
 
@@ -70,7 +74,7 @@ const regionText = computed(() => {
   if (form.value.province && form.value.city && form.value.district) {
     return `${form.value.province} ${form.value.city} ${form.value.district}`;
   }
-  return '';
+  return "";
 });
 
 onMounted(() => {
@@ -83,67 +87,74 @@ onMounted(() => {
 const getAddressId = () => {
   const pages = getCurrentPages() as any;
   const currentPage = pages[pages.length - 1];
-  return currentPage?.options?.id || '';
+  return currentPage?.options?.id || "";
 };
 
 const loadAddressDetail = async (id: string) => {
   try {
-    // TODO: 调用API获取地址详情
-    // 模拟数据
-    form.value = {
-      receiverName: '张三',
-      receiverPhone: '13800000001',
-      province: '北京市',
-      city: '北京市',
-      district: '朝阳区',
-      detailAddress: 'xxx街道xxx号',
-      isDefault: true,
-    };
+    const response = await request.get(`/user/address/${id}`);
+    if (response.code === 0) {
+      form.value = response.data;
+    }
   } catch (error) {
-    console.error('加载地址详情失败', error);
+    console.error("加载地址详情失败", error);
+    uni.showToast({ title: "加载地址失败", icon: "error" });
   }
 };
 
 const chooseRegion = () => {
   uni.showActionSheet({
-    itemList: ['北京市', '上海市', '广东省', '浙江省'],
+    itemList: ["北京市", "上海市", "广东省", "浙江省"],
     success: (res) => {
-      const provinces = ['北京市', '上海市', '广东省', '浙江省'];
+      const provinces = ["北京市", "上海市", "广东省", "浙江省"];
       form.value.province = provinces[res.tapIndex];
       form.value.city = provinces[res.tapIndex]; // 简化处理
-      form.value.district = '朝阳区'; // 简化处理
+      form.value.district = "朝阳区"; // 简化处理
     },
   });
 };
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (!form.value.receiverName) {
-    uni.showToast({ title: '请输入收货人姓名', icon: 'none' });
+    uni.showToast({ title: "请输入收货人姓名", icon: "none" });
     return;
   }
-  if (!form.value.receiverPhone || !/^1[3-9]\d{9}$/.test(form.value.receiverPhone)) {
-    uni.showToast({ title: '请输入正确的手机号', icon: 'none' });
+  if (
+    !form.value.receiverPhone ||
+    !/^1[3-9]\d{9}$/.test(form.value.receiverPhone)
+  ) {
+    uni.showToast({ title: "请输入正确的手机号", icon: "none" });
     return;
   }
   if (!form.value.province || !form.value.city || !form.value.district) {
-    uni.showToast({ title: '请选择所在地区', icon: 'none' });
+    uni.showToast({ title: "请选择所在地区", icon: "none" });
     return;
   }
   if (!form.value.detailAddress) {
-    uni.showToast({ title: '请输入详细地址', icon: 'none' });
+    uni.showToast({ title: "请输入详细地址", icon: "none" });
     return;
   }
 
-  // TODO: 调用API保存地址
-  uni.showToast({
-    title: '保存成功',
-    icon: 'success',
-    success: () => {
-      setTimeout(() => {
-        uni.navigateBack();
-      }, 500);
-    },
-  });
+  try {
+    const addressId = getAddressId();
+    const url = addressId ? `/user/address/${addressId}` : "/user/address";
+    const method = addressId ? "put" : "post";
+    const response = await request[method](url, form.value);
+
+    if (response.code === 0) {
+      uni.showToast({
+        title: "保存成功",
+        icon: "success",
+        success: () => {
+          setTimeout(() => {
+            uni.navigateBack();
+          }, 500);
+        },
+      });
+    }
+  } catch (error) {
+    uni.showToast({ title: "保存失败", icon: "error" });
+  }
 };
 </script>
 
