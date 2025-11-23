@@ -21,6 +21,7 @@ export const useUserStore = defineStore("user", () => {
   const setUser = (userData: User) => {
     user.value = userData;
     isLogin.value = true;
+    uni.setStorageSync("userData", JSON.stringify(userData));
   };
 
   // 设置 Token
@@ -35,7 +36,7 @@ export const useUserStore = defineStore("user", () => {
     token.value = "";
     isLogin.value = false;
     uni.removeStorageSync("token");
-    uni.removeStorageSync("userId");
+    uni.removeStorageSync("userData");
   };
 
   // 从存储恢复用户信息

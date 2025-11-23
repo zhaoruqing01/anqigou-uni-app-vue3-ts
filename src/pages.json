@@ -104,6 +104,12 @@
         "text": "首页"
       },
       {
+        "pagePath": "pages/product/list",
+        "iconPath": "static/category.png",
+        "selectedIconPath": "static/category-active.png",
+        "text": "分类"
+      },
+      {
         "pagePath": "pages/order/cart",
         "iconPath": "static/cart.png",
         "selectedIconPath": "static/cart-active.png",

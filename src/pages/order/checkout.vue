@@ -8,13 +8,16 @@
       <view v-if="selectedAddress" class="address-box">
         <view class="address-content">
           <text class="receiver"
-            >{{ selectedAddress.receiverName }} {{ selectedAddress.receiverPhone }}</text
+            >{{ selectedAddress.receiverName }}
+            {{ selectedAddress.receiverPhone }}</text
           >
           <text class="address">{{ selectedAddress.fullAddress }}</text>
         </view>
         <button @click="changeAddress">更换</button>
       </view>
-      <button v-else class="btn-add-address" @click="changeAddress">添加收货地址</button>
+      <button v-else class="btn-add-address" @click="changeAddress">
+        添加收货地址
+      </button>
     </view>
 
     <!-- 商品清单 -->
@@ -37,10 +40,24 @@
     <view class="section">
       <view class="section-title">配送方式</view>
       <view class="option-group">
-        <label v-for="method in shippingMethods" :key="method.id" class="option">
-          <radio :checked="shippingMethod === method.id" @change="shippingMethod = method.id" />
-          <text>{{ method.name }}</text>
-          <text class="fee">+¥{{ (method.fee / 100).toFixed(2) }}</text>
+        <label
+          v-for="method in shippingMethods"
+          :key="method.id"
+          class="option"
+          :class="{ selected: shippingMethod === method.id }"
+          @click="shippingMethod = method.id"
+        >
+          <radio
+            :value="method.id"
+            :checked="shippingMethod === method.id"
+            @change="shippingMethod = method.id"
+            color="#548163"
+          />
+          <view class="option-content">
+            <text class="option-name">{{ method.name }}</text>
+            <text class="fee" v-if="method.fee > 0">+¥{{ (method.fee / 100).toFixed(2) }}</text>
+            <text class="fee free" v-else>免邮</text>
+          </view>
         </label>
       </view>
     </view>
@@ -49,13 +66,35 @@
     <view class="section">
       <view class="section-title">支付方式</view>
       <view class="option-group">
-        <label class="option">
-          <radio :checked="paymentMethod === 'weixin'" @change="paymentMethod = 'weixin'" />
-          <text>微信支付</text>
+        <label 
+          class="option"
+          :class="{ selected: paymentMethod === 'weixin' }"
+          @click="paymentMethod = 'weixin'"
+        >
+          <radio
+            value="weixin"
+            :checked="paymentMethod === 'weixin'"
+            @change="paymentMethod = 'weixin'"
+            color="#548163"
+          />
+          <view class="option-content">
+            <text>微信支付</text>
+          </view>
         </label>
-        <label class="option">
-          <radio :checked="paymentMethod === 'alipay'" @change="paymentMethod = 'alipay'" />
-          <text>支付宝</text>
+        <label 
+          class="option"
+          :class="{ selected: paymentMethod === 'alipay' }"
+          @click="paymentMethod = 'alipay'"
+        >
+          <radio
+            value="alipay"
+            :checked="paymentMethod === 'alipay'"
+            @change="paymentMethod = 'alipay'"
+            color="#548163"
+          />
+          <view class="option-content">
+            <text>支付宝</text>
+          </view>
         </label>
       </view>
     </view>
@@ -63,7 +102,11 @@
     <!-- 订单备注 -->
     <view class="section">
       <view class="section-title">订单备注</view>
-      <textarea v-model="remark" placeholder="请输入订单备注（可选）" maxlength="200" />
+      <textarea
+        v-model="remark"
+        placeholder="请输入订单备注（可选）"
+        maxlength="200"
+      />
     </view>
 
     <!-- 金额明细 -->
@@ -88,20 +131,20 @@
 </template>
 
 <script setup lang="ts">
-import { createOrder } from '@/api/order';
-import { useCartStore } from '@/stores/cart';
-import { getPrevPageData } from '@/utils/pageHelper';
-import { computed, onMounted, ref } from 'vue';
+import { createOrder } from "@/api/order";
+import { useCartStore } from "@/stores/cart";
+import { getPrevPageData } from "@/utils/pageHelper";
+import { computed, onMounted, ref } from "vue";
 
 const cartStore = useCartStore();
 const selectedAddress = ref<any>(null);
-const shippingMethod = ref('normal');
-const paymentMethod = ref('weixin');
-const remark = ref('');
+const shippingMethod = ref("normal");
+const paymentMethod = ref("weixin");
+const remark = ref("");
 
 const shippingMethods = [
-  { id: 'normal', name: '标准快递', fee: 0 },
-  { id: 'express', name: '次日达', fee: 1000 },
+  { id: "normal", name: "标准快递", fee: 0 },
+  { id: "express", name: "次日达", fee: 1000 },
 ];
 
 const cartItems = computed(() => cartStore.items.filter((i) => i.checked));
@@ -114,24 +157,24 @@ const totalAmount = computed(() => productAmount.value + shippingFee.value);
 
 onMounted(() => {
   // 从地址列表页面获取选中的地址
-  const address = getPrevPageData('selectedAddress');
+  const address = getPrevPageData("selectedAddress");
   if (address) {
     selectedAddress.value = address;
   }
 });
 
 const changeAddress = () => {
-  uni.navigateTo({ url: '/pages/user/address-list' });
+  uni.navigateTo({ url: "/pages/user/address-list" });
 };
 
 const submitOrder = async () => {
   if (!selectedAddress.value) {
-    uni.showToast({ title: '请选择收货地址', icon: 'error' });
+    uni.showToast({ title: "请选择收货地址", icon: "error" });
     return;
   }
 
   if (cartItems.value.length === 0) {
-    uni.showToast({ title: '请选择商品', icon: 'error' });
+    uni.showToast({ title: "请选择商品", icon: "error" });
     return;
   }
 
@@ -150,12 +193,14 @@ const submitOrder = async () => {
 
     const res = await createOrder(orderData);
     cartStore.removeCheckedItems();
-    uni.showToast({ title: '订单创建成功', icon: 'success' });
+    uni.showToast({ title: "订单创建成功", icon: "success" });
     setTimeout(() => {
-      uni.navigateTo({ url: `/pages/order/payment?orderId=${res.data.orderId}` });
+      uni.navigateTo({
+        url: `/pages/order/payment?orderId=${res.data.orderId}`,
+      });
     }, 500);
   } catch (e) {
-    console.error('Failed to create order', e);
+    console.error("Failed to create order", e);
   }
 };
 </script>
@@ -198,7 +243,7 @@ const submitOrder = async () => {
 }
 
 .section-title:before {
-  content: '';
+  content: "";
   display: inline-block;
   width: 4px;
   height: 16px;
@@ -339,13 +384,45 @@ image {
   transition: all 0.2s ease;
 }
 
-input[type='radio'] {
-  cursor: pointer;
+.option.selected {
+  background: #e8f4ef;
+  border-color: #548163;
+  box-shadow: 0 2px 6px rgba(84, 129, 99, 0.2);
 }
 
 .option:active {
   background: #f0f0f0;
   border-color: #548163;
+}
+
+.option-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.option-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+input[type="radio"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+.free {
+  color: #548163;
+  font-weight: bold;
+}
+
+.fee {
+  margin-left: auto;
+  color: #548163;
+  font-weight: bold;
+  font-size: 13px;
 }
 
 .fee {

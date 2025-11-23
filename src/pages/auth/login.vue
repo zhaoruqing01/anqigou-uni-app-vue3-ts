@@ -1,60 +1,79 @@
 <template>
   <view class="container">
     <view class="login-box">
-      <view class="title">登录</view>
-
       <!-- 登录方式切换 -->
       <view class="tabs">
-        <view :class="['tab', { active: loginType === 'password' }]" @click="loginType = 'password'"
+        <view
+          :class="['tab', { active: loginType === 'password' }]"
+          @click="loginType = 'password'"
           >密码登录</view
         >
-        <view :class="['tab', { active: loginType === 'code' }]" @click="loginType = 'code'"
+        <view
+          :class="['tab', { active: loginType === 'code' }]"
+          @click="loginType = 'code'"
           >验证码登录</view
         >
       </view>
 
       <!-- 密码登录 -->
       <view v-if="loginType === 'password'">
-        <input v-model="password.phone" placeholder="手机号" type="text" class="input" />
-        <input v-model="password.password" placeholder="密码" type="password" class="input" />
+        <input
+          v-model="password.phone"
+          placeholder="手机号"
+          type="text"
+          class="input"
+        />
+        <input
+          v-model="password.password"
+          placeholder="密码"
+          type="password"
+          class="input"
+        />
         <button class="btn-login" @click="passwordLogin">登录</button>
       </view>
 
       <!-- 验证码登录 -->
       <view v-if="loginType === 'code'">
-        <input v-model="code.phone" placeholder="手机号" type="text" class="input" />
+        <input
+          v-model="code.phone"
+          placeholder="手机号"
+          type="text"
+          class="input"
+        />
         <view class="code-input">
           <input v-model="code.verifyCode" placeholder="验证码" type="text" />
           <button :disabled="countdownTime > 0" @click="sendCode">
-            {{ countdownTime > 0 ? `${countdownTime}s` : '获取验证码' }}
+            {{ countdownTime > 0 ? `${countdownTime}s` : "获取验证码" }}
           </button>
         </view>
         <button class="btn-login" @click="codeLogin">登录</button>
       </view>
 
       <!-- 注册链接 -->
-      <view class="register-link"> 没有账号？<text @click="goToRegister">立即注册</text> </view>
+      <view class="register-link">
+        没有账号？<text @click="goToRegister">立即注册</text>
+      </view>
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
-import { login, loginWithVerifyCode, sendVerifyCode } from '@/api/auth';
-import { useUserStore } from '@/stores/user';
-import { ref } from 'vue';
+import { login, loginWithVerifyCode, sendVerifyCode } from "@/api/auth";
+import { useUserStore } from "@/stores/user";
+import { ref } from "vue";
 
 const userStore = useUserStore();
-const loginType = ref('password');
+const loginType = ref("password");
 const countdownTime = ref(0);
 
 const password = ref({
-  phone: '',
-  password: '',
+  phone: "",
+  password: "",
 });
 
 const code = ref({
-  phone: '',
-  verifyCode: '',
+  phone: "",
+  verifyCode: "",
 });
 
 // 密码登录
@@ -74,12 +93,12 @@ const passwordLogin = async () => {
       totalConsumption: 0,
       availablePoints: 0,
     });
-    uni.showToast({ title: '登录成功', icon: 'success' });
+    uni.showToast({ title: "登录成功", icon: "success" });
     setTimeout(() => {
-      uni.navigateTo({ url: '/pages/index/index' });
+      uni.switchTab({ url: "/pages/index/index" });
     }, 500);
   } catch (e) {
-    console.error('Login failed', e);
+    console.error("Login failed", e);
   }
 };
 
@@ -100,12 +119,13 @@ const codeLogin = async () => {
       totalConsumption: 0,
       availablePoints: 0,
     });
-    uni.showToast({ title: '登录成功', icon: 'success' });
+    uni.showToast({ title: "登录成功", icon: "success" });
     setTimeout(() => {
-      uni.navigateTo({ url: '/pages/index/index' });
+      // 跳转tabbar
+      uni.switchTab({ url: "/pages/index/index" });
     }, 500);
   } catch (e) {
-    console.error('Code login failed', e);
+    console.error("Code login failed", e);
   }
 };
 
@@ -113,7 +133,7 @@ const codeLogin = async () => {
 const sendCode = async () => {
   try {
     await sendVerifyCode(code.value.phone);
-    uni.showToast({ title: '验证码已发送', icon: 'success' });
+    uni.showToast({ title: "验证码已发送", icon: "success" });
     countdownTime.value = 60;
     const timer = setInterval(() => {
       countdownTime.value--;
@@ -122,13 +142,13 @@ const sendCode = async () => {
       }
     }, 1000);
   } catch (e) {
-    console.error('Failed to send code', e);
+    console.error("Failed to send code", e);
   }
 };
 
 // 跳转到注册页
 const goToRegister = () => {
-  uni.navigateTo({ url: '/pages/auth/register' });
+  uni.navigateTo({ url: "/pages/auth/register" });
 };
 </script>
 
@@ -185,7 +205,7 @@ const goToRegister = () => {
   text-align: center;
   padding: 12px;
   font-size: 16px;
-  color: #666;
+  color: #f9f9ff;
   cursor: pointer;
   border-bottom: 2px solid transparent;
 }
@@ -195,13 +215,13 @@ const goToRegister = () => {
 }
 
 .tab.active {
-  color: #548163;
+  color: #45a465;
   font-weight: 600;
   border-bottom: 2px solid #548163;
 }
 
 .tab.active:after {
-  content: '';
+  content: "";
   display: block;
   width: 30px;
   height: 3px;
@@ -215,12 +235,13 @@ const goToRegister = () => {
 }
 
 .input {
-  width: 100%;
+  width: 90%;
   padding: 14px 16px;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 16px;
   background: #fafafa;
+  margin-bottom: 12px;
 }
 
 .input:focus {
@@ -243,7 +264,7 @@ const goToRegister = () => {
 }
 
 .code-input button {
-  padding: 14px 20px;
+  // padding: 14px 20px;
   background: #548163;
   color: white;
   border: none;
@@ -263,7 +284,7 @@ const goToRegister = () => {
 
 .btn-login {
   width: 100%;
-  padding: 16px;
+  // padding: 16px;
   background: #548163;
   color: white;
   border: none;

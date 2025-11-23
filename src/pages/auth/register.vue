@@ -147,9 +147,9 @@ const goToLogin = () => {
 
 <style scoped lang="scss">
 .container {
-  min-height: 100vh;
+  // min-height: 100vh;
   background: linear-gradient(135deg, #548163 0%, #dbe5de 100%);
-  padding: 20px;
+  padding: 0 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -194,7 +194,9 @@ const goToLogin = () => {
 
 .input {
   width: 100%;
-  padding: 12px 14px;
+  // padding: 12px 14px;
+  height: 35px;
+  padding: 0 14px;
   border: 1px solid #e0e0e0;
   border-radius: 10px;
   font-size: 15px;
@@ -216,7 +218,7 @@ const goToLogin = () => {
 
 .btn-register {
   width: 100%;
-  padding: 14px;
+  // padding: 14px;
   background: #548163;
   color: white;
   border: none;

@@ -7,7 +7,7 @@
     </view>
 
     <!-- 分类标签 -->
-    <scroll-view class="category-tabs" scroll-x>
+    <scroll-view scroll-x class="category-tabs">
       <view
         v-for="cat in categories"
         :key="cat.id"
@@ -18,6 +18,18 @@
         {{ cat.name }}
       </view>
     </scroll-view>
+
+    <!-- <scroll-view class="category-tabs" scroll-x>
+      <view
+        v-for="cat in categories"
+        :key="cat.id"
+        class="tab-item"
+        :class="{ active: categoryId === cat.id }"
+        @click="selectCategory(cat.id)"
+      >
+        {{ cat.name }}
+      </view>
+    </scroll-view> -->
 
     <!-- 商品列表 -->
     <scroll-view class="product-scroll" scroll-y @scrolltolower="loadMore">
@@ -74,6 +86,8 @@ const categories = ref<Category[]>([
   { id: "3", name: "食品" },
   { id: "4", name: "图书" },
   { id: "5", name: "家居" },
+  { id: "6", name: "运动" },
+  { id: "7", name: "其他" },
 ]);
 
 onMounted(() => {
@@ -167,7 +181,8 @@ const goToDetail = (id: string) => {
 .search-bar {
   display: flex;
   gap: 8px;
-  padding: 12px;
+  // padding: 12px;
+  padding: 10px 12px;
   background: white;
   border-bottom: 1px solid #e0e0e0;
   flex-shrink: 0;
@@ -175,7 +190,8 @@ const goToDetail = (id: string) => {
 
 .search-bar input {
   flex: 1;
-  padding: 10px 16px;
+  // padding: 10px 16px;
+  padding-left: 16px;
   border: 1px solid #e0e0e0;
   border-radius: 20px;
   font-size: 14px;
@@ -191,7 +207,7 @@ const goToDetail = (id: string) => {
 }
 
 .search-bar button {
-  padding: 8px 20px;
+  // padding: 8px 20px;
   background: #548163;
   color: white;
   border: none;
@@ -210,24 +226,24 @@ const goToDetail = (id: string) => {
 
 .category-tabs {
   display: flex;
-  padding: 12px 12px 0;
-  background: white;
-  border-bottom: 1px solid #e0e0e0;
-  flex-shrink: 0;
+  width: 100%;
   white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
 }
 
 .tab-item {
-  padding: 12px 20px;
-  margin-right: 12px;
-  font-size: 14px;
-  color: #666;
+  display: inline-block;
+  align-items: center;
+  width: fit-content;
+  height: 30px;
+  padding: 10px 15px;
+  background-color: #f9f9f9;
+  cursor: pointer;
   white-space: nowrap;
   transition: all 0.3s ease;
-  cursor: pointer;
-  flex-shrink: 0;
   position: relative;
+  flex-shrink: 0;
+  font-size: 14px;
+  color: #666;
   font-weight: 500;
 }
 

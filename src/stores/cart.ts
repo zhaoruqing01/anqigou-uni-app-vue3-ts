@@ -33,6 +33,11 @@ export const useCartStore = defineStore('cart', () => {
     return items.value.filter((item) => item.checked).length;
   });
 
+  // 检查是否全选
+  const isAllChecked = computed(() => {
+    return items.value.length > 0 && items.value.every((item) => item.checked);
+  });
+
   // 添加商品到购物车
   const addItem = (item: CartItem) => {
     const existItem = items.value.find(
@@ -84,6 +89,16 @@ export const useCartStore = defineStore('cart', () => {
     saveToStorage();
   };
 
+  // 切换全选状态
+  const toggleSelectAll = () => {
+    // 如果当前是全选状态，则取消全选；否则全选
+    const shouldSelectAll = !isAllChecked.value;
+    items.value.forEach((item) => {
+      item.checked = shouldSelectAll;
+    });
+    saveToStorage();
+  };
+
   // 清空购物车
   const clearCart = () => {
     items.value = [];
@@ -100,9 +115,15 @@ export const useCartStore = defineStore('cart', () => {
     const stored = uni.getStorageSync('cartItems');
     if (stored) {
       try {
-        items.value = JSON.parse(stored as string);
+        const parsedItems = JSON.parse(stored as string);
+        // 确保每个项目都有 checked 属性
+        items.value = parsedItems.map((item: CartItem) => ({
+          ...item,
+          checked: item.checked ?? false // 如果没有 checked 属性，默认设为 false
+        }));
       } catch (e) {
         console.error('Failed to parse cart items', e);
+        items.value = []; // 解析失败时清空购物车
       }
     }
   };
@@ -112,12 +133,14 @@ export const useCartStore = defineStore('cart', () => {
     totalCount,
     totalPrice,
     checkedCount,
+    isAllChecked,
     addItem,
     updateQuantity,
     removeItem,
     removeCheckedItems,
     toggleItem,
     toggleAllItems,
+    toggleSelectAll,
     clearCart,
     restoreFromStorage,
   };

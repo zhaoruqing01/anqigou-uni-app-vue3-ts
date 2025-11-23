@@ -1,22 +1,22 @@
 <template>
   <view class="container">
-    <!-- 顶部导航 -->
-    <view class="top-nav">
-      <view class="nav-item active" @click="goToIndex">首页</view>
-      <view class="nav-item" @click="goToCategory">分类</view>
-      <view class="nav-item" @click="goToCart">购物车</view>
-      <view class="nav-item" @click="goToProfile">我的</view>
-    </view>
-
     <!-- 搜索栏 -->
-    <view class="search-bar">
-      <input v-model="searchKeyword" placeholder="搜索商品" type="text" @confirm="handleSearch" />
-      <button @click="handleSearch">搜索</button>
+    <view class="search-bar" @click="handleSearch">
+      <view class="search-icon">🔍 &nbsp; 搜索商品</view>
     </view>
 
     <!-- 轮播图 -->
-    <swiper class="banner" :indicator-dots="true" :autoplay="true" :interval="5000">
-      <swiper-item v-for="(banner, i) in banners" :key="i" @click="handleBannerClick(banner)">
+    <swiper
+      class="banner"
+      :indicator-dots="true"
+      :autoplay="true"
+      :interval="5000"
+    >
+      <swiper-item
+        v-for="(banner, i) in banners"
+        :key="i"
+        @click="handleBannerClick(banner)"
+      >
         <image :src="banner.imageUrl" mode="aspectFill" />
       </swiper-item>
     </swiper>
@@ -35,7 +35,8 @@
         <view class="menu-icon">❤️</view>
         <view class="menu-text">收藏</view>
       </view>
-      <view class="menu-item" @click="goToService">
+      <view class="menu-item">
+        <button open-type="contact" class="contact-btn"></button>
         <view class="menu-icon">💬</view>
         <view class="menu-text">客服</view>
       </view>
@@ -53,7 +54,9 @@
         >
           <image :src="product.mainImage" mode="aspectFill" />
           <view class="product-name">{{ product.name }}</view>
-          <view class="product-price">¥{{ (product.price / 100).toFixed(2) }}</view>
+          <view class="product-price"
+            >¥{{ (product.price / 100).toFixed(2) }}</view
+          >
         </view>
       </view>
     </view>
@@ -61,8 +64,8 @@
 </template>
 
 <script setup lang="ts">
-import { getHotProducts } from '@/api/product';
-import { onMounted, ref } from 'vue';
+import { getHotProducts } from "@/api/product";
+import { onMounted, ref } from "vue";
 
 interface Banner {
   id: string;
@@ -71,12 +74,24 @@ interface Banner {
   productId?: string;
 }
 
-const searchKeyword = ref('');
+const searchKeyword = ref("");
 const hotProducts = ref<any[]>([]);
 const banners = ref<Banner[]>([
-  { id: '1', imageUrl: 'https://via.placeholder.com/375x200?text=Banner1' },
-  { id: '2', imageUrl: 'https://via.placeholder.com/375x200?text=Banner2' },
-  { id: '3', imageUrl: 'https://via.placeholder.com/375x200?text=Banner3' },
+  {
+    id: "1",
+    imageUrl:
+      "https://staticfile.eduplus.net/athena/systemMaterial/255606f727734129aef3f477995ed217.png",
+  },
+  {
+    id: "2",
+    imageUrl:
+      "https://staticfile.eduplus.net/athena/systemMaterial/5c745ef6ac484adab634ef7790276585.png",
+  },
+  {
+    id: "3",
+    imageUrl:
+      "https://staticfile.eduplus.net/athena/systemMaterial/375249b26c994e24862e3c0191b20798.png",
+  },
 ]);
 
 onMounted(async () => {
@@ -94,7 +109,7 @@ onMounted(async () => {
       }));
     }
   } catch (e) {
-    console.error('Failed to fetch hot products', e);
+    console.error("Failed to fetch hot products", e);
     // 模拟数据
     hotProducts.value = Array.from({ length: 6 }, (_, i) => ({
       id: `hot-${i}`,
@@ -106,35 +121,27 @@ onMounted(async () => {
 });
 
 const handleSearch = () => {
-  if (!searchKeyword.value.trim()) {
-    uni.showToast({ title: '请输入搜索关键词', icon: 'none' });
-    return;
-  }
-  uni.navigateTo({ url: `/pages/product/list?keyword=${searchKeyword.value}` });
+  uni.switchTab({ url: `/pages/product/list` });
 };
 
 const handleBannerClick = (banner: Banner) => {
   if (banner.productId) {
     goToDetail(banner.productId);
   } else if (banner.linkUrl) {
-    console.log('Banner link:', banner.linkUrl);
+    console.log("Banner link:", banner.linkUrl);
   }
 };
 
-const goToIndex = () => {
-  // 已经在首页
-};
-
 const goToCategory = () => {
-  uni.navigateTo({ url: '/pages/product/list' });
+  uni.switchTab({ url: "/pages/product/list" });
 };
 
 const goToCart = () => {
-  uni.switchTab({ url: '/pages/order/cart' });
+  uni.switchTab({ url: "/pages/order/cart" });
 };
 
 const goToProfile = () => {
-  uni.switchTab({ url: '/pages/user/profile' });
+  uni.switchTab({ url: "/pages/user/profile" });
 };
 
 const goToDetail = (id: string) => {
@@ -142,15 +149,11 @@ const goToDetail = (id: string) => {
 };
 
 const goToOrders = () => {
-  uni.navigateTo({ url: '/pages/order/list' });
+  uni.navigateTo({ url: "/pages/order/list" });
 };
 
 const goToFavorites = () => {
-  uni.showToast({ title: '功能开发中', icon: 'none' });
-};
-
-const goToService = () => {
-  uni.showToast({ title: '客服功能开发中', icon: 'none' });
+  uni.showToast({ title: "功能开发中", icon: "none" });
 };
 </script>
 
@@ -160,49 +163,21 @@ const goToService = () => {
   background: #f8f9ff;
   min-height: 100vh;
 }
-
-.top-nav {
-  display: flex;
-  height: 50px;
-  background: white;
-  border-bottom: 1px solid #e0e0e0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.nav-item {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  color: #666;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.nav-item:active {
-  background: rgba(84, 129, 99, 0.05);
-}
-
-.nav-item.active {
-  color: #548163;
-  border-bottom: 3px solid #548163;
-  font-weight: 600;
-}
-
 .search-bar {
   padding: 12px 12px;
-  background: white;
-  margin: 12px;
+  // background: white;
+  // margin: 12px;
   border-radius: 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   gap: 8px;
+  .search-icon {
+    padding-top: 4px;
+    font-size: 16px;
+    color: #131416;
+    line-height: 16px;
+  }
 }
 
 input {
@@ -243,9 +218,9 @@ button:active {
 }
 
 .banner {
-  width: 100%;
-  height: 200px;
-  margin: 12px 0;
+  width: calc(100% - 24px);
+  height: 150px;
+  margin: 12px 12px;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -259,8 +234,8 @@ button:active {
 
 .quick-menu {
   display: flex;
-  background: white;
-  padding: 16px;
+  // background: white;
+  padding: 10px;
   margin: 12px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -273,6 +248,15 @@ button:active {
   align-items: center;
   gap: 8px;
   cursor: pointer;
+  position: relative;
+  .contact-btn {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  }
 }
 
 .menu-item:active {
@@ -304,7 +288,7 @@ button:active {
 }
 
 .section-title:before {
-  content: '';
+  content: "";
   display: inline-block;
   width: 4px;
   height: 18px;

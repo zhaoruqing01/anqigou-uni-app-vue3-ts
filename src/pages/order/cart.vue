@@ -1,23 +1,36 @@
 <template>
   <view class="container">
-    <view class="header">
+    <!-- <view class="header">
       <text>购物车</text>
       <text v-if="items.length > 0" class="edit-btn" @click="isEdit = !isEdit">
-        {{ isEdit ? '完成' : '编辑' }}
+        {{ isEdit ? "完成" : "编辑" }}
       </text>
-    </view>
+    </view> -->
 
     <view v-if="items.length === 0" class="empty">
-      <text>购物车空空如也</text>
-      <button @click="goHome">返回首页</button>
+      <image
+        src="/static/images/cart-empty.png"
+        mode="aspectFill"
+        style="width: 130px; height: 130px; margin-bottom: 20px"
+      />
+      <text>购物车空空如也~</text>
+      <button @click="goHome">去购物</button>
     </view>
 
     <view v-else>
       <!-- 购物车列表 -->
       <view class="cart-list">
         <view v-for="item in items" :key="item.id" class="cart-item">
-          <checkbox v-if="!isEdit" :checked="item.checked" @change="toggleItem(item.id)" />
-          <image :src="item.mainImage" mode="aspectFill" />
+          <checkbox
+            v-if="!isEdit"
+            :checked="item.checked"
+            @click="toggleItem(item.id)"
+          />
+          <image
+            :src="item.mainImage"
+            style="width: 80px; height: 80px"
+            mode="aspectFill"
+          />
           <view class="item-info">
             <view class="product-name">{{ item.productName }}</view>
             <view class="spec-info">{{ item.specInfo }}</view>
@@ -28,19 +41,23 @@
             <input :value="item.quantity" type="number" readonly />
             <button @click="increaseQuantity(item.id)">+</button>
           </view>
-          <button v-if="isEdit" class="delete-btn" @click="removeItem(item.id)">删除</button>
+          <button v-if="isEdit" class="delete-btn" @click="removeItem(item.id)">
+            删除
+          </button>
         </view>
       </view>
 
       <!-- 底部统计 -->
       <view class="cart-footer">
         <view class="left">
-          <checkbox :checked="isAllChecked" @change="toggleAllItems" />
+          <checkbox :checked="isAllChecked" @click="toggleAllItems" />
           <text>全选</text>
         </view>
         <view class="right">
           <text>总计: ¥{{ (totalPrice / 100).toFixed(2) }}</text>
-          <button v-if="!isEdit" @click="checkout">结算({{ checkedCount }})</button>
+          <button v-if="!isEdit" @click="checkout">
+            结算({{ checkedCount }})
+          </button>
           <button v-if="isEdit" @click="deleteChecked">删除</button>
         </view>
       </view>
@@ -49,23 +66,39 @@
 </template>
 
 <script setup lang="ts">
-import { useCartStore } from '@/stores/cart';
-import { computed, ref } from 'vue';
+import { useCartStore } from "@/stores/cart";
+import { computed, ref } from "vue";
 
 const cartStore = useCartStore();
 const isEdit = ref(false);
 
+// 页面加载时从本地存储恢复购物车数据
+cartStore.restoreFromStorage();
+
+interface CartItem {
+  id: string;
+  productName: string;
+  mainImage: string;
+  specInfo: string;
+  price: number;
+  quantity: number;
+  checked: boolean;
+  productId: string;
+  skuId: string;
+}
+
+// 从store获取购物车项目
 const items = computed(() => cartStore.items);
 const totalPrice = computed(() => cartStore.totalPrice);
 const checkedCount = computed(() => cartStore.checkedCount);
-const isAllChecked = computed(() => items.value.length > 0 && items.value.every((i) => i.checked));
+const isAllChecked = computed(() => cartStore.isAllChecked);
 
 const toggleItem = (cartItemId: string) => {
   cartStore.toggleItem(cartItemId);
 };
 
 const toggleAllItems = () => {
-  cartStore.toggleAllItems(!isAllChecked.value);
+  cartStore.toggleSelectAll();
 };
 
 const increaseQuantity = (cartItemId: string) => {
@@ -84,8 +117,8 @@ const decreaseQuantity = (cartItemId: string) => {
 
 const removeItem = (cartItemId: string) => {
   uni.showModal({
-    title: '提示',
-    content: '确定要删除该商品吗？',
+    title: "提示",
+    content: "确定要删除该商品吗？",
     success: (res) => {
       if (res.confirm) {
         cartStore.removeItem(cartItemId);
@@ -96,8 +129,8 @@ const removeItem = (cartItemId: string) => {
 
 const deleteChecked = () => {
   uni.showModal({
-    title: '提示',
-    content: '确定要删除选中商品吗？',
+    title: "提示",
+    content: "确定要删除选中商品吗？",
     success: (res) => {
       if (res.confirm) {
         cartStore.removeCheckedItems();
@@ -108,14 +141,14 @@ const deleteChecked = () => {
 
 const checkout = () => {
   if (checkedCount.value === 0) {
-    uni.showToast({ title: '请选择商品', icon: 'error' });
+    uni.showToast({ title: "请选择商品", icon: "error" });
     return;
   }
-  uni.navigateTo({ url: '/pages/order/checkout' });
+  uni.navigateTo({ url: "/pages/order/checkout" });
 };
 
 const goHome = () => {
-  uni.switchTab({ url: '/pages/index/index' });
+  uni.switchTab({ url: "/pages/index/index" });
 };
 </script>
 
@@ -125,6 +158,7 @@ const goHome = () => {
   flex-direction: column;
   height: 100vh;
   background: #f8f9ff;
+  position: relative;
 }
 
 .header {
@@ -161,7 +195,7 @@ const goHome = () => {
 
 .empty button {
   margin-top: 10px;
-  padding: 12px 32px;
+  // padding: 12px 32px;
   background: #548163;
   color: white;
   border-radius: 8px;
@@ -202,6 +236,7 @@ const goHome = () => {
   gap: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .cart-item:active {
@@ -253,10 +288,13 @@ const goHome = () => {
   background: #f5f5f5;
   border-radius: 6px;
   padding: 4px;
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
 }
 
 .quantity-control button {
-  width: 28px;
+  width: 20px;
   height: 28px;
   border: none;
   background: white;
@@ -308,6 +346,10 @@ const goHome = () => {
   background: white;
   border-top: 1px solid #f0f0f0;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 .left {
@@ -332,12 +374,12 @@ const goHome = () => {
 }
 
 .right button {
-  padding: 10px 20px;
+  // padding: 10px 20px;
   background: #548163;
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   min-width: 100px;
   box-shadow: 0 4px 12px rgba(84, 129, 99, 0.3);
