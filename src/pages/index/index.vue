@@ -60,11 +60,13 @@
         </view>
       </view>
     </view>
+    <view class="load-more">{{ isLoading ? "加载中..." : "到底啦~" }}</view>
   </view>
 </template>
 
 <script setup lang="ts">
 import { getHotProducts } from "@/api/product";
+import { onReachBottom } from "@dcloudio/uni-app";
 import { onMounted, ref } from "vue";
 
 interface Banner {
@@ -74,7 +76,7 @@ interface Banner {
   productId?: string;
 }
 
-const searchKeyword = ref("");
+const isLoading = ref(false);
 const hotProducts = ref<any[]>([]);
 const banners = ref<Banner[]>([
   {
@@ -94,20 +96,32 @@ const banners = ref<Banner[]>([
   },
 ]);
 
+// 触底加载
+onReachBottom(() => {
+  const params = hotProducts.value.length + 10;
+  getHotList(params);
+});
+
+// 获取hot数据
+const getHotList = async (params: number) => {
+  isLoading.value = true;
+  const res = await getHotProducts(params);
+  if (res.data && res.data.length > 0) {
+    hotProducts.value = res.data;
+    isLoading.value = false;
+  } else {
+    // 模拟数据
+    hotProducts.value = Array.from({ length: 6 }, (_, i) => ({
+      id: `hot-${i}`,
+      name: `热门商品 ${i + 1}`,
+      price: Math.floor(Math.random() * 10000) + 1000,
+      mainImage: `https://via.placeholder.com/200x200?text=Hot${i + 1}`,
+    }));
+  }
+};
 onMounted(async () => {
   try {
-    const res = await getHotProducts(10);
-    if (res.data && res.data.length > 0) {
-      hotProducts.value = res.data;
-    } else {
-      // 模拟数据
-      hotProducts.value = Array.from({ length: 6 }, (_, i) => ({
-        id: `hot-${i}`,
-        name: `热门商品 ${i + 1}`,
-        price: Math.floor(Math.random() * 10000) + 1000,
-        mainImage: `https://via.placeholder.com/200x200?text=Hot${i + 1}`,
-      }));
-    }
+    getHotList(10);
   } catch (e) {
     console.error("Failed to fetch hot products", e);
     // 模拟数据
@@ -343,5 +357,11 @@ button:active {
   color: #e74c3c;
   font-weight: bold;
   padding: 0 8px 10px;
+}
+.load-more {
+  text-align: center;
+  padding: 12px 0;
+  font-size: 14px;
+  color: #999;
 }
 </style>
