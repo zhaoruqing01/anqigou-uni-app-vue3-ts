@@ -54,35 +54,35 @@
           </view>
           <view class="order-actions">
             <button
-              v-if="order.status === 'PENDING'"
+              v-if="order.status === 'pending_payment'"
               class="btn-cancel"
               @click.stop="cancelOrder(order.id)"
             >
               取消订单
             </button>
             <button
-              v-if="order.status === 'PENDING'"
+              v-if="order.status === 'pending_payment'"
               class="btn-pay"
               @click.stop="payOrder(order.id)"
             >
               去支付
             </button>
             <button
-              v-if="order.status === 'SHIPPED'"
+              v-if="order.status === 'pending_receipt'"
               class="btn-confirm"
               @click.stop="confirmReceipt(order.id)"
             >
               确认收货
             </button>
             <button
-              v-if="order.status === 'SHIPPED'"
+              v-if="order.status === 'pending_receipt'"
               class="btn-logistics"
               @click.stop="viewLogistics(order.id)"
             >
               查看物流
             </button>
             <button
-              v-if="order.status === 'COMPLETED'"
+              v-if="order.status === 'completed'"
               class="btn-evaluate"
               @click.stop="evaluate(order.id)"
             >
@@ -104,8 +104,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
 import request from "@/utils/request";
+import { onMounted, ref } from "vue";
 
 interface OrderItem {
   id: string;
@@ -133,10 +133,11 @@ const page = ref(1);
 
 const tabs = ref([
   { label: "全部", status: "", count: 0 },
-  { label: "待付款", status: "PENDING", count: 0 },
-  { label: "待发货", status: "PAID", count: 0 },
-  { label: "待收货", status: "SHIPPED", count: 0 },
-  { label: "已完成", status: "COMPLETED", count: 0 },
+  { label: "待付款", status: "pending_payment", count: 0 },
+  { label: "待发货", status: "pending_shipped", count: 0 },
+  { label: "待收货", status: "pending_receipt", count: 0 },
+  { label: "已完成", status: "completed", count: 0 },
+  { label: "已取消", status: "cancelled", count: 0 },
 ]);
 
 onMounted(() => {
@@ -183,11 +184,11 @@ const loadMore = () => {
 
 const getStatusText = (status: string) => {
   const statusMap: Record<string, string> = {
-    PENDING: "待付款",
-    PAID: "待发货",
-    SHIPPED: "待收货",
-    COMPLETED: "已完成",
-    CANCELLED: "已取消",
+    pending_payment: "待付款",
+    pending_shipped: "待发货",
+    pending_receipt: "待收货",
+    completed: "已完成",
+    cancelled: "已取消",
   };
   return statusMap[status] || "未知";
 };
@@ -333,23 +334,23 @@ const evaluate = (orderId: string) => {
   font-weight: 600;
 }
 
-.order-card .order-header .order-status.status-PENDING {
+.order-card .order-header .order-status.status-pending_payment {
   color: #ff9500;
 }
 
-.order-card .order-header .order-status.status-PAID {
+.order-card .order-header .order-status.status-pending_shipped {
   color: #548163;
 }
 
-.order-card .order-header .order-status.status-SHIPPED {
+.order-card .order-header .order-status.status-pending_receipt {
   color: #00c853;
 }
 
-.order-card .order-header .order-status.status-COMPLETED {
+.order-card .order-header .order-status.status-completed {
   color: #999;
 }
 
-.order-card .order-header .order-status.status-CANCELLED {
+.order-card .order-header .order-status.status-cancelled {
   color: #999;
 }
 

@@ -19,6 +19,14 @@ function getBaseURL(path: string): string {
   return "http://localhost:8081/api"; // 默认用户服务
 }
 
+// 定义响应数据类型
+interface ApiResponse<T = any> {
+  code: number;
+  message: string;
+  data: T;
+  timestamp?: number;
+}
+
 // 创建 axios 实例
 const service = axios.create({
   baseURL: "http://localhost:8081/api",
@@ -27,7 +35,16 @@ const service = axios.create({
     "Content-Type": "application/json",
   },
   adapter: createUniAppAxiosAdapter(),
-});
+}) as unknown as typeof axios.AxiosInstance & {
+  <T = any>(config: axios.AxiosRequestConfig): Promise<ApiResponse<T>>;
+  request<T = any>(config: axios.AxiosRequestConfig): Promise<ApiResponse<T>>;
+  get<T = any>(url: string, config?: axios.AxiosRequestConfig): Promise<ApiResponse<T>>;
+  delete<T = any>(url: string, config?: axios.AxiosRequestConfig): Promise<ApiResponse<T>>;
+  head<T = any>(url: string, config?: axios.AxiosRequestConfig): Promise<ApiResponse<T>>;
+  post<T = any>(url: string, data?: any, config?: axios.AxiosRequestConfig): Promise<ApiResponse<T>>;
+  put<T = any>(url: string, data?: any, config?: axios.AxiosRequestConfig): Promise<ApiResponse<T>>;
+  patch<T = any>(url: string, data?: any, config?: axios.AxiosRequestConfig): Promise<ApiResponse<T>>;
+};
 
 // 请求拦截器
 service.interceptors.request.use(

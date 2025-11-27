@@ -6,30 +6,63 @@
       <button @click="handleSearch">搜索</button>
     </view>
 
-    <!-- 分类标签 -->
-    <scroll-view scroll-x class="category-tabs">
-      <view
-        v-for="cat in categories"
-        :key="cat.id"
-        class="tab-item"
-        :class="{ active: categoryId === cat.id }"
-        @click="selectCategory(cat.id)"
-      >
-        {{ cat.name }}
-      </view>
-    </scroll-view>
+    <!-- 分类筛选区域 -->
+    <view class="filter-section">
+      <!-- 一级分类 -->
+      <scroll-view scroll-x class="first-level-categories">
+        <view
+          v-for="cat in firstLevelCategories"
+          :key="cat.id"
+          class="category-item"
+          :class="{ active: selectedFirstCategoryId === cat.id }"
+          @click="selectFirstCategory(cat.id)"
+        >
+          {{ cat.name }}
+        </view>
+      </scroll-view>
+      
+      <!-- 二级分类 -->
+      <scroll-view v-if="secondLevelCategories.length > 0" scroll-x class="second-level-categories">
+        <view
+          v-for="cat in secondLevelCategories"
+          :key="cat.id"
+          class="category-item"
+          :class="{ active: selectedSecondCategoryId === cat.id }"
+          @click="selectSecondCategory(cat.id)"
+        >
+          {{ cat.name }}
+        </view>
+      </scroll-view>
+      
+      <!-- 三级分类 -->
+      <scroll-view v-if="thirdLevelCategories.length > 0" scroll-x class="third-level-categories">
+        <view
+          v-for="cat in thirdLevelCategories"
+          :key="cat.id"
+          class="category-item"
+          :class="{ active: selectedThirdCategoryId === cat.id }"
+          @click="selectThirdCategory(cat.id)"
+        >
+          {{ cat.name }}
+        </view>
+      </scroll-view>
+    </view>
 
-    <!-- <scroll-view class="category-tabs" scroll-x>
-      <view
-        v-for="cat in categories"
-        :key="cat.id"
-        class="tab-item"
-        :class="{ active: categoryId === cat.id }"
-        @click="selectCategory(cat.id)"
-      >
-        {{ cat.name }}
+    <!-- 排序和筛选 -->
+    <view class="sort-filter">
+      <view class="sort-item" :class="{ active: sortBy === '' }" @click="setSortBy('')">
+        综合
       </view>
-    </scroll-view> -->
+      <view class="sort-item" :class="{ active: sortBy === 'price_asc' }" @click="setSortBy('price_asc')">
+        价格 ↑
+      </view>
+      <view class="sort-item" :class="{ active: sortBy === 'price_desc' }" @click="setSortBy('price_desc')">
+        价格 ↓
+      </view>
+      <view class="sort-item" :class="{ active: sortBy === 'hot' }" @click="setSortBy('hot')">
+        销量
+      </view>
+    </view>
 
     <!-- 商品列表 -->
     <scroll-view class="product-scroll" scroll-y @scrolltolower="loadMore">
@@ -46,6 +79,7 @@
             <view class="product-price"
               >¥{{ (item.price / 100).toFixed(2) }}</view
             >
+            <view class="product-sold">已售 {{ item.soldCount }}</view>
           </view>
         </view>
       </view>
@@ -56,43 +90,146 @@
 </template>
 
 <script setup lang="ts">
-import { listProducts } from "@/api/product";
+import { listProducts, listFirstLevelCategories, listSubCategories } from "@/api/product";
 import { onMounted, ref } from "vue";
 
 interface Category {
   id: string;
   name: string;
+  level: number;
+  parentId: string;
 }
 
 interface Product {
   id: string;
   name: string;
   price: number;
+  originalPrice: number;
   mainImage: string;
+  soldCount: number;
+  rating: number;
 }
 
 const keyword = ref("");
-const categoryId = ref("");
 const productList = ref<Product[]>([]);
 const loading = ref(false);
 const hasMore = ref(true);
 const page = ref(1);
 const pageSize = 20;
+const sortBy = ref("");
 
-const categories = ref<Category[]>([
-  { id: "", name: "全部" },
-  { id: "1", name: "电子产品" },
-  { id: "2", name: "服装" },
-  { id: "3", name: "食品" },
-  { id: "4", name: "图书" },
-  { id: "5", name: "家居" },
-  { id: "6", name: "运动" },
-  { id: "7", name: "其他" },
-]);
+// 分类相关变量
+const firstLevelCategories = ref<Category[]>([]);
+const secondLevelCategories = ref<Category[]>([]);
+const thirdLevelCategories = ref<Category[]>([]);
+const selectedFirstCategoryId = ref("");
+const selectedSecondCategoryId = ref("");
+const selectedThirdCategoryId = ref("");
+const currentCategoryId = ref("");
 
 onMounted(() => {
-  loadProducts();
+  loadFirstLevelCategories();
 });
+
+// 加载一级分类
+const loadFirstLevelCategories = async () => {
+  try {
+    const res = await listFirstLevelCategories();
+    if (res.code === 200 && Array.isArray(res.data)) {
+      firstLevelCategories.value = res.data;
+    }
+  } catch (error) {
+    console.error("加载一级分类失败", error);
+  }
+};
+
+// 加载二级分类
+const loadSecondLevelCategories = async (parentId: string) => {
+  try {
+    const res = await listSubCategories(parentId);
+    if (res.code === 200 && Array.isArray(res.data)) {
+      secondLevelCategories.value = res.data;
+      // 重置三级分类
+      thirdLevelCategories.value = [];
+      selectedSecondCategoryId.value = "";
+      selectedThirdCategoryId.value = "";
+    }
+  } catch (error) {
+    console.error("加载二级分类失败", error);
+  }
+};
+
+// 加载三级分类
+const loadThirdLevelCategories = async (parentId: string) => {
+  try {
+    const res = await listSubCategories(parentId);
+    if (res.code === 200 && Array.isArray(res.data)) {
+      thirdLevelCategories.value = res.data;
+      selectedThirdCategoryId.value = "";
+    }
+  } catch (error) {
+    console.error("加载三级分类失败", error);
+  }
+};
+
+// 选择一级分类
+const selectFirstCategory = async (id: string) => {
+  selectedFirstCategoryId.value = id;
+  selectedSecondCategoryId.value = "";
+  selectedThirdCategoryId.value = "";
+  secondLevelCategories.value = [];
+  thirdLevelCategories.value = [];
+  
+  if (id) {
+    await loadSecondLevelCategories(id);
+    currentCategoryId.value = id;
+  } else {
+    currentCategoryId.value = "";
+  }
+  
+  // 重新加载商品
+  resetAndLoadProducts();
+};
+
+// 选择二级分类
+const selectSecondCategory = async (id: string) => {
+  selectedSecondCategoryId.value = id;
+  selectedThirdCategoryId.value = "";
+  thirdLevelCategories.value = [];
+  
+  if (id) {
+    await loadThirdLevelCategories(id);
+    currentCategoryId.value = id;
+  } else {
+    currentCategoryId.value = selectedFirstCategoryId.value;
+  }
+  
+  // 重新加载商品
+  resetAndLoadProducts();
+};
+
+// 选择三级分类
+const selectThirdCategory = (id: string) => {
+  selectedThirdCategoryId.value = id;
+  currentCategoryId.value = id;
+  
+  // 重新加载商品
+  resetAndLoadProducts();
+};
+
+// 设置排序方式
+const setSortBy = (sort: string) => {
+  sortBy.value = sort;
+  resetAndLoadProducts();
+};
+
+// 重置并加载商品
+const resetAndLoadProducts = () => {
+  page.value = 1;
+  productList.value = [];
+  hasMore.value = true;
+  loadProducts();
+};
 
 const loadProducts = async () => {
   if (loading.value || !hasMore.value) return;
@@ -102,8 +239,9 @@ const loadProducts = async () => {
     const res = await listProducts(
       page.value,
       pageSize,
-      categoryId.value,
-      keyword.value
+      currentCategoryId.value,
+      keyword.value,
+      sortBy.value
     );
 
     // 处理分页响应数据结构
@@ -137,7 +275,10 @@ const loadProducts = async () => {
       id: `${page.value}-${i}`,
       name: `示例商品 ${page.value}-${i + 1}`,
       price: Math.floor(Math.random() * 10000) + 1000,
+      originalPrice: Math.floor(Math.random() * 5000) + 15000,
       mainImage: `https://via.placeholder.com/200x200?text=Product${i + 1}`,
+      soldCount: Math.floor(Math.random() * 1000),
+      rating: Math.random() * 5
     }));
     productList.value.push(...mockData);
     page.value++;
@@ -147,18 +288,7 @@ const loadProducts = async () => {
 };
 
 const handleSearch = () => {
-  page.value = 1;
-  productList.value = [];
-  hasMore.value = true;
-  loadProducts();
-};
-
-const selectCategory = (id: string) => {
-  categoryId.value = id;
-  page.value = 1;
-  productList.value = [];
-  hasMore.value = true;
-  loadProducts();
+  resetAndLoadProducts();
 };
 
 const loadMore = () => {
@@ -181,7 +311,6 @@ const goToDetail = (id: string) => {
 .search-bar {
   display: flex;
   gap: 8px;
-  // padding: 12px;
   padding: 10px 12px;
   background: white;
   border-bottom: 1px solid #e0e0e0;
@@ -190,7 +319,6 @@ const goToDetail = (id: string) => {
 
 .search-bar input {
   flex: 1;
-  // padding: 10px 16px;
   padding-left: 16px;
   border: 1px solid #e0e0e0;
   border-radius: 20px;
@@ -207,7 +335,6 @@ const goToDetail = (id: string) => {
 }
 
 .search-bar button {
-  // padding: 8px 20px;
   background: #548163;
   color: white;
   border: none;
@@ -224,18 +351,33 @@ const goToDetail = (id: string) => {
   opacity: 0.9;
 }
 
-.category-tabs {
+// 分类筛选区域样式
+.filter-section {
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+.first-level-categories,
+.second-level-categories,
+.third-level-categories {
   display: flex;
   width: 100%;
   white-space: nowrap;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.tab-item {
+.third-level-categories {
+  border-bottom: none;
+}
+
+.category-item {
   display: inline-block;
   align-items: center;
-  width: fit-content;
   height: 30px;
-  padding: 10px 15px;
+  padding: 0 15px;
+  margin: 0 8px;
   background-color: #f9f9f9;
   cursor: pointer;
   white-space: nowrap;
@@ -245,26 +387,59 @@ const goToDetail = (id: string) => {
   font-size: 14px;
   color: #666;
   font-weight: 500;
+  border-radius: 15px;
+  line-height: 30px;
 }
 
-.tab-item:active {
+.category-item:active {
   background: rgba(84, 129, 99, 0.05);
 }
 
-.tab-item.active {
+.category-item.active {
+  color: white;
+  background-color: #548163;
+  font-weight: 600;
+}
+
+// 排序筛选样式
+.sort-filter {
+  display: flex;
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 8px 0;
+  flex-shrink: 0;
+}
+
+.sort-item {
+  flex: 1;
+  text-align: center;
+  padding: 8px 0;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.sort-item:active {
+  background: rgba(84, 129, 99, 0.05);
+}
+
+.sort-item.active {
   color: #548163;
   font-weight: 600;
 }
 
-.tab-item.active::after {
+.sort-item.active::after {
   content: "";
   position: absolute;
   bottom: 0;
-  left: 20px;
-  right: 20px;
-  height: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 2px;
   background: #548163;
-  border-radius: 1.5px;
+  border-radius: 1px;
 }
 
 .product-scroll {
@@ -329,6 +504,12 @@ const goToDetail = (id: string) => {
   font-size: 15px;
   color: #e74c3c;
   font-weight: bold;
+  margin-top: 4px;
+}
+
+.product-sold {
+  font-size: 12px;
+  color: #999;
   margin-top: 4px;
 }
 

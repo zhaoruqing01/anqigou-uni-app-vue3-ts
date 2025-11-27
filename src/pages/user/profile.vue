@@ -65,6 +65,14 @@
         <text class="arrow">›</text>
       </view>
 
+      <view class="menu-item" @click="goToDevices">
+        <view class="menu-left">
+          <text class="icon">📱</text>
+          <text class="label">设备管理</text>
+        </view>
+        <text class="arrow">›</text>
+      </view>
+
       <view class="menu-item" @click="goToSettings">
         <view class="menu-left">
           <text class="icon">⚙️</text>
@@ -121,8 +129,12 @@ const goToWallet = () => {
   uni.showToast({ title: "钱包功能开发中", icon: "none" });
 };
 
-const goToFavorites = () => {
-  uni.showToast({ title: "收藏功能开发中", icon: "none" });
+const goToDevices = () => {
+  uni.navigateTo({ url: "/pages/user/device" });
+};
+
+const goToPrivacy = () => {
+  uni.navigateTo({ url: "/pages/user/privacy" });
 };
 
 const goToSettings = () => {

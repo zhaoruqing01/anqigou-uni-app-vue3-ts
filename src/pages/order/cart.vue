@@ -1,11 +1,11 @@
 <template>
   <view class="container">
-    <!-- <view class="header">
+    <view class="header">
       <text>购物车</text>
       <text v-if="items.length > 0" class="edit-btn" @click="isEdit = !isEdit">
         {{ isEdit ? "完成" : "编辑" }}
       </text>
-    </view> -->
+    </view>
 
     <view v-if="items.length === 0" class="empty">
       <image
@@ -50,15 +50,23 @@
       <!-- 底部统计 -->
       <view class="cart-footer">
         <view class="left">
-          <checkbox :checked="isAllChecked" @click="toggleAllItems" />
+          <checkbox
+            v-if="!isEdit"
+            :checked="isAllChecked"
+            @click="toggleAllItems"
+          />
+          <checkbox v-else :checked="isAllChecked" @click="toggleAllItems" />
           <text>全选</text>
         </view>
         <view class="right">
-          <text>总计: ¥{{ (totalPrice / 100).toFixed(2) }}</text>
+          <text v-if="!isEdit">总计: ¥{{ (totalPrice / 100).toFixed(2) }}</text>
           <button v-if="!isEdit" @click="checkout">
             结算({{ checkedCount }})
           </button>
-          <button v-if="isEdit" @click="deleteChecked">删除</button>
+          <view v-else class="batch-actions">
+            <button @click="moveToFavorites">移入收藏夹</button>
+            <button class="delete-btn" @click="deleteChecked">删除</button>
+          </view>
         </view>
       </view>
     </view>
@@ -66,6 +74,7 @@
 </template>
 
 <script setup lang="ts">
+import { addFavorite } from "@/api/favorite";
 import { useCartStore } from "@/stores/cart";
 import { computed, ref } from "vue";
 
@@ -134,6 +143,39 @@ const deleteChecked = () => {
     success: (res) => {
       if (res.confirm) {
         cartStore.removeCheckedItems();
+      }
+    },
+  });
+};
+
+// 批量移入收藏夹
+const moveToFavorites = () => {
+  const checkedItems = items.value.filter((item) => item.checked);
+  if (checkedItems.length === 0) {
+    uni.showToast({ title: "请选择要移入收藏夹的商品", icon: "error" });
+    return;
+  }
+
+  uni.showModal({
+    title: "提示",
+    content: `确定要将${checkedItems.length}件商品移入收藏夹吗？`,
+    success: async (res) => {
+      if (res.confirm) {
+        uni.showLoading({ title: "处理中..." });
+        try {
+          // 批量添加到收藏夹
+          for (const item of checkedItems) {
+            await addFavorite(item.productId);
+          }
+          // 从购物车中移除已添加到收藏夹的商品
+          cartStore.removeCheckedItems();
+          uni.hideLoading();
+          uni.showToast({ title: "已成功移入收藏夹", icon: "success" });
+        } catch (error) {
+          uni.hideLoading();
+          uni.showToast({ title: "移入收藏夹失败", icon: "error" });
+          console.error("移入收藏夹失败:", error);
+        }
       }
     },
   });

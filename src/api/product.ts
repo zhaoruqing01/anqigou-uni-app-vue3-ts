@@ -49,6 +49,27 @@ export const getHotProducts = (limit: number = 10) => {
 // 获取推荐商品
 export const getRecommendedProducts = (limit: number = 10) => {
   return request.get('/product/recommended', {
-    params: { limit },
+    params: {
+      limit
+    },
+  });
+};
+
+// 获取所有商品分类
+export const listCategories = () => {
+  return request.get('/product/categories');
+};
+
+// 获取一级分类列表
+export const listFirstLevelCategories = () => {
+  return request.get('/product/categories/first-level');
+};
+
+// 获取子分类列表
+export const listSubCategories = (parentId: string) => {
+  return request.get('/product/categories/sub', {
+    params: {
+      parentId
+    },
   });
 };

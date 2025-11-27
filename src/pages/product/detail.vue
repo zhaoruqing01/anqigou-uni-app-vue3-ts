@@ -12,18 +12,35 @@
       <view class="price-section">
         <text class="price">¥{{ (product.price / 100).toFixed(2) }}</text>
         <text class="original-price"
-          >¥{{ (product.originalPrice / 100).toFixed(2) }}</text
+          >¥{{ (product.originalPrice / 100).toFixed(2) }}</text>
         >
       </view>
       <view class="product-name">{{ product.name }}</view>
       <view class="product-desc">{{ product.description }}</view>
+      <view class="product-stock" v-if="selectedSku">
+        <text class="stock-text">{{ selectedSku.stock > 0 ? `库存：${selectedSku.stock}件` : '缺货' }}</text>
+      </view>
     </view>
 
     <!-- 规格选择 -->
-    <view class="spec-section" @click="showSpecModal = true">
-      <view class="spec-label">已选</view>
-      <view class="spec-value">{{ selectedSpec || "请选择规格" }}</view>
-      <text class="arrow">›</text>
+    <view class="spec-section">
+      <view v-for="(specGroup, groupIndex) in specGroups" :key="groupIndex" class="spec-group">
+        <view class="spec-group-title">{{ specGroup.name }} *</view>
+        <scroll-view scroll-x class="spec-options">
+          <view
+            v-for="option in specGroup.options"
+            :key="option.value"
+            class="spec-option"
+            :class="{
+              active: selectedSpecs[specGroup.name] === option.value,
+              disabled: !option.available
+            }"
+            @click="selectSpec(specGroup.name, option)"
+          >
+            <text>{{ option.value }}</text>
+          </view>
+        </scroll-view>
+      </view>
     </view>
 
     <!-- 商品详情 -->
@@ -42,38 +59,26 @@
       </view>
     </view>
 
-    <!-- 规格选择弹窗 -->
+    <!-- 数量选择弹窗 -->
     <view
-      v-if="showSpecModal"
+      v-if="showQuantityModal"
       class="spec-modal"
-      @click="showSpecModal = false"
+      @click="showQuantityModal = false"
     >
       <view class="modal-content" @click.stop>
         <view class="modal-header">
-          <text class="modal-title">选择规格</text>
-          <text class="close-btn" @click="showSpecModal = false">×</text>
-        </view>
-        <view class="spec-list">
-          <view
-            v-for="sku in product.skus"
-            :key="sku.id"
-            class="spec-item"
-            :class="{ active: selectedSkuId === sku.id }"
-            @click="selectSku(sku)"
-          >
-            <text>{{ sku.specValue }}</text>
-            <text class="spec-price">¥{{ (sku.price / 100).toFixed(2) }}</text>
-          </view>
+          <text class="modal-title">选择数量</text>
+          <text class="close-btn" @click="showQuantityModal = false">×</text>
         </view>
         <view class="quantity-section">
           <text class="quantity-label">数量</text>
           <view class="quantity-control">
-            <button @click="decreaseQuantity">-</button>
-            <input v-model.number="quantity" type="number" />
-            <button @click="increaseQuantity">+</button>
+            <button @click="decreaseQuantity" :disabled="quantity <= 1">-</button>
+            <input v-model.number="quantity" type="number" min="1" :max="maxQuantity" />
+            <button @click="increaseQuantity" :disabled="quantity >= maxQuantity">+</button>
           </view>
         </view>
-        <button class="btn-confirm" @click="confirmSpec">确定</button>
+        <button class="btn-confirm" @click="confirmQuantity">确定</button>
       </view>
     </view>
   </view>
@@ -81,12 +86,13 @@
 
 <script setup lang="ts">
 import { useCartStore } from "@/stores/cart";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
 import request from "@/utils/request";
 
 interface ProductSku {
   id: string;
   specValue: string;
+  specValueJson: any;
   price: number;
   stock: number;
 }
@@ -102,6 +108,16 @@ interface Product {
   skus: ProductSku[];
 }
 
+interface SpecOption {
+  value: string;
+  available: boolean;
+}
+
+interface SpecGroup {
+  name: string;
+  options: SpecOption[];
+}
+
 const cartStore = useCartStore();
 const product = ref<Product>({
   id: "",
@@ -114,10 +130,14 @@ const product = ref<Product>({
   skus: [],
 });
 
-const showSpecModal = ref(false);
-const selectedSkuId = ref("");
-const selectedSpec = ref("");
+const showQuantityModal = ref(false);
+const selectedSpecs = ref<Record<string, string>>({});
 const quantity = ref(1);
+const maxQuantity = ref(1);
+
+// 规格分组
+const specGroups = ref<SpecGroup[]>([]);
+const selectedSku = ref<ProductSku | null>(null);
 
 const getProductId = () => {
   const pages = getCurrentPages() as any;
@@ -135,22 +155,113 @@ onMounted(async () => {
 const fetchProductDetail = async (productId: string) => {
   try {
     const response = await request.get(`/product/${productId}`);
-    if (response.code === 0) {
+    if (response.code === 200) {
       product.value = response.data;
+      // 解析规格分组
+      parseSpecGroups();
     }
   } catch (error) {
+    console.error("获取商品详情失败:", error);
     uni.showToast({ title: "获取商品详情失败", icon: "error" });
   }
 };
 
-const selectSku = (sku: ProductSku) => {
-  selectedSkuId.value = sku.id;
-  selectedSpec.value = sku.specValue;
-  product.value.price = sku.price;
+// 解析规格分组
+const parseSpecGroups = () => {
+  if (!product.value.skus || product.value.skus.length === 0) return;
+  
+  // 提取所有规格名称和值
+  const specMap = new Map<string, Set<string>>();
+  
+  product.value.skus.forEach(sku => {
+    try {
+      const specValueJson = typeof sku.specValueJson === 'string' ? JSON.parse(sku.specValueJson) : sku.specValueJson;
+      for (const [key, value] of Object.entries(specValueJson)) {
+        if (!specMap.has(key)) {
+          specMap.set(key, new Set<string>());
+        }
+        specMap.get(key)?.add(value as string);
+      }
+    } catch (e) {
+      console.error('解析规格JSON失败:', e);
+    }
+  });
+  
+  // 转换为规格分组
+  const groups: SpecGroup[] = [];
+  specMap.forEach((values, name) => {
+    groups.push({
+      name,
+      options: Array.from(values).map(value => ({
+        value,
+        available: true
+      }))
+    });
+  });
+  
+  specGroups.value = groups;
 };
 
+// 监听规格选择变化，更新选中的SKU
+watch(selectedSpecs, () => {
+  updateSelectedSku();
+}, { deep: true });
+
+// 更新选中的SKU
+const updateSelectedSku = () => {
+  if (!product.value.skus || product.value.skus.length === 0) return;
+  
+  // 查找匹配的SKU
+  const matchingSku = product.value.skus.find(sku => {
+    try {
+      const specValueJson = typeof sku.specValueJson === 'string' ? JSON.parse(sku.specValueJson) : sku.specValueJson;
+      // 检查所有选中的规格是否匹配
+      for (const [key, value] of Object.entries(selectedSpecs.value)) {
+        if (specValueJson[key] !== value) {
+          return false;
+        }
+      }
+      // 检查所有规格是否都已选择
+      const specValueKeys = Object.keys(typeof sku.specValueJson === 'string' ? JSON.parse(sku.specValueJson) : sku.specValueJson);
+      const selectedKeys = Object.keys(selectedSpecs.value);
+      return specValueKeys.length === selectedKeys.length;
+    } catch (e) {
+      console.error('匹配SKU失败:', e);
+      return false;
+    }
+  });
+  
+  selectedSku.value = matchingSku || null;
+  
+  if (matchingSku) {
+    product.value.price = matchingSku.price;
+    maxQuantity.value = matchingSku.stock;
+    // 确保数量不超过库存
+    if (quantity.value > matchingSku.stock) {
+      quantity.value = matchingSku.stock;
+    }
+  }
+};
+
+// 选择规格
+const selectSpec = (specName: string, option: SpecOption) => {
+  if (!option.available) {
+    uni.showToast({ title: "该规格暂无库存", icon: "none" });
+    return;
+  }
+  
+  selectedSpecs.value[specName] = option.value;
+};
+
+// 检查规格是否已选择完整
+const isSpecSelectedComplete = computed(() => {
+  return specGroups.value.length === Object.keys(selectedSpecs.value).length;
+});
+
 const increaseQuantity = () => {
-  quantity.value++;
+  if (quantity.value < maxQuantity.value) {
+    quantity.value++;
+  }
 };
 
 const decreaseQuantity = () => {
@@ -159,17 +270,18 @@ const decreaseQuantity = () => {
   }
 };
 
-const confirmSpec = () => {
-  if (!selectedSkuId.value) {
-    uni.showToast({ title: "请选择规格", icon: "none" });
-    return;
-  }
-  showSpecModal.value = false;
+const confirmQuantity = () => {
+  showQuantityModal.value = false;
 };
 
 const addToCart = () => {
-  if (!selectedSkuId.value) {
-    showSpecModal.value = true;
+  if (!isSpecSelectedComplete.value) {
+    uni.showToast({ title: "请选择完整商品规格", icon: "none" });
+    return;
+  }
+  
+  if (!selectedSku.value || selectedSku.value.stock <= 0) {
+    uni.showToast({ title: "该规格暂无库存", icon: "none" });
     return;
   }
 
@@ -178,9 +290,10 @@ const addToCart = () => {
     productId: product.value.id,
     productName: product.value.name,
     price: product.value.price,
+    originalPrice: product.value.originalPrice,
     mainImage: product.value.images[0],
-    skuId: selectedSkuId.value,
-    specInfo: selectedSpec.value,
+    skuId: selectedSku.value.id,
+    specInfo: JSON.stringify(selectedSpecs.value),
     quantity: quantity.value,
     checked: true,
   });
@@ -189,8 +302,13 @@ const addToCart = () => {
 };
 
 const buyNow = () => {
-  if (!selectedSkuId.value) {
-    showSpecModal.value = true;
+  if (!isSpecSelectedComplete.value) {
+    uni.showToast({ title: "请选择完整商品规格", icon: "none" });
+    return;
+  }
+  
+  if (!selectedSku.value || selectedSku.value.stock <= 0) {
+    uni.showToast({ title: "该规格暂无库存", icon: "none" });
     return;
   }
 
@@ -256,36 +374,73 @@ const buyNow = () => {
   font-size: 13px;
   color: #666;
   line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.product-stock {
+  font-size: 13px;
+  color: #666;
+}
+
+.stock-text {
+  color: #4caf50;
 }
 
 .spec-section {
-  display: flex;
-  align-items: center;
   background: white;
   padding: 14px 16px;
   margin-bottom: 10px;
-  cursor: pointer;
 }
 
-.spec-section:active {
-  background: #f5f5f5;
+.spec-group {
+  margin-bottom: 16px;
 }
 
-.spec-label {
-  font-size: 14px;
-  color: #666;
-  margin-right: 12px;
+.spec-group:last-child {
+  margin-bottom: 0;
 }
 
-.spec-value {
-  flex: 1;
+.spec-group-title {
   font-size: 14px;
   color: #333;
+  margin-bottom: 10px;
+  font-weight: 500;
 }
 
-.arrow {
-  font-size: 20px;
+.spec-options {
+  display: flex;
+  gap: 10px;
+  padding-bottom: 5px;
+}
+
+.spec-option {
+  padding: 8px 16px;
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #333;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.spec-option:active {
+  background: rgba(84, 129, 99, 0.05);
+}
+
+.spec-option.active {
+  background: #548163;
+  color: white;
+  border-color: #548163;
+}
+
+.spec-option.disabled {
+  background: #f5f5f5;
   color: #999;
+  border-color: #e0e0e0;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .detail-section {
