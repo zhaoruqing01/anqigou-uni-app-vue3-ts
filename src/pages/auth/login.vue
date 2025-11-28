@@ -172,188 +172,174 @@ const wechatLogin = () => {
 </script>
 
 <style scoped lang="scss">
+@import "@/styles/variables.scss";
+@import "@/styles/mixins.scss";
+
 .container {
   min-height: 100vh;
-  background: linear-gradient(to bottom, #548163, #dbe5de);
-  padding: 20px;
-  display: flex;
+  background: $gradient-primary;
+  padding: $spacing-xxl;
+  @include flex-center;
   flex-direction: column;
 }
 
+// Logo区域
 .logo-section {
   text-align: center;
-  margin: 40px 0;
+  margin: 60px 0 40px;
+  @include fade-in;
+
+  .logo {
+    @include flex-center;
+    width: 90px;
+    height: 90px;
+    margin: 0 auto $spacing-lg;
+    background: $white;
+    border-radius: $radius-round;
+    font-size: 40px;
+    color: $primary-color;
+    box-shadow: $shadow-lg;
+  }
+
+  .app-name {
+    font-size: $font-xxl;
+    font-weight: $font-bold;
+    color: $white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
 }
 
-.logo {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 20px;
-  background: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
-  color: #548163;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+// 登录表单
+.login-box {
+  width: 100%;
+  max-width: 400px;
+  background: $white;
+  border-radius: $radius-lg;
+  padding: $spacing-xxl;
+  box-shadow: $shadow-lg;
+  @include slide-up;
 }
 
-.app-name {
-  font-size: 24px;
-  font-weight: 600;
-  color: white;
-}
-
-.login-form {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-}
-
+// 切换标签
 .tabs {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 24px;
+  @include flex-center;
+  gap: $spacing-xxl;
+  margin-bottom: $spacing-xxl;
+  border-bottom: 2px solid $border-light;
 }
 
 .tab {
   flex: 1;
   text-align: center;
-  padding: 12px;
-  font-size: 16px;
-  color: #f9f9ff;
+  padding: $spacing-md 0;
+  font-size: $font-md;
+  color: $text-tertiary;
+  font-weight: $font-medium;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
+  position: relative;
+  transition: all $transition-base;
+
+  &.active {
+    color: $primary-color;
+    font-weight: $font-semibold;
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 3px;
+      background: $gradient-primary;
+      border-radius: 2px;
+    }
+  }
+
+  &:active {
+    opacity: 0.7;
+  }
 }
 
-.tab:active {
-  background: #f5f5f5;
-}
-
-.tab.active {
-  color: #45a465;
-  font-weight: 600;
-  border-bottom: 2px solid #548163;
-}
-
-.tab.active:after {
-  content: "";
-  display: block;
-  width: 30px;
-  height: 3px;
-  background: #548163;
-  margin: 8px auto 0;
-  border-radius: 2px;
-}
-
-.input-group {
-  margin-bottom: 20px;
-}
-
+// 输入框
 .input {
-  width: 90%;
-  padding: 14px 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 16px;
-  background: #fafafa;
-  margin-bottom: 12px;
+  @include input;
+  margin-bottom: $spacing-md;
 }
 
-.input:focus {
-  outline: none;
-  border-color: #548163;
-  background: white;
-}
-
-.input::placeholder {
-  color: #999;
-}
-
+// 验证码输入
 .code-input {
-  display: flex;
-  gap: 12px;
+  @include flex-align-center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+
+  input {
+    @include input;
+    flex: 1;
+    margin-bottom: 0;
+  }
+
+  button {
+    @include btn-secondary;
+    padding: $spacing-md $spacing-lg;
+    white-space: nowrap;
+    min-width: 100px;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
 }
 
-.code-input input {
-  flex: 1;
-}
-
-.code-input button {
-  // padding: 14px 20px;
-  background: #548163;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.code-input button:active {
-  background: #456a52;
-}
-
-.code-input button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
+// 登录按钮
 .btn-login {
+  @include btn-primary;
   width: 100%;
-  // padding: 16px;
-  background: #548163;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 10px;
+  margin-top: $spacing-md;
 }
 
-.btn-login:active {
-  background: #456a52;
+// 微信登录
+.wechat-login {
+  margin: $spacing-xl 0;
+
+  .wechat-btn {
+    @include flex-center;
+    width: 100%;
+    padding: $spacing-md $spacing-lg;
+    background: #07c160;
+    color: $white;
+    border: none;
+    border-radius: $btn-radius;
+    font-size: $font-md;
+    font-weight: $font-semibold;
+    gap: $spacing-sm;
+    cursor: pointer;
+    transition: all $transition-base;
+
+    &:active {
+      opacity: 0.9;
+      transform: scale(0.98);
+    }
+  }
 }
 
+// 注册链接
 .register-link {
   text-align: center;
-  margin-top: 20px;
-}
+  margin-top: $spacing-lg;
+  font-size: $font-sm;
+  color: $text-secondary;
 
-.register-link text {
-  font-size: 14px;
-  color: #666;
-}
+  text {
+    color: $primary-color;
+    font-weight: $font-medium;
+    cursor: pointer;
+    transition: all $transition-base;
 
-.register-link text:active {
-  color: #548163;
-}
-
-/* 微信登录样式 */
-.wechat-login {
-  margin: 20px 0;
-}
-
-.wechat-btn {
-  width: 100%;
-  padding: 14px 16px;
-  background: #07c160;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.wechat-btn:active {
-  background: #05a051;
+    &:active {
+      opacity: 0.7;
+    }
+  }
 }
 </style>

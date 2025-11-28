@@ -224,341 +224,280 @@ const onSwipeActionClick = (event: any, itemId: string) => {
 </script>
 
 <style scoped lang="scss">
+@import "@/styles/variables.scss";
+@import "@/styles/mixins.scss";
+
 .container {
-  display: flex;
+  @include flex-center;
   flex-direction: column;
-  height: 100vh;
-  background: #f8f9ff;
-  box-sizing: border-box;
+  min-height: 100vh;
+  background: $bg-color;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 50px;
-  background: linear-gradient(135deg, #548163, #3d6b52);
-  color: white;
-  font-size: 18px;
-  font-weight: 600;
-  box-shadow: 0 2px 10px rgba(84, 129, 99, 0.3);
-  padding: 0 16px;
-}
-
+// 空购物车状态
 .empty {
-  display: flex;
+  @include flex-center;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   flex: 1;
-  color: #999;
-  padding: 20px;
+  padding: $spacing-xxxl;
+  @include fade-in;
+
+  .empty-img {
+    width: 150px;
+    height: 150px;
+    margin-bottom: $spacing-lg;
+    opacity: 0.6;
+  }
+
+  .empty-text {
+    font-size: $font-lg;
+    color: $text-tertiary;
+    margin-bottom: $spacing-xl;
+  }
+
+  .btn-go-shopping {
+    @include btn-primary;
+    margin-top: $spacing-md;
+  }
 }
 
-.empty-img {
-  width: 140px;
-  height: 140px;
-  margin-bottom: 16px;
-}
-
-.empty-text {
-  font-size: 16px;
-  margin-bottom: 20px;
-  color: #666;
-}
-
-.btn-go-shopping {
-  margin-top: 10px;
-  padding: 12px 32px;
-  background: #548163;
-  color: white;
-  border-radius: 25px;
-  border: none;
-  font-size: 16px;
-  font-weight: 500;
-  box-shadow: 0 4px 12px rgba(84, 129, 99, 0.3);
-  transition: all 0.3s ease;
-}
-
-.btn-go-shopping:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 6px rgba(84, 129, 99, 0.2);
-}
-
+// 购物车内容
 .cart-content {
-  flex: 1;
-  display: flex;
+  @include flex-center;
   flex-direction: column;
-  padding-bottom: 60px;
-  align-items: center;
-  justify-content: flex-start;
+  flex: 1;
+  width: 100%;
+  padding-bottom: 70px;
 }
 
 .cart-list {
   flex: 1;
+  width: 100%;
+  padding: $spacing-md;
   overflow-y: auto;
-  padding: 12px;
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba($primary-color, 0.3);
+    border-radius: 2px;
+  }
 }
 
-.cart-list::-webkit-scrollbar {
-  width: 4px;
-}
-
-.cart-list::-webkit-scrollbar-thumb {
-  background: rgba(84, 129, 99, 0.3);
-  border-radius: 2px;
-}
-
+// 商家分组
 .seller-group {
-  width: 100%;
-  margin-bottom: 16px;
-  background: white;
-  border-radius: 12px;
+  @include card;
+  padding: 0;
+  margin-bottom: $spacing-md;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  @include slide-up;
+
+  .seller-header {
+    padding: $spacing-md $spacing-lg;
+    background: $bg-secondary;
+    border-bottom: 1px solid $border-light;
+
+    .seller-name {
+      font-size: $font-base;
+      font-weight: $font-semibold;
+      color: $text-primary;
+    }
+  }
+
+  .seller-items {
+    padding: $spacing-sm;
+  }
 }
 
-.seller-header {
-  padding: 12px 16px;
-  background: #f8f9ff;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.seller-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-}
-
-.seller-items {
-  padding: 8px;
-}
-
+// 购物车商品项
 .cart-item {
-  display: flex;
-  align-items: center;
-  padding: 12px;
-  margin: 0 0 8px 0;
-  background: white;
-  border-radius: 8px;
-  gap: 12px;
+  @include flex-align-center;
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+  background: $white;
+  border-radius: $radius-sm;
+  gap: $spacing-md;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-  transition: all 0.3s ease;
-  box-sizing: border-box;
-  width: 100%;
+  transition: all $transition-base;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &:active {
+    box-shadow: $shadow-sm;
+    transform: translateY(-1px);
+  }
+
+  .checkbox-wrapper {
+    @include flex-center;
+    flex-shrink: 0;
+
+    .custom-checkbox {
+      transform: scale(1.2);
+
+      .wx-checkbox-input {
+        width: 20px;
+        height: 20px;
+        border-radius: $radius-round;
+        border: 2px solid $border-color;
+        background: $white;
+      }
+
+      .wx-checkbox-input.wx-checkbox-input-checked {
+        background: $primary-color;
+        border-color: $primary-color;
+
+        &::before {
+          color: $white;
+          font-size: $font-sm;
+          transform: scale(1);
+          text-align: center;
+          line-height: 20px;
+        }
+      }
+    }
+  }
+
+  .product-image {
+    width: 75px;
+    height: 75px;
+    border-radius: $radius-sm;
+    background: $bg-secondary;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .item-info {
+    @include flex-center;
+    flex-direction: column;
+    flex: 1;
+    gap: $spacing-xs;
+    min-height: 75px;
+    align-items: flex-start;
+
+    .product-name {
+      @include multi-ellipsis(2);
+      font-size: $font-base;
+      font-weight: $font-medium;
+      color: $text-primary;
+      line-height: 1.4;
+      width: 100%;
+    }
+
+    .spec-info {
+      @include ellipsis;
+      font-size: $font-sm;
+      color: $text-tertiary;
+      width: 100%;
+    }
+
+    .price-row {
+      @include flex-between;
+      width: 100%;
+      margin-top: auto;
+
+      .price {
+        font-size: $font-lg;
+        font-weight: $font-bold;
+        color: $error-color;
+      }
+    }
+  }
 }
 
-.cart-item:last-child {
-  margin-bottom: 0;
-}
-
-.cart-item:active {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-}
-
-.checkbox-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.custom-checkbox {
-  transform: scale(1.2);
-}
-
-.custom-checkbox .wx-checkbox-input {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid #ddd;
-  background: white;
-}
-
-.custom-checkbox .wx-checkbox-input.wx-checkbox-input-checked {
-  background: #548163;
-  border-color: #548163;
-}
-
-.custom-checkbox .wx-checkbox-input.wx-checkbox-input-checked::before {
-  color: white;
-  font-size: 14px;
-  transform: scale(1);
-  text-align: center;
-  line-height: 20px;
-}
-
-.product-image {
-  width: 70px;
-  height: 70px;
-  border-radius: 8px;
-  background: #f5f5f5;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.item-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-height: 70px;
-  overflow: hidden;
-}
-
-.product-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-  line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  text-align: left;
-}
-
-.spec-info {
-  font-size: 12px;
-  color: #999;
-  line-height: 1.3;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-align: left;
-}
-
-.price-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: auto;
-}
-
-.price {
-  font-size: 18px;
-  font-weight: bold;
-  color: #e74c3c;
-}
-
+// 数量控制
 .quantity-control {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #f5f5f5;
-  border-radius: 20px;
+  @include flex-align-center;
+  gap: $spacing-sm;
+  background: $bg-secondary;
+  border-radius: $radius-xl;
   padding: 4px;
-  flex-shrink: 0;
+
+  .btn-quantity {
+    @include flex-center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: $white;
+    border-radius: $radius-round;
+    font-size: $font-md;
+    color: $primary-color;
+    font-weight: $font-bold;
+    cursor: pointer;
+    transition: all $transition-fast;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    &:active {
+      background: $bg-hover;
+      transform: scale(0.95);
+    }
+  }
+
+  .quantity-input {
+    width: 36px;
+    height: 28px;
+    text-align: center;
+    border: none;
+    background: transparent;
+    font-size: $font-base;
+    color: $text-primary;
+    font-weight: $font-medium;
+  }
 }
 
-.btn-quantity {
-  width: 28px;
-  height: 28px;
-  border: none;
-  background: white;
-  border-radius: 50%;
-  font-size: 16px;
-  color: #548163;
-  font-weight: bold;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.btn-quantity:active {
-  background: #f0f0f0;
-  transform: scale(0.95);
-}
-
-.quantity-input {
-  width: 38px;
-  height: 28px;
-  text-align: center;
-  border: none;
-  background: transparent;
-  font-size: 14px;
-  color: #333;
-  font-weight: 500;
-}
-
+// 底部结算栏
 .cart-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  background: white;
-  border-top: 1px solid #f0f0f0;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+  @include flex-between;
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  box-sizing: border-box;
-  height: 60px;
-}
+  height: 64px;
+  padding: $spacing-md $spacing-lg;
+  background: $white;
+  border-top: 1px solid $border-light;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+  z-index: 100;
 
-.footer-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #333;
-  font-size: 14px;
-}
+  .footer-left {
+    @include flex-align-center;
+    gap: $spacing-sm;
 
-.select-all-text {
-  font-size: 14px;
-  color: #333;
-}
+    .select-all-text {
+      font-size: $font-base;
+      color: $text-primary;
+      font-weight: $font-medium;
+    }
+  }
 
-.footer-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
+  .footer-right {
+    @include flex-align-center;
+    gap: $spacing-lg;
 
-.total-section {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
+    .total-section {
+      @include flex-align-center;
+      gap: $spacing-xs;
 
-.total-label {
-  font-size: 14px;
-  color: #666;
-}
+      .total-label {
+        font-size: $font-base;
+        color: $text-secondary;
+      }
 
-.total-price {
-  font-size: 20px;
-  font-weight: bold;
-  color: #e74c3c;
-}
+      .total-price {
+        font-size: $font-xl;
+        font-weight: $font-bold;
+        color: $error-color;
+      }
+    }
 
-.btn-checkout {
-  padding: 8px 20px;
-  background: linear-gradient(135deg, #548163, #3d6b52);
-  color: white;
-  border: none;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 600;
-  min-width: 100px;
-  box-shadow: 0 4px 12px rgba(84, 129, 99, 0.3);
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.btn-checkout:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 6px rgba(84, 129, 99, 0.2);
+    .btn-checkout {
+      @include btn-primary;
+      min-width: 100px;
+      padding: $spacing-md $spacing-xl;
+    }
+  }
 }
 </style>

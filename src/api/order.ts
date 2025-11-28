@@ -1,37 +1,37 @@
-import request from '@/utils/request';
+import request from "@/utils/request";
 
 /**
- * 购物车和订单API
+ * 订单API
  */
 
-// 获取购物车列表
-export const getCartList = () => {
-  return request.get('/order/cart/list');
-};
-
-// 添加到购物车
-export const addToCart = (data: any) => {
-  return request.post('/order/cart/add', data);
-};
-
-// 更新购物车商品数量
-export const updateCartQuantity = (cartItemId: string, quantity: number) => {
-  return request.put(`/order/cart/${cartItemId}`, { quantity });
-};
-
-// 删除购物车商品
-export const removeFromCart = (cartItemId: string) => {
-  return request.delete(`/order/cart/${cartItemId}`);
-};
-
 // 创建订单
-export const createOrder = (data: any) => {
-  return request.post('/order/create', data);
+export const createOrder = (data: {
+  addressId: string;
+  paymentMethod: number;
+  shippingMethod?: string;
+  remark?: string;
+  items: Array<{
+    productId?: string;
+    skuId: string;
+    quantity: number;
+  }>;
+}) => {
+  return request({
+    url: "/order/create",
+    method: "POST",
+    data,
+  });
 };
 
 // 获取订单列表
-export const getOrderList = (pageNum: number, pageSize: number, status?: string) => {
-  return request.get('/order/list', {
+export const getOrderList = (
+  pageNum: number,
+  pageSize: number,
+  status?: string
+) => {
+  return request({
+    url: "/order/list",
+    method: "GET",
     params: {
       pageNum,
       pageSize,
@@ -42,10 +42,24 @@ export const getOrderList = (pageNum: number, pageSize: number, status?: string)
 
 // 获取订单详情
 export const getOrderDetail = (orderId: string) => {
-  return request.get(`/order/${orderId}`);
+  return request({
+    url: `/order/${orderId}`,
+    method: "GET",
+  });
 };
 
 // 取消订单
 export const cancelOrder = (orderId: string) => {
-  return request.post(`/order/${orderId}/cancel`);
+  return request({
+    url: `/order/${orderId}/cancel`,
+    method: "POST",
+  });
+};
+
+// 确认收货
+export const confirmReceipt = (orderId: string) => {
+  return request({
+    url: `/order/${orderId}/confirm-receipt`,
+    method: "POST",
+  });
 };

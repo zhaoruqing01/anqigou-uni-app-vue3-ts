@@ -167,102 +167,88 @@ const goToOrders = () => {
 };
 
 const goToFavorites = () => {
-  uni.showToast({ title: "功能开发中", icon: "none" });
+  uni.navigateTo({ url: "/pages/user/favorite" });
 };
 </script>
 
 <style scoped lang="scss">
+@import "@/styles/variables.scss";
+@import "@/styles/mixins.scss";
+
 .container {
-  padding-bottom: 60px;
-  background: #f8f9ff;
   min-height: 100vh;
+  background: $bg-color;
+  padding-bottom: 60px;
 }
+
+// 搜索栏
 .search-bar {
-  padding: 12px 12px;
-  // background: white;
-  // margin: 12px;
-  border-radius: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  padding: $spacing-md;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+  }
+
   .search-icon {
-    padding-top: 4px;
-    font-size: 16px;
-    color: #131416;
-    line-height: 16px;
+    @include flex-align-center;
+    height: 44px;
+    padding: 0 $spacing-lg;
+    background: $white;
+    border-radius: $radius-xl;
+    box-shadow: $shadow-sm;
+    font-size: $font-md;
+    color: $text-tertiary;
+    transition: all $transition-base;
+
+    &:active {
+      background: $bg-hover;
+    }
   }
 }
 
-input {
-  flex: 1;
-  height: 36px;
-  padding: 0 16px;
-  background: #f5f7fa;
-  border-radius: 18px;
-  font-size: 14px;
-  border: none;
-  color: #333;
-  transition: all 0.3s ease;
-}
-
-input:focus {
-  background: #f0f2f5;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
-}
-
-input::placeholder {
-  color: #999;
-}
-
-button {
-  padding: 8px 16px;
-  background: #548163;
-  color: white;
-  border: none;
-  border-radius: 18px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-button:active {
-  opacity: 0.9;
-}
-
+// 轮播图
 .banner {
   width: calc(100% - 24px);
-  height: 150px;
-  margin: 12px 12px;
-  border-radius: 12px;
+  height: 160px;
+  margin: 0 $spacing-md $spacing-md;
+  border-radius: $radius-md;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: $shadow-md;
+
+  image {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
 }
 
-.banner image {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
+// 快捷菜单
 .quick-menu {
   display: flex;
-  // background: white;
-  padding: 10px;
-  margin: 12px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background: $white;
+  padding: $spacing-xl 0;
+  margin: 0 $spacing-md $spacing-md;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
 }
 
 .menu-item {
+  @include flex-center;
   flex: 1;
-  display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
+  gap: $spacing-sm;
   position: relative;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+
   .contact-btn {
     position: absolute;
     top: 0;
@@ -273,95 +259,90 @@ button:active {
   }
 }
 
-.menu-item:active {
-  opacity: 0.7;
-}
-
 .menu-icon {
-  font-size: 32px;
+  font-size: 36px;
+  line-height: 1;
 }
 
 .menu-text {
-  font-size: 12px;
-  color: #666;
+  font-size: $font-sm;
+  color: $text-secondary;
+  font-weight: $font-medium;
 }
 
+// 商品区域
 .section {
-  margin: 20px 0;
-  padding: 0 12px;
+  margin: $spacing-xl 0;
+  padding: 0 $spacing-md;
 }
 
 .section-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  padding-left: 0;
-  color: #333;
-  display: flex;
-  align-items: center;
-}
+  @include flex-align-center;
+  font-size: $font-lg;
+  font-weight: $font-semibold;
+  margin-bottom: $spacing-md;
+  color: $text-primary;
 
-.section-title:before {
-  content: "";
-  display: inline-block;
-  width: 4px;
-  height: 18px;
-  background: #548163;
-  border-radius: 2px;
-  margin-right: 8px;
+  &:before {
+    content: "";
+    width: 4px;
+    height: 20px;
+    background: $gradient-primary;
+    border-radius: 2px;
+    margin-right: $spacing-sm;
+  }
 }
 
 .product-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: $spacing-md;
 }
 
 .product-item {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
+  @include card;
+  @include card-hover;
+  padding: 0;
   cursor: pointer;
-}
+  @include fade-in;
 
-.product-item:active {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
-}
-
-.product-item image {
-  width: 100%;
-  height: 160px;
-  display: block;
-  background: #f0f0f0;
-  object-fit: cover;
+  image {
+    width: 100%;
+    height: 170px;
+    display: block;
+    background: $bg-secondary;
+    object-fit: cover;
+  }
 }
 
 .product-name {
-  font-size: 13px;
-  padding: 10px 8px 4px;
-  color: #333;
-  height: 32px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  font-weight: 500;
+  @include multi-ellipsis(2);
+  font-size: $font-sm;
+  padding: $spacing-md $spacing-sm $spacing-xs;
+  color: $text-primary;
+  height: 36px;
+  line-height: 1.4;
+  font-weight: $font-medium;
 }
 
 .product-price {
-  font-size: 14px;
-  color: #e74c3c;
-  font-weight: bold;
-  padding: 0 8px 10px;
+  font-size: $font-lg;
+  color: $error-color;
+  font-weight: $font-bold;
+  padding: 0 $spacing-sm $spacing-md;
+
+  &::before {
+    content: "¥";
+    font-size: 0.8em;
+    margin-right: 2px;
+  }
 }
+
+// 加载更多
 .load-more {
-  text-align: center;
-  padding: 12px 0;
-  font-size: 14px;
-  color: #999;
+  @include flex-center;
+  padding: $spacing-lg 0;
+  font-size: $font-sm;
+  color: $text-tertiary;
 }
 </style>

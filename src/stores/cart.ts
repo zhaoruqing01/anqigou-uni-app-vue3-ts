@@ -1,3 +1,10 @@
+import {
+  addToCart as addToCartAPI,
+  clearCart as clearCartAPI,
+  getCartList,
+  removeCartItem as removeCartItemAPI,
+  updateCartQuantity as updateCartQuantityAPI,
+} from "@/api/cart";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 
@@ -13,11 +20,12 @@ interface CartItem {
   checked: boolean;
   sellerId: string;
   sellerName: string;
-  stock: number; // 商品库存
+  stock: number;
 }
 
 export const useCartStore = defineStore("cart", () => {
   const items = ref<CartItem[]>([]);
+  const loading = ref(false);
 
   // 计算购物车商品总数
   const totalCount = computed(() => {
@@ -45,7 +53,7 @@ export const useCartStore = defineStore("cart", () => {
   const itemsBySeller = computed(() => {
     const grouped: Record<string, CartItem[]> = {};
     items.value.forEach((item) => {
-      const sellerId = item.sellerId;
+      const sellerId = item.sellerId || "default";
       if (!grouped[sellerId]) {
         grouped[sellerId] = [];
       }
@@ -53,147 +61,162 @@ export const useCartStore = defineStore("cart", () => {
     });
     return Object.entries(grouped).map(([sellerId, items]) => ({
       sellerId,
-      sellerName: items[0].sellerName,
+      sellerName: items[0]?.sellerName || "默认商家",
       items,
     }));
   });
 
-  // 校验库存，确保商品数量不超过库存
-  const checkStock = (item: CartItem) => {
-    if (item.quantity > item.stock) {
-      item.quantity = item.stock;
-      uni.showToast({
-        title: `${item.productName}库存不足，已调整至最大库存`,
-        icon: "none",
-      });
+  // 从后端加载购物车
+  const loadCart = async () => {
+    try {
+      loading.value = true;
+      const res = await getCartList();
+      if (res.code === 200 && res.data) {
+        // 后端返回的数据需要转换为前端CartItem格式
+        items.value = res.data.map((item: any) => ({
+          id: item.skuId, // 临时使用skuId作为id
+          productId: item.productId || "",
+          productName: item.productName || "商品名称",
+          price: item.price || 10000,
+          mainImage: item.mainImage || "",
+          skuId: item.skuId || "",
+          specInfo: item.specInfo || "默认规格",
+          quantity: item.quantity || 1,
+          checked: false, // 默认不选中
+          sellerId: "default",
+          sellerName: "默认商家",
+          stock: item.stock || 999,
+        }));
+      }
+    } catch (error) {
+      console.error("加载购物车失败", error);
+      uni.showToast({ title: "加载购物车失败", icon: "error" });
+    } finally {
+      loading.value = false;
     }
-    return item.quantity;
   };
 
   // 添加商品到购物车
-  const addItem = (item: CartItem) => {
-    const existItem = items.value.find(
-      (i) => i.productId === item.productId && i.skuId === item.skuId
-    );
-    if (existItem) {
-      existItem.quantity += item.quantity;
-      checkStock(existItem);
-    } else {
-      items.value.push(item);
-      checkStock(item);
+  const addItem = async (item: CartItem) => {
+    try {
+      await addToCartAPI({
+        productId: item.productId,
+        skuId: item.skuId,
+        quantity: item.quantity,
+      });
+
+      // 添加成功后重新加载购物车
+      await loadCart();
+
+      uni.showToast({ title: "已加入购物车", icon: "success" });
+    } catch (error) {
+      console.error("添加到购物车失败", error);
+      uni.showToast({ title: "添加失败", icon: "error" });
     }
-    saveToStorage();
   };
 
   // 更新商品数量
-  const updateQuantity = (cartItemId: string, quantity: number) => {
+  const updateQuantity = async (cartItemId: string, quantity: number) => {
     const item = items.value.find((i) => i.id === cartItemId);
-    if (item) {
+    if (!item) return;
+
+    try {
+      await updateCartQuantityAPI({
+        skuId: item.skuId,
+        quantity: Math.max(1, quantity),
+      });
+
+      // 更新本地数据
       item.quantity = Math.max(1, quantity);
-      checkStock(item);
-      saveToStorage();
+    } catch (error) {
+      console.error("更新数量失败", error);
+      uni.showToast({ title: "更新失败", icon: "error" });
     }
   };
 
   // 删除商品
-  const removeItem = (cartItemId: string) => {
-    items.value = items.value.filter((i) => i.id !== cartItemId);
-    saveToStorage();
+  const removeItem = async (cartItemId: string) => {
+    const item = items.value.find((i) => i.id === cartItemId);
+    if (!item) return;
+
+    try {
+      await removeCartItemAPI(item.skuId);
+
+      // 从本地列表移除
+      items.value = items.value.filter((i) => i.id !== cartItemId);
+
+      uni.showToast({ title: "已删除", icon: "success" });
+    } catch (error) {
+      console.error("删除商品失败", error);
+      uni.showToast({ title: "删除失败", icon: "error" });
+    }
   };
 
   // 批量删除选中商品
-  const removeCheckedItems = () => {
-    items.value = items.value.filter((i) => !i.checked);
-    saveToStorage();
+  const removeCheckedItems = async () => {
+    const checkedItems = items.value.filter((i) => i.checked);
+    if (checkedItems.length === 0) return;
+
+    try {
+      // 批量删除
+      await Promise.all(
+        checkedItems.map((item) => removeCartItemAPI(item.skuId))
+      );
+
+      // 从本地列表移除
+      items.value = items.value.filter((i) => !i.checked);
+
+      uni.showToast({ title: "已删除", icon: "success" });
+    } catch (error) {
+      console.error("批量删除失败", error);
+      uni.showToast({ title: "删除失败", icon: "error" });
+    }
   };
 
-  // 切换商品选中状态
+  // 切换商品选中状态（仅前端操作）
   const toggleItem = (cartItemId: string) => {
     const item = items.value.find((i) => i.id === cartItemId);
     if (item) {
       item.checked = !item.checked;
-      saveToStorage();
     }
   };
 
-  // 全选/取消全选
+  // 全选/取消全选（仅前端操作）
   const toggleAllItems = (checked: boolean) => {
     items.value.forEach((item) => {
       item.checked = checked;
     });
-    saveToStorage();
   };
 
-  // 切换全选状态
+  // 切换全选状态（仅前端操作）
   const toggleSelectAll = () => {
-    // 如果当前是全选状态，则取消全选；否则全选
     const shouldSelectAll = !isAllChecked.value;
     items.value.forEach((item) => {
       item.checked = shouldSelectAll;
     });
-    saveToStorage();
   };
 
   // 清空购物车
-  const clearCart = () => {
-    items.value = [];
-    saveToStorage();
-  };
-
-  // 保存到本地存储
-  const saveToStorage = () => {
-    uni.setStorageSync("cartItems", JSON.stringify(items.value));
-  };
-
-  // 从本地存储恢复
-  const restoreFromStorage = () => {
-    const stored = uni.getStorageSync("cartItems");
-    if (stored) {
-      try {
-        const parsedItems = JSON.parse(stored as string);
-        // 确保每个项目都有 checked 和 stock 属性
-        items.value = parsedItems.map((item: CartItem) => ({
-          ...item,
-          checked: item.checked ?? false, // 如果没有 checked 属性，默认设为 false
-          stock: item.stock ?? 999, // 如果没有 stock 属性，默认设为 999
-        }));
-        // 恢复后校验库存
-        items.value.forEach((item) => checkStock(item));
-      } catch (e) {
-        console.error("Failed to parse cart items", e);
-        items.value = []; // 解析失败时清空购物车
-      }
-    }
-  };
-
-  // 更新购物车商品的库存信息（从后端获取最新库存）
-  const updateCartStock = async () => {
-    // 实际开发中，这里应该调用后端API获取最新库存
-    // 模拟从后端获取库存数据
+  const clearCart = async () => {
     try {
-      // const response = await request.post('/cart/update-stock', {
-      //   items: items.value.map(item => ({ skuId: item.skuId }))
-      // });
-      // if (response.code === 200) {
-      //   const stockMap = response.data.stockMap;
-      //   items.value.forEach(item => {
-      //     if (stockMap[item.skuId]) {
-      //       item.stock = stockMap[item.skuId];
-      //       checkStock(item);
-      //     }
-      //   });
-      // }
-
-      // 模拟更新库存，随机生成库存数量
-      items.value.forEach((item) => {
-        item.stock = Math.floor(Math.random() * 50) + 10; // 随机生成10-59的库存
-        checkStock(item);
-      });
-
-      saveToStorage();
+      await clearCartAPI();
+      items.value = [];
+      uni.showToast({ title: "购物车已清空", icon: "success" });
     } catch (error) {
-      console.error("Failed to update cart stock", error);
+      console.error("清空购物车失败", error);
+      uni.showToast({ title: "清空失败", icon: "error" });
     }
+  };
+
+  // 兼容旧版本：从本地存储恢复（现在改为从后端加载）
+  const restoreFromStorage = async () => {
+    await loadCart();
+  };
+
+  // 更新购物车商品的库存信息
+  const updateCartStock = async () => {
+    // 重新加载购物车即可获取最新库存
+    await loadCart();
   };
 
   return {
@@ -203,6 +226,7 @@ export const useCartStore = defineStore("cart", () => {
     totalPrice,
     checkedCount,
     isAllChecked,
+    loading,
     addItem,
     updateQuantity,
     removeItem,
@@ -211,6 +235,7 @@ export const useCartStore = defineStore("cart", () => {
     toggleAllItems,
     toggleSelectAll,
     clearCart,
+    loadCart,
     restoreFromStorage,
     updateCartStock,
   };

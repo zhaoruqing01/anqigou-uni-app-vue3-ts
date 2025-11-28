@@ -72,8 +72,8 @@ service.interceptors.response.use(
   (response: any) => {
     const data = response.data;
 
-    // 检查响应码
-    if (data.code !== 0) {
+    // 检查响应码（后端成功返回200）
+    if (data.code !== 200 && data.code !== 0) {
       const errorMsg = data.message || "请求失败";
       console.error("[接口错误] ", {
         url: response.config?.url,

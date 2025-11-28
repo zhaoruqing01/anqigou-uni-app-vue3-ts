@@ -172,151 +172,153 @@ const handleLogout = () => {
 </script>
 
 <style scoped lang="scss">
-.container {
+@import "@/styles/variables.scss";
+@import "@/styles/mixins.scss";
+
+.profile-container {
   min-height: 100vh;
-  background: linear-gradient(to bottom, #548163, #dbe5de);
-  padding: 20px;
+  background: $bg-color;
+  padding-bottom: 80px;
 }
 
-.header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
+// 用户信息卡片
 .user-card {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: start;
+  @include flex-align-center;
+  background: $gradient-primary;
+  padding: $spacing-xxl;
+  margin-bottom: $spacing-md;
+  gap: $spacing-lg;
+  @include fade-in;
+
+  .avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: $radius-round;
+    background: $white;
+    border: 3px solid rgba($white, 0.3);
+    box-shadow: $shadow-md;
+    object-fit: cover;
+  }
+
+  .user-info {
+    flex: 1;
+
+    .nickname {
+      font-size: $font-xl;
+      font-weight: $font-bold;
+      color: $white;
+      margin-bottom: $spacing-xs;
+    }
+
+    .phone {
+      font-size: $font-sm;
+      color: rgba($white, 0.9);
+      margin-bottom: $spacing-md;
+    }
+
+    .level {
+      @include tag(rgba($white, 0.2), $white);
+      font-size: $font-xs;
+      border: 1px solid rgba($white, 0.3);
+    }
+  }
 }
 
-.user-card .avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  margin-right: 40px;
-  background: #f0f0f0;
-  border: 3px solid white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.user-card .user-info .nickname {
-  font-size: 20px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 8px;
-}
-
-.user-card .user-info .phone {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 12px;
-}
-
-.user-card .user-info .level {
-  display: inline-block;
-  padding: 4px 12px;
-  background: #548163;
-  color: white;
-  border-radius: 12px;
-  font-size: 12px;
-}
-
+// 账户统计
 .stats-section {
-  display: flex;
-  justify-content: space-around;
-  background: white;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  @include flex-center;
+  background: $white;
+  padding: $spacing-xxl;
+  margin: 0 $spacing-md $spacing-md;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  gap: $spacing-xxxl;
+
+  .stat-item {
+    @include flex-center;
+    flex-direction: column;
+    gap: $spacing-xs;
+
+    .stat-value {
+      font-size: $font-xl;
+      font-weight: $font-bold;
+      color: $primary-color;
+    }
+
+    .stat-label {
+      font-size: $font-sm;
+      color: $text-secondary;
+    }
+  }
 }
 
-.stats-section .stat-item {
-  text-align: center;
-}
-
-.stats-section .stat-item .stat-value {
-  font-size: 20px;
-  font-weight: 600;
-  color: #548163;
-  margin-bottom: 4px;
-}
-
-.stats-section .stat-item .stat-label {
-  font-size: 12px;
-  color: #666;
-}
-
+// 功能菜单
 .menu-section {
-  background: white;
-  border-radius: 16px;
+  background: $white;
+  margin: 0 $spacing-md $spacing-md;
+  border-radius: $radius-md;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  box-shadow: $shadow-sm;
 }
 
 .menu-item {
-  display: flex;
-  align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid #f0f0f0;
+  @include flex-between;
+  padding: $spacing-lg $spacing-xl;
+  border-bottom: 1px solid $border-light;
   cursor: pointer;
+  transition: all $transition-base;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:active {
+    background: $bg-hover;
+  }
+
+  .menu-left {
+    @include flex-align-center;
+    gap: $spacing-md;
+
+    .icon {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .label {
+      font-size: $font-md;
+      color: $text-primary;
+      font-weight: $font-medium;
+    }
+  }
+
+  .arrow {
+    font-size: 20px;
+    color: $text-tertiary;
+  }
 }
 
-.menu-item:last-child {
-  border-bottom: none;
-}
-
-.menu-item:active {
-  background: #f5f5f5;
-}
-
-.menu-item .menu-left {
-  flex: 1;
-  display: flex;
-  align-items: center;
-}
-
-.menu-item .icon {
-  width: 24px;
-  height: 24px;
-  margin-right: 12px;
-  background: #f0f0f0;
-  border-radius: 6px;
-}
-
-.menu-item .label {
-  font-size: 16px;
-  color: #333;
-}
-
-.menu-item .arrow {
-  font-size: 20px;
-  color: #999;
-}
-
+// 退出登录
 .logout-section {
-  padding: 0 20px;
-}
+  padding: 0 $spacing-md;
 
-.btn-logout {
-  width: 100%;
-  padding: 16px;
-  background: white;
-  color: #e74c3c;
-  border: none;
-  border-radius: 16px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
+  .btn-logout {
+    width: 100%;
+    padding: $spacing-lg;
+    background: $white;
+    color: $error-color;
+    border: none;
+    border-radius: $radius-md;
+    font-size: $font-md;
+    font-weight: $font-semibold;
+    box-shadow: $shadow-sm;
+    cursor: pointer;
+    transition: all $transition-base;
 
-.btn-logout:active {
-  background: #f5f5f5;
+    &:active {
+      background: $bg-hover;
+      transform: scale(0.98);
+    }
+  }
 }
 </style>

@@ -78,8 +78,8 @@
 </template>
 
 <script setup lang="ts">
+import { addToCart as apiAddToCart } from "@/api/cart";
 import { batchCancelFavorite, listFavorites } from "@/api/favorite";
-import { addToCart as apiAddToCart } from "@/api/order";
 import { computed, onMounted, ref } from "vue";
 
 const favorites = ref<any[]>([]);
@@ -191,7 +191,12 @@ const cancelFavorite = async (productId: string) => {
 // 加入购物车
 const addToCart = async (productId: string) => {
   try {
-    await apiAddToCart(productId);
+    // TODO: 需要获取商品的skuId，这里暂时使用productId
+    await apiAddToCart({
+      productId: productId,
+      skuId: productId, // 临时使用productId作为skuId
+      quantity: 1,
+    });
     uni.showToast({ title: "已加入购物车", icon: "success" });
   } catch (error) {
     console.error("加入购物车失败:", error);
