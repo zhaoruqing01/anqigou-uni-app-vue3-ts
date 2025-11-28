@@ -101,6 +101,24 @@
       "style": {
         "navigationBarTitleText": "订单详情"
       }
+    },
+    {
+      "path": "pages/user/feedback-list",
+      "style": {
+        "navigationBarTitleText": "我的反馈"
+      }
+    },
+    {
+      "path": "pages/user/feedback-submit",
+      "style": {
+        "navigationBarTitleText": "提交反馈"
+      }
+    },
+    {
+      "path": "pages/user/feedback-detail",
+      "style": {
+        "navigationBarTitleText": "反馈详情"
+      }
     }
   ],
   "globalStyle": {

@@ -79,7 +79,7 @@
 
 <script setup lang="ts">
 import { batchCancelFavorite, listFavorites } from "@/api/favorite";
-import { addToCart } from "@/api/order";
+import { addToCart as apiAddToCart } from "@/api/order";
 import { computed, onMounted, ref } from "vue";
 
 const favorites = ref<any[]>([]);
@@ -191,10 +191,8 @@ const cancelFavorite = async (productId: string) => {
 // 加入购物车
 const addToCart = async (productId: string) => {
   try {
-    const result = await addToCart(productId, 1);
-    if (result.code === 200) {
-      uni.showToast({ title: "已加入购物车", icon: "success" });
-    }
+    await apiAddToCart(productId);
+    uni.showToast({ title: "已加入购物车", icon: "success" });
   } catch (error) {
     console.error("加入购物车失败:", error);
     uni.showToast({ title: "加入失败", icon: "error" });

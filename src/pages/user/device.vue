@@ -34,7 +34,7 @@
           <button
             v-if="device.status === 1"
             class="offline-btn"
-            @click="offlineDevice(device.id)"
+            @click="handleOfflineDevice(device.id)"
           >
             下线
           </button>
@@ -64,18 +64,16 @@ const getDevices = async () => {
 };
 
 // 下线指定设备
-const offlineDevice = async (deviceId: string) => {
+const handleOfflineDevice = async (deviceId: string) => {
   uni.showModal({
     title: "提示",
     content: "确定要下线该设备吗？",
     success: async (res) => {
       if (res.confirm) {
         try {
-          const result = await offlineDevice(deviceId);
-          if (result.code === 200) {
-            uni.showToast({ title: "下线成功", icon: "success" });
-            getDevices();
-          }
+          await offlineDevice(deviceId);
+          uni.showToast({ title: "下线成功", icon: "success" });
+          getDevices();
         } catch (error) {
           console.error("下线设备失败:", error);
           uni.showToast({ title: "下线失败", icon: "error" });

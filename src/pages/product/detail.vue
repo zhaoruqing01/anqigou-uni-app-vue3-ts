@@ -290,7 +290,6 @@ const addToCart = () => {
     productId: product.value.id,
     productName: product.value.name,
     price: product.value.price,
-    originalPrice: product.value.originalPrice,
     mainImage: product.value.images[0],
     skuId: selectedSku.value.id,
     specInfo: JSON.stringify(selectedSpecs.value),

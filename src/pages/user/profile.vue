@@ -80,6 +80,14 @@
         </view>
         <text class="arrow">›</text>
       </view>
+
+      <view class="menu-item" @click="goToFeedback">
+        <view class="menu-left">
+          <text class="icon">💬</text>
+          <text class="label">意见反馈</text>
+        </view>
+        <text class="arrow">›</text>
+      </view>
     </view>
 
     <!-- 退出登录 -->
@@ -139,6 +147,14 @@ const goToPrivacy = () => {
 
 const goToSettings = () => {
   uni.showToast({ title: "设置功能开发中", icon: "none" });
+};
+
+const goToFavorites = () => {
+  uni.navigateTo({ url: "/pages/user/favorite" });
+};
+
+const goToFeedback = () => {
+  uni.navigateTo({ url: "/pages/user/feedback-list" });
 };
 
 const handleLogout = () => {

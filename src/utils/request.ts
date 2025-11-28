@@ -5,8 +5,12 @@ import axios from "axios";
 // 创建 axios 实例
 // 根据路由前缀动态选择不同微服务的基础URL
 function getBaseURL(path: string): string {
-  if (path.startsWith("/auth") || path.startsWith("/user")) {
-    return "http://localhost:8081/api"; // 用户服务
+  if (
+    path.startsWith("/auth") ||
+    path.startsWith("/user") ||
+    path.startsWith("/feedback")
+  ) {
+    return "http://localhost:8081/api"; // 用户服务（包含反馈服务）
   } else if (path.startsWith("/order")) {
     return "http://localhost:8082/api"; // 订单服务
   } else if (path.startsWith("/product")) {
@@ -35,20 +39,11 @@ const service = axios.create({
     "Content-Type": "application/json",
   },
   adapter: createUniAppAxiosAdapter(),
-}) as unknown as typeof axios.AxiosInstance & {
-  <T = any>(config: axios.AxiosRequestConfig): Promise<ApiResponse<T>>;
-  request<T = any>(config: axios.AxiosRequestConfig): Promise<ApiResponse<T>>;
-  get<T = any>(url: string, config?: axios.AxiosRequestConfig): Promise<ApiResponse<T>>;
-  delete<T = any>(url: string, config?: axios.AxiosRequestConfig): Promise<ApiResponse<T>>;
-  head<T = any>(url: string, config?: axios.AxiosRequestConfig): Promise<ApiResponse<T>>;
-  post<T = any>(url: string, data?: any, config?: axios.AxiosRequestConfig): Promise<ApiResponse<T>>;
-  put<T = any>(url: string, data?: any, config?: axios.AxiosRequestConfig): Promise<ApiResponse<T>>;
-  patch<T = any>(url: string, data?: any, config?: axios.AxiosRequestConfig): Promise<ApiResponse<T>>;
-};
+});
 
 // 请求拦截器
 service.interceptors.request.use(
-  (config) => {
+  (config: any) => {
     // 根据路由动态选择基础URL
     if (config.url) {
       config.baseURL = getBaseURL(config.url);
@@ -67,14 +62,14 @@ service.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
+  (error: any) => {
     return Promise.reject(error);
   }
 );
 
 // 响应拦截器
 service.interceptors.response.use(
-  (response) => {
+  (response: any) => {
     const data = response.data;
 
     // 检查响应码
@@ -95,7 +90,7 @@ service.interceptors.response.use(
     }
     return data;
   },
-  (error) => {
+  (error: any) => {
     const errorMsg = error?.message || "网络错误";
     console.error("[网络错误] ", {
       url: error?.config?.url,

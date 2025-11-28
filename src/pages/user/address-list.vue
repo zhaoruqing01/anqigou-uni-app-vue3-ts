@@ -78,10 +78,9 @@ const selectAddress = (address: Address) => {
   if (pages.length > 1) {
     const prevPage = pages[pages.length - 2] as any;
     if (prevPage.route && prevPage.route.includes("checkout")) {
-      // 设置页面数据并返回
-      const currentPage = pages[pages.length - 1] as any;
-      if (!currentPage.pageData) currentPage.pageData = {};
-      currentPage.pageData.selectedAddress = address;
+      // 设置上一页（订单页面）的数据并返回
+      if (!prevPage.pageData) prevPage.pageData = {};
+      prevPage.pageData.selectedAddress = address;
       uni.navigateBack();
       return;
     }

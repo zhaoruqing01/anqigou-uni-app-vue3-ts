@@ -49,6 +49,11 @@
         <button class="btn-login" @click="codeLogin">登录</button>
       </view>
 
+      <!-- 微信登录 -->
+      <view class="wechat-login">
+        <button class="wechat-btn" @click="wechatLogin">微信登录</button>
+      </view>
+
       <!-- 注册链接 -->
       <view class="register-link">
         没有账号？<text @click="goToRegister">立即注册</text>
@@ -149,6 +154,20 @@ const sendCode = async () => {
 // 跳转到注册页
 const goToRegister = () => {
   uni.navigateTo({ url: "/pages/auth/register" });
+};
+
+// 微信登录
+const wechatLogin = () => {
+  uni.showToast({ title: "微信授权登录功能开发中", icon: "none" });
+  // 实际开发中，这里应该调用微信登录API
+  // uni.login({
+  //   provider: 'weixin',
+  //   success: (res) => {
+  //     // 发送code到后端获取token
+  //     const code = res.code;
+  //     // 调用后端API进行微信登录
+  //   }
+  // });
 };
 </script>
 
@@ -311,5 +330,30 @@ const goToRegister = () => {
 
 .register-link text:active {
   color: #548163;
+}
+
+/* 微信登录样式 */
+.wechat-login {
+  margin: 20px 0;
+}
+
+.wechat-btn {
+  width: 100%;
+  padding: 14px 16px;
+  background: #07c160;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.wechat-btn:active {
+  background: #05a051;
 }
 </style>
