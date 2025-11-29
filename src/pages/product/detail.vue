@@ -1,9 +1,20 @@
 <template>
   <view class="product-detail">
     <!-- 商品图片轮播 -->
-    <swiper class="product-swiper" :indicator-dots="true" :autoplay="false">
+    <swiper
+      class="product-swiper"
+      :indicator-dots="true"
+      :autoplay="true"
+      :interval="3000"
+      :circular="true"
+    >
       <swiper-item v-for="(img, index) in product.images" :key="index">
-        <image :src="img" mode="aspectFill" class="product-image" />
+        <image
+          :src="img"
+          mode="aspectFill"
+          class="product-image"
+          @click="previewImage(index)"
+        />
       </swiper-item>
     </swiper>
 
@@ -11,20 +22,34 @@
     <view class="product-info">
       <view class="price-section">
         <text class="price">¥{{ (product.price / 100).toFixed(2) }}</text>
-        <text class="original-price"
-          >¥{{ (product.originalPrice / 100).toFixed(2) }}</text>
+        <text
+          class="original-price"
+          v-if="product.originalPrice > product.price"
+          >¥{{ (product.originalPrice / 100).toFixed(2) }}</text
         >
       </view>
       <view class="product-name">{{ product.name }}</view>
       <view class="product-desc">{{ product.description }}</view>
       <view class="product-stock" v-if="selectedSku">
-        <text class="stock-text">{{ selectedSku.stock > 0 ? `库存：${selectedSku.stock}件` : '缺货' }}</text>
+        <text
+          class="stock-text"
+          :class="{ 'out-of-stock': selectedSku.stock <= 0 }"
+        >
+          {{ selectedSku.stock > 0 ? `库存：${selectedSku.stock}件` : "缺货" }}
+        </text>
+      </view>
+      <view class="product-sales">
+        <text>已售 {{ product.salesCount || 0 }} 件</text>
       </view>
     </view>
 
     <!-- 规格选择 -->
     <view class="spec-section">
-      <view v-for="(specGroup, groupIndex) in specGroups" :key="groupIndex" class="spec-group">
+      <view
+        v-for="(specGroup, groupIndex) in specGroups"
+        :key="groupIndex"
+        class="spec-group"
+      >
         <view class="spec-group-title">{{ specGroup.name }} *</view>
         <scroll-view scroll-x class="spec-options">
           <view
@@ -33,7 +58,7 @@
             class="spec-option"
             :class="{
               active: selectedSpecs[specGroup.name] === option.value,
-              disabled: !option.available
+              disabled: !option.available,
             }"
             @click="selectSpec(specGroup.name, option)"
           >
@@ -73,9 +98,21 @@
         <view class="quantity-section">
           <text class="quantity-label">数量</text>
           <view class="quantity-control">
-            <button @click="decreaseQuantity" :disabled="quantity <= 1">-</button>
-            <input v-model.number="quantity" type="number" min="1" :max="maxQuantity" />
-            <button @click="increaseQuantity" :disabled="quantity >= maxQuantity">+</button>
+            <button @click="decreaseQuantity" :disabled="quantity <= 1">
+              -
+            </button>
+            <input
+              v-model.number="quantity"
+              type="number"
+              min="1"
+              :max="maxQuantity"
+            />
+            <button
+              @click="increaseQuantity"
+              :disabled="quantity >= maxQuantity"
+            >
+              +
+            </button>
           </view>
         </view>
         <button class="btn-confirm" @click="confirmQuantity">确定</button>
@@ -86,8 +123,8 @@
 
 <script setup lang="ts">
 import { useCartStore } from "@/stores/cart";
-import { onMounted, ref, computed, watch } from "vue";
 import request from "@/utils/request";
+import { computed, onMounted, ref, watch } from "vue";
 
 interface ProductSku {
   id: string;
@@ -106,6 +143,7 @@ interface Product {
   images: string[];
   detailHtml: string;
   skus: ProductSku[];
+  salesCount?: number;
 }
 
 interface SpecOption {
@@ -169,13 +207,16 @@ const fetchProductDetail = async (productId: string) => {
 // 解析规格分组
 const parseSpecGroups = () => {
   if (!product.value.skus || product.value.skus.length === 0) return;
-  
+
   // 提取所有规格名称和值
   const specMap = new Map<string, Set<string>>();
-  
-  product.value.skus.forEach(sku => {
+
+  product.value.skus.forEach((sku) => {
     try {
-      const specValueJson = typeof sku.specValueJson === 'string' ? JSON.parse(sku.specValueJson) : sku.specValueJson;
+      const specValueJson =
+        typeof sku.specValueJson === "string"
+          ? JSON.parse(sku.specValueJson)
+          : sku.specValueJson;
       for (const [key, value] of Object.entries(specValueJson)) {
         if (!specMap.has(key)) {
           specMap.set(key, new Set<string>());
@@ -183,38 +224,45 @@ const parseSpecGroups = () => {
         specMap.get(key)?.add(value as string);
       }
     } catch (e) {
-      console.error('解析规格JSON失败:', e);
+      console.error("解析规格JSON失败:", e);
     }
   });
-  
+
   // 转换为规格分组
   const groups: SpecGroup[] = [];
   specMap.forEach((values, name) => {
     groups.push({
       name,
-      options: Array.from(values).map(value => ({
+      options: Array.from(values).map((value) => ({
         value,
-        available: true
-      }))
+        available: true,
+      })),
     });
   });
-  
+
   specGroups.value = groups;
 };
 
 // 监听规格选择变化，更新选中的SKU
-watch(selectedSpecs, () => {
-  updateSelectedSku();
-}, { deep: true });
+watch(
+  selectedSpecs,
+  () => {
+    updateSelectedSku();
+  },
+  { deep: true }
+);
 
 // 更新选中的SKU
 const updateSelectedSku = () => {
   if (!product.value.skus || product.value.skus.length === 0) return;
-  
+
   // 查找匹配的SKU
-  const matchingSku = product.value.skus.find(sku => {
+  const matchingSku = product.value.skus.find((sku) => {
     try {
-      const specValueJson = typeof sku.specValueJson === 'string' ? JSON.parse(sku.specValueJson) : sku.specValueJson;
+      const specValueJson =
+        typeof sku.specValueJson === "string"
+          ? JSON.parse(sku.specValueJson)
+          : sku.specValueJson;
       // 检查所有选中的规格是否匹配
       for (const [key, value] of Object.entries(selectedSpecs.value)) {
         if (specValueJson[key] !== value) {
@@ -222,17 +270,21 @@ const updateSelectedSku = () => {
         }
       }
       // 检查所有规格是否都已选择
-      const specValueKeys = Object.keys(typeof sku.specValueJson === 'string' ? JSON.parse(sku.specValueJson) : sku.specValueJson);
+      const specValueKeys = Object.keys(
+        typeof sku.specValueJson === "string"
+          ? JSON.parse(sku.specValueJson)
+          : sku.specValueJson
+      );
       const selectedKeys = Object.keys(selectedSpecs.value);
       return specValueKeys.length === selectedKeys.length;
     } catch (e) {
-      console.error('匹配SKU失败:', e);
+      console.error("匹配SKU失败:", e);
       return false;
     }
   });
-  
+
   selectedSku.value = matchingSku || null;
-  
+
   if (matchingSku) {
     product.value.price = matchingSku.price;
     maxQuantity.value = matchingSku.stock;
@@ -249,7 +301,7 @@ const selectSpec = (specName: string, option: SpecOption) => {
     uni.showToast({ title: "该规格暂无库存", icon: "none" });
     return;
   }
-  
+
   selectedSpecs.value[specName] = option.value;
 };
 
@@ -279,7 +331,7 @@ const addToCart = () => {
     uni.showToast({ title: "请选择完整商品规格", icon: "none" });
     return;
   }
-  
+
   if (!selectedSku.value || selectedSku.value.stock <= 0) {
     uni.showToast({ title: "该规格暂无库存", icon: "none" });
     return;
@@ -305,7 +357,7 @@ const buyNow = () => {
     uni.showToast({ title: "请选择完整商品规格", icon: "none" });
     return;
   }
-  
+
   if (!selectedSku.value || selectedSku.value.stock <= 0) {
     uni.showToast({ title: "该规格暂无库存", icon: "none" });
     return;

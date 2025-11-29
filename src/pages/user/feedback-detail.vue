@@ -164,12 +164,13 @@ const previewImage = (currentImage: string) => {
   });
 };
 
-// 页面加载时获取路由参数
-const onLoad = (options: any) => {
-  // @ts-ignore
-  const feedbackId = options.feedbackId || "";
+onMounted(() => {
+  // 获取路由参数
+  const pages = getCurrentPages();
+  const currentPage = pages[pages.length - 1] as any;
+  const feedbackId = currentPage.$page?.options?.feedbackId || "";
+
   if (!feedbackId) {
-    // @ts-ignore
     uni.showToast({
       title: "参数错误",
       icon: "none",
@@ -178,23 +179,17 @@ const onLoad = (options: any) => {
   }
 
   // 加载反馈详情
-  // @ts-ignore
   getFeedbackDetail(feedbackId)
     .then((res) => {
       feedbackDetail.value = res.data;
     })
     .catch((error) => {
       console.error("加载反馈详情失败:", error);
-      // @ts-ignore
       uni.showToast({
         title: "加载失败",
         icon: "none",
       });
     });
-};
-
-onMounted(() => {
-  // 页面加载时已经通过onLoad获取了参数，这里不需要再调用
 });
 </script>
 

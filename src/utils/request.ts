@@ -8,13 +8,14 @@ function getBaseURL(path: string): string {
   if (
     path.startsWith("/auth") ||
     path.startsWith("/user") ||
-    path.startsWith("/feedback")
+    path.startsWith("/feedback") ||
+    path.startsWith("/favorite")
   ) {
-    return "http://localhost:8081/api"; // 用户服务（包含反馈服务）
-  } else if (path.startsWith("/order")) {
-    return "http://localhost:8082/api"; // 订单服务
+    return "http://localhost:8081/api"; // 用户服务（包含反馈服务、收藏服务）
   } else if (path.startsWith("/product")) {
-    return "http://localhost:8083/api"; // 商品服务
+    return "http://localhost:8082/api"; // 商品服务
+  } else if (path.startsWith("/order") || path.startsWith("/cart")) {
+    return "http://localhost:8083/api"; // 订单服务（包含购物车服务）
   } else if (path.startsWith("/payment")) {
     return "http://localhost:8084/api"; // 支付服务
   } else if (path.startsWith("/logistics")) {
