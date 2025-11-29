@@ -4,9 +4,9 @@ import {
   getCartList,
   removeCartItem as removeCartItemAPI,
   updateCartQuantity as updateCartQuantityAPI,
-} from "@/api/cart";
-import { defineStore } from "pinia";
-import { computed, ref } from "vue";
+} from '@/api/cart';
+import { defineStore } from 'pinia';
+import { computed, ref } from 'vue';
 
 interface CartItem {
   id: string;
@@ -23,7 +23,7 @@ interface CartItem {
   stock: number;
 }
 
-export const useCartStore = defineStore("cart", () => {
+export const useCartStore = defineStore('cart', () => {
   const items = ref<CartItem[]>([]);
   const loading = ref(false);
 
@@ -53,7 +53,7 @@ export const useCartStore = defineStore("cart", () => {
   const itemsBySeller = computed(() => {
     const grouped: Record<string, CartItem[]> = {};
     items.value.forEach((item) => {
-      const sellerId = item.sellerId || "default";
+      const sellerId = item.sellerId || 'default';
       if (!grouped[sellerId]) {
         grouped[sellerId] = [];
       }
@@ -61,7 +61,7 @@ export const useCartStore = defineStore("cart", () => {
     });
     return Object.entries(grouped).map(([sellerId, items]) => ({
       sellerId,
-      sellerName: items[0]?.sellerName || "默认商家",
+      sellerName: items[0]?.sellerName || '默认商家',
       items,
     }));
   });
@@ -71,26 +71,26 @@ export const useCartStore = defineStore("cart", () => {
     try {
       loading.value = true;
       const res = await getCartList();
-      if (res.code === 200 && res.data) {
+      if (res.code === 0 && res.data) {
         // 后端返回的数据需要转换为前端CartItem格式
         items.value = res.data.map((item: any) => ({
           id: item.skuId, // 临时使用skuId作为id
-          productId: item.productId || "",
-          productName: item.productName || "商品名称",
+          productId: item.productId || '',
+          productName: item.productName || '商品名称',
           price: item.price || 10000,
-          mainImage: item.mainImage || "",
-          skuId: item.skuId || "",
-          specInfo: item.specInfo || "默认规格",
+          mainImage: item.mainImage || '',
+          skuId: item.skuId || '',
+          specInfo: item.specInfo || '默认规格',
           quantity: item.quantity || 1,
           checked: false, // 默认不选中
-          sellerId: "default",
-          sellerName: "默认商家",
+          sellerId: 'default',
+          sellerName: '默认商家',
           stock: item.stock || 999,
         }));
       }
     } catch (error) {
-      console.error("加载购物车失败", error);
-      uni.showToast({ title: "加载购物车失败", icon: "error" });
+      console.error('加载购物车失败', error);
+      uni.showToast({ title: '加载购物车失败', icon: 'error' });
     } finally {
       loading.value = false;
     }
@@ -108,10 +108,10 @@ export const useCartStore = defineStore("cart", () => {
       // 添加成功后重新加载购物车
       await loadCart();
 
-      uni.showToast({ title: "已加入购物车", icon: "success" });
+      uni.showToast({ title: '已加入购物车', icon: 'success' });
     } catch (error) {
-      console.error("添加到购物车失败", error);
-      uni.showToast({ title: "添加失败", icon: "error" });
+      console.error('添加到购物车失败', error);
+      uni.showToast({ title: '添加失败', icon: 'error' });
     }
   };
 
@@ -129,8 +129,8 @@ export const useCartStore = defineStore("cart", () => {
       // 更新本地数据
       item.quantity = Math.max(1, quantity);
     } catch (error) {
-      console.error("更新数量失败", error);
-      uni.showToast({ title: "更新失败", icon: "error" });
+      console.error('更新数量失败', error);
+      uni.showToast({ title: '更新失败', icon: 'error' });
     }
   };
 
@@ -145,10 +145,10 @@ export const useCartStore = defineStore("cart", () => {
       // 从本地列表移除
       items.value = items.value.filter((i) => i.id !== cartItemId);
 
-      uni.showToast({ title: "已删除", icon: "success" });
+      uni.showToast({ title: '已删除', icon: 'success' });
     } catch (error) {
-      console.error("删除商品失败", error);
-      uni.showToast({ title: "删除失败", icon: "error" });
+      console.error('删除商品失败', error);
+      uni.showToast({ title: '删除失败', icon: 'error' });
     }
   };
 
@@ -159,17 +159,15 @@ export const useCartStore = defineStore("cart", () => {
 
     try {
       // 批量删除
-      await Promise.all(
-        checkedItems.map((item) => removeCartItemAPI(item.skuId))
-      );
+      await Promise.all(checkedItems.map((item) => removeCartItemAPI(item.skuId)));
 
       // 从本地列表移除
       items.value = items.value.filter((i) => !i.checked);
 
-      uni.showToast({ title: "已删除", icon: "success" });
+      uni.showToast({ title: '已删除', icon: 'success' });
     } catch (error) {
-      console.error("批量删除失败", error);
-      uni.showToast({ title: "删除失败", icon: "error" });
+      console.error('批量删除失败', error);
+      uni.showToast({ title: '删除失败', icon: 'error' });
     }
   };
 
@@ -201,10 +199,10 @@ export const useCartStore = defineStore("cart", () => {
     try {
       await clearCartAPI();
       items.value = [];
-      uni.showToast({ title: "购物车已清空", icon: "success" });
+      uni.showToast({ title: '购物车已清空', icon: 'success' });
     } catch (error) {
-      console.error("清空购物车失败", error);
-      uni.showToast({ title: "清空失败", icon: "error" });
+      console.error('清空购物车失败', error);
+      uni.showToast({ title: '清空失败', icon: 'error' });
     }
   };
 

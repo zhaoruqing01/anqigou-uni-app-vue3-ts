@@ -81,18 +81,15 @@ const hotProducts = ref<any[]>([]);
 const banners = ref<Banner[]>([
   {
     id: "1",
-    imageUrl:
-      "https://staticfile.eduplus.net/athena/systemMaterial/255606f727734129aef3f477995ed217.png",
+    imageUrl: "https://img.shetu66.com/2023/10/18/1697618323357921.png",
   },
   {
     id: "2",
-    imageUrl:
-      "https://staticfile.eduplus.net/athena/systemMaterial/5c745ef6ac484adab634ef7790276585.png",
+    imageUrl: "https://img.shetu66.com/2023/10/18/1697617454290302.png",
   },
   {
     id: "3",
-    imageUrl:
-      "https://staticfile.eduplus.net/athena/systemMaterial/375249b26c994e24862e3c0191b20798.png",
+    imageUrl: "https://img.shetu66.com/2023/10/18/1697578751828707.png",
   },
 ]);
 
@@ -135,7 +132,7 @@ onMounted(async () => {
 });
 
 const handleSearch = () => {
-  uni.switchTab({ url: `/pages/product/list` });
+  uni.navigateTo({ url: "/pages/product/search-view" });
 };
 
 const handleBannerClick = (banner: Banner) => {
