@@ -11,7 +11,7 @@ export const addToCart = (data: {
   quantity: number;
 }) => {
   return request({
-    url: "/api/cart/add",
+    url: "/cart/add",
     method: "POST",
     data,
   });
@@ -20,7 +20,7 @@ export const addToCart = (data: {
 // 获取购物车列表
 export const getCartList = () => {
   return request({
-    url: "/api/cart/list",
+    url: "/cart/list",
     method: "GET",
   });
 };
@@ -31,7 +31,7 @@ export const updateCartQuantity = (data: {
   quantity: number;
 }) => {
   return request({
-    url: "/api/cart/update",
+    url: "/cart/update",
     method: "PUT",
     data,
   });
@@ -40,7 +40,7 @@ export const updateCartQuantity = (data: {
 // 移除购物车商品
 export const removeCartItem = (skuId: string) => {
   return request({
-    url: "/api/cart/remove",
+    url: "/cart/remove",
     method: "DELETE",
     params: { skuId },
   });
@@ -49,7 +49,7 @@ export const removeCartItem = (skuId: string) => {
 // 清空购物车
 export const clearCart = () => {
   return request({
-    url: "/api/cart/clear",
+    url: "/cart/clear",
     method: "DELETE",
   });
 };
