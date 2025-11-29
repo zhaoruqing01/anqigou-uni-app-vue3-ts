@@ -48,8 +48,13 @@
     <!-- 商品详情 -->
     <view class="detail-section">
       <view class="section-title">商品详情</view>
-      <view class="detail-content">
-        <rich-text :nodes="product.detailHtml"></rich-text>
+      <view>
+        <scroll-view scroll-y class="detail-content">
+          <!-- 排列图片 -->
+          <view class="detail-image" v-for="(img, index) in product.images" :key="index">
+            <image :src="img" mode="aspectFill" class="detail-image-item" />
+          </view>
+        </scroll-view>
       </view>
     </view>
 
@@ -66,9 +71,17 @@
       :disabled="!geekSkuData.length"
     />
 
+    <HotProduct />
+
     <!-- 底部操作栏 -->
     <view class="bottom-bar">
       <view class="action-buttons">
+        <!-- 收藏 -->
+        <view class="btn-favorite" @click="handleFavorite">
+          <uni-icons type="heart" size="30" v-if="!isFavorite"></uni-icons>
+          <uni-icons type="heart-filled" size="30" color="#e85748" v-else></uni-icons>
+          <view class="favorite-label">{{ isFavorite ? '已收藏' : '收藏' }}</view>
+        </view>
         <button class="btn-cart" @click="addToCart">加入购物车</button>
         <button class="btn-buy" @click="buyNow">立即购买</button>
       </view>
@@ -77,6 +90,8 @@
 </template>
 
 <script setup lang="ts">
+import { addFavorite, cancelFavorite, checkFavorite } from '@/api/favorite';
+import HotProduct from '@/components/hot-product/index.vue';
 import { useCartStore } from '@/stores/cart';
 import GeekSku from '@/uni_modules/geek-sku/components/geek-sku/geek-sku.vue';
 import request from '@/utils/request';
@@ -122,6 +137,7 @@ const selectedSpecs = ref<Record<string, string>>({}); // 已选规格（键：�
 const selectedSku = ref<ProductSku | null>(null); // 选中的SKU
 const quantity = ref(1); // 购买数量
 const maxQuantity = ref(1); // 最大购买数量（=选中SKU的库存）
+const isFavorite = ref<boolean>(false); // 收藏icon
 
 // 获取页面路由参数（商品ID）
 const getProductId = () => {
@@ -135,8 +151,22 @@ onMounted(async () => {
   const productId = getProductId();
   if (productId) {
     await fetchProductDetail(productId);
+    await checkFavoriteStatus(productId);
   }
 });
+
+// 检测当前商品是否已被收藏
+const checkFavoriteStatus = async (productId: string) => {
+  try {
+    const res = await checkFavorite(productId);
+    // @ts-ignore
+    if (res.code === 0) {
+      isFavorite.value = res.data;
+    }
+  } catch (error) {
+    console.error('检测收藏状态失败:', error);
+  }
+};
 
 // 请求商品详情数据
 const fetchProductDetail = async (productId: string) => {
@@ -300,6 +330,27 @@ const previewImage = (index: number) => {
 const handleSkuShow = () => {
   showSkuModal.value = true;
 };
+
+const handleFavorite = async () => {
+  isFavorite.value = !isFavorite.value;
+  if (isFavorite.value) {
+    const res = await addFavorite(product.value.id);
+    // @ts-ignore
+    if (res.code === 0) {
+      uni.showToast({ title: '收藏成功', icon: 'success' });
+    } else {
+      uni.showToast({ title: '收藏失败', icon: 'error' });
+    }
+  } else {
+    const res = await cancelFavorite(product.value.id);
+    // @ts-ignore
+    if (res.code === 0) {
+      uni.showToast({ title: '取消收藏成功', icon: 'success' });
+    } else {
+      uni.showToast({ title: '取消收藏失败', icon: 'error' });
+    }
+  }
+};
 </script>
 
 <style scoped lang="scss">
@@ -397,6 +448,10 @@ const handleSkuShow = () => {
 
 /* 商品详情样式 */
 .detail-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   background: white;
   padding: 16px;
   margin-bottom: 10px;
@@ -405,7 +460,9 @@ const handleSkuShow = () => {
   font-size: 16px;
   font-weight: 600;
   color: #333;
-  margin-bottom: 12px;
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
 }
 .detail-content {
   font-size: 14px;
@@ -431,7 +488,20 @@ const handleSkuShow = () => {
 }
 .action-buttons {
   display: flex;
+  justify-content: center;
   gap: 12px;
+}
+.btn-favorite {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  .favorite-label {
+    font-size: 12px;
+  }
+}
+.active {
+  background: red;
 }
 .action-buttons button {
   flex: 1;
@@ -456,5 +526,14 @@ const handleSkuShow = () => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.detail-image {
+  width: 100%;
+  height: 100%;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 </style>

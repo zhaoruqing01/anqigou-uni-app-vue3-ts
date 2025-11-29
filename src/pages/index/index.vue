@@ -6,17 +6,8 @@
     </view>
 
     <!-- 轮播图 -->
-    <swiper
-      class="banner"
-      :indicator-dots="true"
-      :autoplay="true"
-      :interval="5000"
-    >
-      <swiper-item
-        v-for="(banner, i) in banners"
-        :key="i"
-        @click="handleBannerClick(banner)"
-      >
+    <swiper class="banner" :indicator-dots="true" :autoplay="true" :interval="5000">
+      <swiper-item v-for="(banner, i) in banners" :key="i" @click="handleBannerClick(banner)">
         <image :src="banner.imageUrl" mode="aspectFill" />
       </swiper-item>
     </swiper>
@@ -43,31 +34,15 @@
     </view>
 
     <!-- 热门商品 -->
-    <view class="section">
-      <view class="section-title">热门商品</view>
-      <view class="product-grid">
-        <view
-          v-for="product in hotProducts"
-          :key="product.id"
-          class="product-item"
-          @click="goToDetail(product.id)"
-        >
-          <image :src="product.mainImage" mode="aspectFill" />
-          <view class="product-name">{{ product.name }}</view>
-          <view class="product-price"
-            >¥{{ (product.price / 100).toFixed(2) }}</view
-          >
-        </view>
-      </view>
-    </view>
-    <view class="load-more">{{ isLoading ? "加载中..." : "到底啦~" }}</view>
+    <HotProduct />
   </view>
 </template>
 
 <script setup lang="ts">
-import { getHotProducts } from "@/api/product";
-import { onReachBottom } from "@dcloudio/uni-app";
-import { onMounted, ref } from "vue";
+import { getHotProducts } from '@/api/product';
+import HotProduct from '@/components/hot-product/index.vue';
+import { onReachBottom } from '@dcloudio/uni-app';
+import { onMounted, ref } from 'vue';
 
 interface Banner {
   id: string;
@@ -80,16 +55,16 @@ const isLoading = ref(false);
 const hotProducts = ref<any[]>([]);
 const banners = ref<Banner[]>([
   {
-    id: "1",
-    imageUrl: "https://img.shetu66.com/2023/10/18/1697618323357921.png",
+    id: '1',
+    imageUrl: 'https://img.shetu66.com/2023/10/18/1697618323357921.png',
   },
   {
-    id: "2",
-    imageUrl: "https://img.shetu66.com/2023/10/18/1697617454290302.png",
+    id: '2',
+    imageUrl: 'https://img.shetu66.com/2023/10/18/1697617454290302.png',
   },
   {
-    id: "3",
-    imageUrl: "https://img.shetu66.com/2023/10/18/1697578751828707.png",
+    id: '3',
+    imageUrl: 'https://img.shetu66.com/2023/10/18/1697578751828707.png',
   },
 ]);
 
@@ -120,7 +95,7 @@ onMounted(async () => {
   try {
     getHotList(10);
   } catch (e) {
-    console.error("Failed to fetch hot products", e);
+    console.error('Failed to fetch hot products', e);
     // 模拟数据
     hotProducts.value = Array.from({ length: 6 }, (_, i) => ({
       id: `hot-${i}`,
@@ -132,27 +107,27 @@ onMounted(async () => {
 });
 
 const handleSearch = () => {
-  uni.navigateTo({ url: "/pages/product/search-view" });
+  uni.navigateTo({ url: '/pages/product/search-view' });
 };
 
 const handleBannerClick = (banner: Banner) => {
   if (banner.productId) {
     goToDetail(banner.productId);
   } else if (banner.linkUrl) {
-    console.log("Banner link:", banner.linkUrl);
+    console.log('Banner link:', banner.linkUrl);
   }
 };
 
 const goToCategory = () => {
-  uni.switchTab({ url: "/pages/product/list" });
+  uni.switchTab({ url: '/pages/product/list' });
 };
 
 const goToCart = () => {
-  uni.switchTab({ url: "/pages/order/cart" });
+  uni.switchTab({ url: '/pages/order/cart' });
 };
 
 const goToProfile = () => {
-  uni.switchTab({ url: "/pages/user/profile" });
+  uni.switchTab({ url: '/pages/user/profile' });
 };
 
 const goToDetail = (id: string) => {
@@ -160,17 +135,17 @@ const goToDetail = (id: string) => {
 };
 
 const goToOrders = () => {
-  uni.navigateTo({ url: "/pages/order/list" });
+  uni.navigateTo({ url: '/pages/order/list' });
 };
 
 const goToFavorites = () => {
-  uni.navigateTo({ url: "/pages/user/favorite" });
+  uni.navigateTo({ url: '/pages/user/favorite' });
 };
 </script>
 
 <style scoped lang="scss">
-@import "@/styles/variables.scss";
-@import "@/styles/mixins.scss";
+@import '@/styles/variables.scss';
+@import '@/styles/mixins.scss';
 
 .container {
   min-height: 100vh;
@@ -281,7 +256,7 @@ const goToFavorites = () => {
   color: $text-primary;
 
   &:before {
-    content: "";
+    content: '';
     width: 4px;
     height: 20px;
     background: $gradient-primary;
@@ -329,7 +304,7 @@ const goToFavorites = () => {
   padding: 0 $spacing-sm $spacing-md;
 
   &::before {
-    content: "¥";
+    content: '¥';
     font-size: 0.8em;
     margin-right: 2px;
   }

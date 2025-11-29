@@ -2,12 +2,8 @@
   <view class="favorite-container">
     <view class="favorite-header">
       <text class="title">我的收藏</text>
-      <text v-if="selectedCount > 0" class="selected-count"
-        >{{ selectedCount }} 已选</text
-      >
-      <text class="edit-btn" @click="toggleEdit">{{
-        isEdit ? "完成" : "编辑"
-      }}</text>
+      <text v-if="selectedCount > 0" class="selected-count">{{ selectedCount }} 已选</text>
+      <text class="edit-btn" @click="toggleEdit">{{ isEdit ? '完成' : '编辑' }}</text>
     </view>
 
     <view v-if="favorites.length === 0" class="empty-favorite">
@@ -19,26 +15,16 @@
     <view v-else class="favorite-list">
       <view v-for="item in favorites" :key="item.id" class="favorite-item">
         <view class="checkbox-container" v-if="isEdit">
-          <checkbox
-            :checked="item.checked"
-            @change="toggleItem(item)"
-          ></checkbox>
+          <checkbox :checked="item.checked" @change="toggleItem(item)"></checkbox>
         </view>
-        <navigator
-          :url="`/pages/product/detail?id=${item.productId}`"
-          class="product-info"
-        >
+        <navigator :url="`/pages/product/detail?id=${item.productId}`" class="product-info">
           <image :src="item.product?.mainImage || ''" mode="aspectFit"></image>
           <view class="product-details">
-            <text class="product-name">{{ item.product?.name || "" }}</text>
-            <text class="product-price"
-              >¥{{ (item.product?.price || 0) / 100 }}</text
-            >
-            <text
-              class="original-price"
-              v-if="item.product?.originalPrice > item.product?.price"
-              >¥{{ (item.product?.originalPrice || 0) / 100 }}</text
-            >
+            <text class="product-name">{{ item.product?.name || '' }}</text>
+            <text class="product-price">¥{{ (item.product?.price || 0) / 100 }}</text>
+            <text class="original-price" v-if="item.product?.originalPrice > item.product?.price">
+              ¥{{ (item.product?.originalPrice || 0) / 100 }}
+            </text>
             <view class="product-stock" v-if="item.product?.stock > 0">
               <text class="stock-text">有货</text>
             </view>
@@ -48,15 +34,8 @@
           </view>
         </navigator>
         <view class="action-buttons" v-if="!isEdit">
-          <button
-            class="cancel-btn"
-            @click.stop="cancelFavorite(item.productId)"
-          >
-            取消收藏
-          </button>
-          <button class="add-cart-btn" @click.stop="addToCart(item.productId)">
-            加入购物车
-          </button>
+          <button class="cancel-btn" @click.stop="cancelFavorite(item.productId)">取消收藏</button>
+          <button class="add-cart-btn" @click.stop="addToCart(item.productId)">加入购物车</button>
         </view>
       </view>
     </view>
@@ -66,11 +45,7 @@
         <checkbox :checked="isAllSelected" @change="toggleSelectAll"></checkbox>
         <text>全选</text>
       </view>
-      <button
-        class="batch-cancel-btn"
-        @click="batchCancel"
-        :disabled="selectedCount === 0"
-      >
+      <button class="batch-cancel-btn" @click="batchCancel" :disabled="selectedCount === 0">
         批量删除
       </button>
     </view>
@@ -78,9 +53,9 @@
 </template>
 
 <script setup lang="ts">
-import { addToCart as apiAddToCart } from "@/api/cart";
-import { batchCancelFavorite, listFavorites } from "@/api/favorite";
-import { computed, onMounted, ref } from "vue";
+import { addToCart as apiAddToCart } from '@/api/cart';
+import { batchCancelFavorite, listFavorites } from '@/api/favorite';
+import { computed, onMounted, ref } from 'vue';
 
 const favorites = ref<any[]>([]);
 const isEdit = ref(false);
@@ -92,9 +67,7 @@ const selectedCount = computed(() => {
 });
 
 const isAllSelected = computed(() => {
-  return (
-    favorites.value.length > 0 && favorites.value.every((item) => item.checked)
-  );
+  return favorites.value.length > 0 && favorites.value.every((item) => item.checked);
 });
 
 // 获取收藏列表
@@ -102,14 +75,14 @@ const getFavorites = async () => {
   isLoading.value = true;
   try {
     const res = await listFavorites();
-    if (res.code === 200) {
+    if (res.code === 0) {
       favorites.value = res.data.map((item: any) => ({
         ...item,
         checked: false,
       }));
     }
   } catch (error) {
-    console.error("获取收藏列表失败:", error);
+    console.error('获取收藏列表失败:', error);
   } finally {
     isLoading.value = false;
   }
@@ -141,25 +114,23 @@ const toggleItem = (item: any) => {
 
 // 批量取消收藏
 const batchCancel = async () => {
-  const selectedIds = favorites.value
-    .filter((item) => item.checked)
-    .map((item) => item.productId);
+  const selectedIds = favorites.value.filter((item) => item.checked).map((item) => item.productId);
   if (selectedIds.length === 0) return;
 
   uni.showModal({
-    title: "提示",
+    title: '提示',
     content: `确定要取消收藏这${selectedIds.length}件商品吗？`,
     success: async (res) => {
       if (res.confirm) {
         try {
           const result = await batchCancelFavorite(selectedIds);
           if (result.code === 200) {
-            uni.showToast({ title: "取消成功", icon: "success" });
+            uni.showToast({ title: '取消成功', icon: 'success' });
             getFavorites();
           }
         } catch (error) {
-          console.error("批量取消收藏失败:", error);
-          uni.showToast({ title: "取消失败", icon: "error" });
+          console.error('批量取消收藏失败:', error);
+          uni.showToast({ title: '取消失败', icon: 'error' });
         }
       }
     },
@@ -169,19 +140,19 @@ const batchCancel = async () => {
 // 取消收藏单个商品
 const cancelFavorite = async (productId: string) => {
   uni.showModal({
-    title: "提示",
-    content: "确定要取消收藏该商品吗？",
+    title: '提示',
+    content: '确定要取消收藏该商品吗？',
     success: async (res) => {
       if (res.confirm) {
         try {
           const result = await batchCancelFavorite([productId]);
           if (result.code === 200) {
-            uni.showToast({ title: "取消成功", icon: "success" });
+            uni.showToast({ title: '取消成功', icon: 'success' });
             getFavorites();
           }
         } catch (error) {
-          console.error("取消收藏失败:", error);
-          uni.showToast({ title: "取消失败", icon: "error" });
+          console.error('取消收藏失败:', error);
+          uni.showToast({ title: '取消失败', icon: 'error' });
         }
       }
     },
@@ -197,10 +168,10 @@ const addToCart = async (productId: string) => {
       skuId: productId, // 临时使用productId作为skuId
       quantity: 1,
     });
-    uni.showToast({ title: "已加入购物车", icon: "success" });
+    uni.showToast({ title: '已加入购物车', icon: 'success' });
   } catch (error) {
-    console.error("加入购物车失败:", error);
-    uni.showToast({ title: "加入失败", icon: "error" });
+    console.error('加入购物车失败:', error);
+    uni.showToast({ title: '加入失败', icon: 'error' });
   }
 };
 

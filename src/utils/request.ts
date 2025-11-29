@@ -1,27 +1,27 @@
 // API 服务基础配置
-import { createUniAppAxiosAdapter } from "@uni-helper/axios-adapter";
-import axios from "axios";
+import { createUniAppAxiosAdapter } from '@uni-helper/axios-adapter';
+import axios from 'axios';
 
 // 创建 axios 实例
 // 根据路由前缀动态选择不同微服务的基础URL
 function getBaseURL(path: string): string {
   if (
-    path.startsWith("/auth") ||
-    path.startsWith("/user") ||
-    path.startsWith("/feedback") ||
-    path.startsWith("/favorite")
+    path.startsWith('/auth') ||
+    path.startsWith('/user') ||
+    path.startsWith('/feedback') ||
+    path.startsWith('/favorite')
   ) {
-    return "http://localhost:8081/api"; // 用户服务（包含反馈服务、收藏服务）
-  } else if (path.startsWith("/product")) {
-    return "http://localhost:8082/api"; // 商品服务
-  } else if (path.startsWith("/order") || path.startsWith("/cart")) {
-    return "http://localhost:8083/api"; // 订单服务（包含购物车服务）
-  } else if (path.startsWith("/payment")) {
-    return "http://localhost:8084/api"; // 支付服务
-  } else if (path.startsWith("/logistics")) {
-    return "http://localhost:8085/api"; // 物流服务
+    return 'http://localhost:8081/api'; // 用户服务（包含反馈服务、收藏服务）
+  } else if (path.startsWith('/product')) {
+    return 'http://localhost:8082/api'; // 商品服务
+  } else if (path.startsWith('/order') || path.startsWith('/cart')) {
+    return 'http://localhost:8083/api'; // 订单服务（包含购物车服务）
+  } else if (path.startsWith('/payment')) {
+    return 'http://localhost:8084/api'; // 支付服务
+  } else if (path.startsWith('/logistics')) {
+    return 'http://localhost:8085/api'; // 物流服务
   }
-  return "http://localhost:8081/api"; // 默认用户服务
+  return 'http://localhost:8081/api'; // 默认用户服务
 }
 
 // 定义响应数据类型
@@ -34,10 +34,10 @@ interface ApiResponse<T = any> {
 
 // 创建 axios 实例
 const service = axios.create({
-  baseURL: "http://localhost:8081/api",
+  baseURL: 'http://localhost:8081/api',
   timeout: 10000,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
   adapter: createUniAppAxiosAdapter(),
 });
@@ -50,15 +50,15 @@ service.interceptors.request.use(
       config.baseURL = getBaseURL(config.url);
     }
     // 从本地存储获取 token 和 userId
-    const token = uni.getStorageSync("token");
-    const userId = uni.getStorageSync("userId");
+    const token = uni.getStorageSync('token');
+    const userId = uni.getStorageSync('userId');
     if (config.headers) {
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
       // 添加 userId 到请求头
       if (userId) {
-        config.headers["X-User-Id"] = userId;
+        config.headers['X-User-Id'] = userId;
       }
     }
     return config;
@@ -75,8 +75,8 @@ service.interceptors.response.use(
 
     // 检查响应码（后端成功返回200）
     if (data.code !== 200 && data.code !== 0) {
-      const errorMsg = data.message || "请求失败";
-      console.error("[接口错误] ", {
+      const errorMsg = data.message || '请求失败';
+      console.error('[接口错误] ', {
         url: response.config?.url,
         code: data.code,
         message: errorMsg,
@@ -85,15 +85,15 @@ service.interceptors.response.use(
       });
       uni.showToast({
         title: errorMsg,
-        icon: "error",
+        icon: 'error',
       });
       return Promise.reject(data);
     }
     return data;
   },
   (error: any) => {
-    const errorMsg = error?.message || "网络错误";
-    console.error("[网络错误] ", {
+    const errorMsg = error?.message || '网络错误';
+    console.error('[网络错误] ', {
       url: error?.config?.url,
       status: error?.response?.status,
       message: errorMsg,
@@ -103,33 +103,33 @@ service.interceptors.response.use(
 
     if (error.response?.status === 401) {
       // 清除登录信息，跳转到登录页
-      uni.removeStorageSync("token");
-      uni.removeStorageSync("userId");
-      uni.removeStorageSync("userRole");
-      uni.navigateTo({ url: "/pages/auth/login" });
+      uni.removeStorageSync('token');
+      uni.removeStorageSync('userId');
+      uni.removeStorageSync('userRole');
+      uni.navigateTo({ url: '/pages/auth/login' });
     } else if (error.response?.status === 403) {
       uni.showToast({
-        title: "无访问权限",
-        icon: "error",
+        title: '无访问权限',
+        icon: 'error',
       });
     } else if (error.response?.status === 404) {
       uni.showToast({
-        title: "请求的资源不存在",
-        icon: "error",
+        title: '请求的资源不存在',
+        icon: 'error',
       });
     } else if (error.response?.status === 500) {
       uni.showToast({
-        title: "服务器错误，请稍后重试",
-        icon: "error",
+        title: '服务器错误，请稍后重试',
+        icon: 'error',
       });
     } else if (error.response?.status === 400) {
       // 400 错误可能是请求参数或属性问题
-      console.error("[400 错误详情]", error.response?.data);
+      console.error('[400 错误详情]', error.response?.data);
     } else if (!error.response) {
       // 网络不可用，一般是后端未启动
       uni.showToast({
-        title: "无法连接到服务器，请确保后端已启动",
-        icon: "error",
+        title: '无法连接到服务器，请确保后端已启动',
+        icon: 'error',
       });
     } else if (error.response?.status >= 400 && error.response?.status < 500) {
       // 客户端错误
@@ -137,16 +137,51 @@ service.interceptors.response.use(
       const message = errorData?.message || errorMsg;
       uni.showToast({
         title: message,
-        icon: "error",
+        icon: 'error',
       });
     } else {
       uni.showToast({
         title: errorMsg,
-        icon: "error",
+        icon: 'error',
       });
     }
     return Promise.reject(error);
   }
 );
 
-export default service;
+/**
+ * 外部接口实例：用于请求第三方接口（如省市区CDN、GitHub接口）
+ * 特点：无 baseURL、无响应 code 校验、简化拦截器
+ */
+const externalService = axios.create({
+  timeout: 15000, // 外部接口超时时间设长一点（15秒）
+  adapter: createUniAppAxiosAdapter(), // 复用 Uniapp 适配器
+});
+
+// 外部接口请求拦截器：仅处理必要逻辑，不添加非法头
+externalService.interceptors.request.use(
+  (config: any) => {
+    // 额外移除可能存在的非法头（保险起见）
+    delete config.headers['Access-Control-Allow-Origin'];
+    delete config.headers['Access-Control-Allow-Methods'];
+    return config;
+  },
+  (error: any) => Promise.reject(error)
+);
+
+// 外部接口响应拦截器：不校验 code，直接返回原始数据
+externalService.interceptors.response.use(
+  (response: any) => {
+    // 第三方接口返回的是纯 JSON 数据，直接返回，不做 code 校验
+    return response.data;
+  },
+  (error: any) => {
+    // 外部接口错误单独处理
+    const errorMsg = error?.message || '第三方接口请求失败';
+    console.error('[外部接口错误] ', { url: error?.config?.url, message: errorMsg });
+    uni.showToast({ title: errorMsg, icon: 'none' });
+    return Promise.reject(error);
+  }
+);
+
+export { service as default, externalService };
