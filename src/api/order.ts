@@ -1,4 +1,4 @@
-import request from "@/utils/request";
+import request from '@/utils/request';
 
 /**
  * 订单API
@@ -7,7 +7,7 @@ import request from "@/utils/request";
 // 创建订单
 export const createOrder = (data: {
   addressId: string;
-  paymentMethod: number;
+  paymentMethod: string;
   shippingMethod?: string;
   remark?: string;
   items: Array<{
@@ -17,21 +17,17 @@ export const createOrder = (data: {
   }>;
 }) => {
   return request({
-    url: "/order/create",
-    method: "POST",
+    url: '/order/create',
+    method: 'POST',
     data,
   });
 };
 
 // 获取订单列表
-export const getOrderList = (
-  pageNum: number,
-  pageSize: number,
-  status?: string
-) => {
+export const getOrderList = (pageNum: number, pageSize: number, status?: string) => {
   return request({
-    url: "/order/list",
-    method: "GET",
+    url: '/order/list',
+    method: 'GET',
     params: {
       pageNum,
       pageSize,
@@ -44,7 +40,7 @@ export const getOrderList = (
 export const getOrderDetail = (orderId: string) => {
   return request({
     url: `/order/${orderId}`,
-    method: "GET",
+    method: 'GET',
   });
 };
 
@@ -52,7 +48,7 @@ export const getOrderDetail = (orderId: string) => {
 export const cancelOrder = (orderId: string) => {
   return request({
     url: `/order/${orderId}/cancel`,
-    method: "POST",
+    method: 'POST',
   });
 };
 
@@ -60,6 +56,6 @@ export const cancelOrder = (orderId: string) => {
 export const confirmReceipt = (orderId: string) => {
   return request({
     url: `/order/${orderId}/confirm-receipt`,
-    method: "POST",
+    method: 'POST',
   });
 };

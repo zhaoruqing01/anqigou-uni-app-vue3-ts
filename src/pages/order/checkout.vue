@@ -7,17 +7,14 @@
       <view class="section-title">收货地址</view>
       <view v-if="selectedAddress" class="address-box">
         <view class="address-content">
-          <text class="receiver"
-            >{{ selectedAddress.receiverName }}
-            {{ selectedAddress.receiverPhone }}</text
-          >
+          <text class="receiver">
+            {{ selectedAddress.receiverName }} {{ selectedAddress.receiverPhone }}
+          </text>
           <text class="address">{{ selectedAddress.fullAddress }}</text>
         </view>
         <button @click="changeAddress">更换</button>
       </view>
-      <button v-else class="btn-add-address" @click="changeAddress">
-        添加收货地址
-      </button>
+      <button v-else class="btn-add-address" @click="changeAddress">添加收货地址</button>
     </view>
 
     <!-- 商品清单 -->
@@ -66,7 +63,7 @@
     <view class="section">
       <view class="section-title">支付方式</view>
       <view class="option-group">
-        <label 
+        <label
           class="option"
           :class="{ selected: paymentMethod === 'weixin' }"
           @click="paymentMethod = 'weixin'"
@@ -81,7 +78,7 @@
             <text>微信支付</text>
           </view>
         </label>
-        <label 
+        <label
           class="option"
           :class="{ selected: paymentMethod === 'alipay' }"
           @click="paymentMethod = 'alipay'"
@@ -102,11 +99,7 @@
     <!-- 订单备注 -->
     <view class="section">
       <view class="section-title">订单备注</view>
-      <textarea
-        v-model="remark"
-        placeholder="请输入订单备注（可选）"
-        maxlength="200"
-      />
+      <textarea v-model="remark" placeholder="请输入订单备注（可选）" maxlength="200" />
     </view>
 
     <!-- 金额明细 -->
@@ -131,20 +124,21 @@
 </template>
 
 <script setup lang="ts">
-import { createOrder } from "@/api/order";
-import { useCartStore } from "@/stores/cart";
-import { getPrevPageData } from "@/utils/pageHelper";
-import { computed, onMounted, ref } from "vue";
+import { createOrder } from '@/api/order';
+import { useCartStore } from '@/stores/cart';
+import type { Address } from '@/types/address/index';
+import { onShow } from '@dcloudio/uni-app';
+import { computed, ref } from 'vue';
 
 const cartStore = useCartStore();
 const selectedAddress = ref<any>(null);
-const shippingMethod = ref("normal");
-const paymentMethod = ref("weixin");
-const remark = ref("");
+const shippingMethod = ref('normal');
+const paymentMethod = ref('weixin');
+const remark = ref('');
 
 const shippingMethods = [
-  { id: "normal", name: "标准快递", fee: 0 },
-  { id: "express", name: "次日达", fee: 1000 },
+  { id: 'normal', name: '标准快递', fee: 0 },
+  { id: 'express', name: '次日达', fee: 1000 },
 ];
 
 const cartItems = computed(() => cartStore.items.filter((i) => i.checked));
@@ -155,26 +149,37 @@ const shippingFee = computed(() => {
 });
 const totalAmount = computed(() => productAmount.value + shippingFee.value);
 
-onMounted(() => {
-  // 从地址列表页面获取选中的地址
-  const address = getPrevPageData("selectedAddress");
-  if (address) {
-    selectedAddress.value = address;
+// 钩子不对
+onShow(() => {
+  // 获取当前页（订单页）实例
+  const pages = getCurrentPages();
+  const currentPage = pages[pages.length - 1] as {
+    pageData?: Record<string, Address>; // 类型断言，避免 any 风险
+  };
+
+  // 读取地址页存入的数据（地址页已把数据存到订单页的 pageData）
+  const selectedAddr = currentPage.pageData?.selectedAddress;
+  if (selectedAddr) {
+    selectedAddress.value = selectedAddr; // 赋值给响应式变量
+    // 清空数据，避免下次进入重复读取（可选但推荐）
+    if (currentPage.pageData) {
+      currentPage.pageData.selectedAddress = null as any;
+    }
   }
 });
 
 const changeAddress = () => {
-  uni.navigateTo({ url: "/pages/user/address-list" });
+  uni.navigateTo({ url: '/pages/user/address-list' });
 };
 
 const submitOrder = async () => {
   if (!selectedAddress.value) {
-    uni.showToast({ title: "请选择收货地址", icon: "error" });
+    uni.showToast({ title: '请选择收货地址', icon: 'error' });
     return;
   }
 
   if (cartItems.value.length === 0) {
-    uni.showToast({ title: "请选择商品", icon: "error" });
+    uni.showToast({ title: '请选择商品', icon: 'error' });
     return;
   }
 
@@ -193,14 +198,14 @@ const submitOrder = async () => {
 
     const res = await createOrder(orderData);
     cartStore.removeCheckedItems();
-    uni.showToast({ title: "订单创建成功", icon: "success" });
+    uni.showToast({ title: '订单创建成功', icon: 'success' });
     setTimeout(() => {
       uni.navigateTo({
         url: `/pages/order/payment?orderId=${res.data.orderId}`,
       });
     }, 500);
   } catch (e) {
-    console.error("Failed to create order", e);
+    console.error('Failed to create order', e);
   }
 };
 </script>
@@ -243,7 +248,7 @@ const submitOrder = async () => {
 }
 
 .section-title:before {
-  content: "";
+  content: '';
   display: inline-block;
   width: 4px;
   height: 16px;
@@ -407,7 +412,7 @@ image {
   color: #333;
 }
 
-input[type="radio"] {
+input[type='radio'] {
   cursor: pointer;
   width: 18px;
   height: 18px;

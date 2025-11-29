@@ -18,12 +18,8 @@
           <view class="address-detail">{{ address.fullAddress }}</view>
         </view>
         <view class="address-actions">
-          <button class="btn-edit" @click.stop="editAddress(address)">
-            编辑
-          </button>
-          <button class="btn-delete" @click.stop="deleteAddress(address.id)">
-            删除
-          </button>
+          <button class="btn-edit" @click.stop="editAddress(address)">编辑</button>
+          <button class="btn-delete" @click.stop="deleteAddress(address.id)">删除</button>
         </view>
       </view>
 
@@ -39,8 +35,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import request from "@/utils/request";
+import request from '@/utils/request';
+import { onMounted, ref } from 'vue';
 
 interface Address {
   id: string;
@@ -62,13 +58,13 @@ onMounted(() => {
 
 const loadAddressList = async () => {
   try {
-    const response = await request.get("/user/address/list");
+    const response = await request.get('/user/address/list');
     if (response.code === 0) {
       addressList.value = response.data || [];
     }
   } catch (error) {
-    console.error("加载地址列表失败", error);
-    uni.showToast({ title: "加载地址失败", icon: "error" });
+    console.error('加载地址列表失败', error);
+    uni.showToast({ title: '加载地址失败', icon: 'error' });
   }
 };
 
@@ -77,7 +73,7 @@ const selectAddress = (address: Address) => {
   const pages = getCurrentPages();
   if (pages.length > 1) {
     const prevPage = pages[pages.length - 2] as any;
-    if (prevPage.route && prevPage.route.includes("checkout")) {
+    if (prevPage.route && prevPage.route.includes('checkout')) {
       // 设置上一页（订单页面）的数据并返回
       if (!prevPage.pageData) prevPage.pageData = {};
       prevPage.pageData.selectedAddress = address;
@@ -90,7 +86,7 @@ const selectAddress = (address: Address) => {
 };
 
 const addAddress = () => {
-  uni.navigateTo({ url: "/pages/user/address-edit" });
+  uni.navigateTo({ url: '/pages/user/address-edit' });
 };
 
 const editAddress = (address: Address) => {
@@ -99,18 +95,18 @@ const editAddress = (address: Address) => {
 
 const deleteAddress = async (id: string) => {
   uni.showModal({
-    title: "提示",
-    content: "确定要删除该地址吗？",
+    title: '提示',
+    content: '确定要删除该地址吗？',
     success: async (res) => {
       if (res.confirm) {
         try {
           const response = await request.delete(`/user/address/${id}`);
           if (response.code === 0) {
             addressList.value = addressList.value.filter((a) => a.id !== id);
-            uni.showToast({ title: "删除成功", icon: "success" });
+            uni.showToast({ title: '删除成功', icon: 'success' });
           }
         } catch (error) {
-          uni.showToast({ title: "删除失败", icon: "error" });
+          uni.showToast({ title: '删除失败', icon: 'error' });
         }
       }
     },
