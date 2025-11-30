@@ -2,11 +2,7 @@
   <view class="container">
     <!-- 空购物车状态 -->
     <view v-if="items.length === 0" class="empty">
-      <image
-        src="/static/images/cart-empty.png"
-        mode="aspectFill"
-        class="empty-img"
-      />
+      <image src="/static/images/cart-empty.png" mode="aspectFill" class="empty-img" />
       <text class="empty-text">购物车空空如也~</text>
       <button class="btn-go-shopping" @click="goHome">去购物</button>
     </view>
@@ -16,11 +12,7 @@
       <!-- 购物车列表 -->
       <scroll-view class="cart-list" scroll-y>
         <!-- 按商家分组展示 -->
-        <view
-          v-for="sellerGroup in itemsBySeller"
-          :key="sellerGroup.sellerId"
-          class="seller-group"
-        >
+        <view v-for="sellerGroup in itemsBySeller" :key="sellerGroup.sellerId" class="seller-group">
           <!-- 商家信息 -->
           <view class="seller-header">
             <view class="seller-name">{{ sellerGroup.sellerName }}</view>
@@ -28,77 +20,64 @@
 
           <!-- 商家商品列表 -->
           <view class="seller-items">
-            <uni-swipe-action
-              v-for="item in sellerGroup.items"
-              :key="item.id"
-              :right-options="[
-                {
-                  text: '删除',
-                  style: {
-                    backgroundColor: '#ff6b6b',
-                    color: '#fff',
-                    width: '80px',
-                    height: '100%',
-                    borderRadius: '0',
-                    fontSize: '16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+            <uni-swipe-action>
+              <uni-swipe-action-item
+                v-for="item in sellerGroup.items"
+                :key="item.id"
+                :right-options="[
+                  {
+                    text: '删除',
+                    style: {
+                      backgroundColor: '#ff6b6b',
+                      color: '#fff',
+                      width: '80px',
+                      height: '100%',
+                      borderRadius: '0',
+                      fontSize: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    },
                   },
-                },
-              ]"
-              @click="(event) => onSwipeActionClick(event, item.id)"
-            >
-              <view class="cart-item">
-                <!-- 选择框 -->
-                <view class="checkbox-wrapper">
-                  <checkbox
-                    :checked="item.checked"
-                    @click="toggleItem(item.id)"
-                    class="custom-checkbox"
-                  />
-                </view>
+                ]"
+                @click="(event) => onSwipeActionClick(event, item.id)"
+              >
+                <view class="cart-item">
+                  <!-- 选择框 -->
+                  <view class="checkbox-wrapper">
+                    <checkbox
+                      :checked="item.checked"
+                      @click="toggleItem(item.id)"
+                      class="custom-checkbox"
+                      color="#548163"
+                    />
+                  </view>
 
-                <!-- 商品图片 -->
-                <image
-                  :src="item.mainImage"
-                  mode="aspectFill"
-                  class="product-image"
-                />
+                  <!-- 商品图片 -->
+                  <image :src="item.mainImage" mode="aspectFill" class="product-image" />
 
-                <!-- 商品信息 -->
-                <view class="item-info">
-                  <view class="product-name">{{ item.productName }}</view>
-                  <view class="spec-info">{{ item.specInfo }}</view>
-                  <view class="price-row">
-                    <text class="price"
-                      >¥{{ (item.price / 100).toFixed(2) }}</text
-                    >
+                  <!-- 商品信息 -->
+                  <view class="item-info">
+                    <view class="product-name">{{ item.productName }}</view>
+                    <view class="spec-info">{{ item.specInfo }}</view>
+                    <view class="price-row">
+                      <text class="price">¥{{ (item.price / 100).toFixed(2) }}</text>
 
-                    <!-- 数量控制 -->
-                    <view class="quantity-control">
-                      <button
-                        class="btn-quantity"
-                        @click="decreaseQuantity(item.id)"
-                      >
-                        -
-                      </button>
-                      <input
-                        :value="item.quantity"
-                        type="number"
-                        readonly
-                        class="quantity-input"
-                      />
-                      <button
-                        class="btn-quantity"
-                        @click="increaseQuantity(item.id)"
-                      >
-                        +
-                      </button>
+                      <!-- 数量控制 -->
+                      <view class="quantity-control">
+                        <button class="btn-quantity" @click="decreaseQuantity(item.id)">-</button>
+                        <input
+                          :value="item.quantity"
+                          type="number"
+                          readonly
+                          class="quantity-input"
+                        />
+                        <button class="btn-quantity" @click="increaseQuantity(item.id)">+</button>
+                      </view>
                     </view>
                   </view>
                 </view>
-              </view>
+              </uni-swipe-action-item>
             </uni-swipe-action>
           </view>
         </view>
@@ -112,6 +91,7 @@
               :checked="isAllChecked"
               @click="toggleAllItems"
               class="custom-checkbox"
+              color="#548163"
             />
           </view>
           <text class="select-all-text">全选</text>
@@ -120,15 +100,11 @@
         <view class="footer-right">
           <view class="total-section">
             <text class="total-label">合计:</text>
-            <text class="total-price"
-              >¥{{ (totalPrice / 100).toFixed(2) }}</text
-            >
+            <text class="total-price">¥{{ (totalPrice / 100).toFixed(2) }}</text>
           </view>
 
           <!-- 结算按钮 -->
-          <button class="btn-checkout" @click="checkout">
-            结算({{ checkedCount }})
-          </button>
+          <button class="btn-checkout" @click="checkout">结算({{ checkedCount }})</button>
         </view>
       </view>
     </view>
@@ -136,8 +112,8 @@
 </template>
 
 <script setup lang="ts">
-import { useCartStore } from "@/stores/cart";
-import { computed, onMounted } from "vue";
+import { useCartStore } from '@/stores/cart';
+import { computed, onMounted } from 'vue';
 
 const cartStore = useCartStore();
 
@@ -193,8 +169,9 @@ const decreaseQuantity = (cartItemId: string) => {
 
 const removeItem = (cartItemId: string) => {
   uni.showModal({
-    title: "提示",
-    content: "确定要删除该商品吗？",
+    title: '提示',
+    content: '确定要删除该商品吗？',
+    confirmColor: '#548163',
     success: (res) => {
       if (res.confirm) {
         cartStore.removeItem(cartItemId);
@@ -205,27 +182,29 @@ const removeItem = (cartItemId: string) => {
 
 const checkout = () => {
   if (checkedCount.value === 0) {
-    uni.showToast({ title: "请选择商品", icon: "error" });
+    uni.showToast({ title: '请选择商品', icon: 'error' });
     return;
   }
-  uni.navigateTo({ url: "/pages/order/checkout" });
+  uni.navigateTo({ url: '/pages/order/checkout' });
 };
 
 const goHome = () => {
-  uni.switchTab({ url: "/pages/index/index" });
+  uni.switchTab({ url: '/pages/index/index' });
 };
 
 // 侧滑删除事件处理
 const onSwipeActionClick = (event: any, itemId: string) => {
-  if (event.content === "删除") {
+  console.log(event, 'event');
+
+  if (event.content.text === '删除') {
     removeItem(itemId);
   }
 };
 </script>
 
 <style scoped lang="scss">
-@import "@/styles/variables.scss";
-@import "@/styles/mixins.scss";
+@import '@/styles/variables.scss';
+@import '@/styles/mixins.scss';
 
 .container {
   @include flex-center;
@@ -452,7 +431,11 @@ const onSwipeActionClick = (event: any, itemId: string) => {
 .cart-footer {
   @include flex-between;
   position: fixed;
+  /* #ifdef MP-WEIXIN */
   bottom: 0;
+  /* #endif */
+  bottom: 50px;
+
   left: 0;
   right: 0;
   height: 64px;

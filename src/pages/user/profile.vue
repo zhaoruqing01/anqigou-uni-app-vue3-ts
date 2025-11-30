@@ -4,14 +4,13 @@
     <view class="user-card">
       <image
         :src="
-          userInfo.avatar ||
-          'https://www.eduplus.net/static/png/icon_man.a973c7241763647499790.png'
+          userInfo.avatar || 'https://www.eduplus.net/static/png/icon_man.a973c7241763647499790.png'
         "
         class="avatar"
         mode="aspectFill"
       />
       <view class="user-info">
-        <view class="nickname">{{ userInfo.nickname || "用户" }}</view>
+        <view class="nickname">{{ userInfo.nickname || '用户' }}</view>
         <view class="phone">{{ userInfo.phone }}</view>
         <view class="level">会员等级：LV{{ userInfo.memberLevel }}</view>
       </view>
@@ -24,9 +23,7 @@
         <view class="stat-label">积分</view>
       </view>
       <view class="stat-item">
-        <view class="stat-value"
-          >¥{{ (userInfo.totalConsumption / 100).toFixed(2) }}</view
-        >
+        <view class="stat-value">¥{{ (userInfo.totalConsumption / 100).toFixed(2) }}</view>
         <view class="stat-label">总消费</view>
       </view>
     </view>
@@ -98,26 +95,26 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from "@/stores/user";
-import { onMounted, ref } from "vue";
+import { useUserStore } from '@/stores/user';
+import { onMounted, ref } from 'vue';
 
 const userStore = useUserStore();
 const userInfo = ref({
-  nickname: "",
-  phone: "",
-  avatar: "",
+  nickname: '',
+  phone: '',
+  avatar: '',
   memberLevel: 0,
   totalConsumption: 0,
   availablePoints: 0,
 });
 
 onMounted(() => {
-  const user = JSON.parse(uni.getStorageSync("userData"));
+  const user = JSON.parse(uni.getStorageSync('userData'));
   if (user) {
     userInfo.value = {
-      nickname: user.nickname || "用户",
-      phone: user.phone || "",
-      avatar: user.avatar || "",
+      nickname: user.nickname || '用户',
+      phone: user.phone || '',
+      avatar: user.avatar || '',
       memberLevel: user.memberLevel || 0,
       totalConsumption: user.totalConsumption || 0,
       availablePoints: user.availablePoints || 0,
@@ -126,45 +123,45 @@ onMounted(() => {
 });
 
 const goToOrders = () => {
-  uni.navigateTo({ url: "/pages/order/list" });
+  uni.navigateTo({ url: '/pages/order/list' });
 };
 
 const goToAddresses = () => {
-  uni.navigateTo({ url: "/pages/user/address-list" });
+  uni.navigateTo({ url: '/pages/user/address-list' });
 };
 
 const goToWallet = () => {
-  uni.showToast({ title: "钱包功能开发中", icon: "none" });
+  uni.showToast({ title: '钱包功能开发中', icon: 'none' });
 };
 
 const goToDevices = () => {
-  uni.navigateTo({ url: "/pages/user/device" });
+  uni.navigateTo({ url: '/pages/user/device' });
 };
 
 const goToPrivacy = () => {
-  uni.navigateTo({ url: "/pages/user/privacy" });
+  uni.navigateTo({ url: '/pages/user/privacy' });
 };
 
 const goToSettings = () => {
-  uni.showToast({ title: "设置功能开发中", icon: "none" });
+  uni.navigateTo({ url: '/pages/user/setting' });
 };
 
 const goToFavorites = () => {
-  uni.navigateTo({ url: "/pages/user/favorite" });
+  uni.navigateTo({ url: '/pages/user/favorite' });
 };
 
 const goToFeedback = () => {
-  uni.navigateTo({ url: "/pages/user/feedback-list" });
+  uni.navigateTo({ url: '/pages/user/feedback-list' });
 };
 
 const handleLogout = () => {
   uni.showModal({
-    title: "提示",
-    content: "确定要退出登录吗？",
+    title: '提示',
+    content: '确定要退出登录吗？',
     success: (res) => {
       if (res.confirm) {
         userStore.logout();
-        uni.navigateTo({ url: "/pages/auth/login" });
+        uni.navigateTo({ url: '/pages/auth/login' });
       }
     },
   });
@@ -172,8 +169,8 @@ const handleLogout = () => {
 </script>
 
 <style scoped lang="scss">
-@import "@/styles/variables.scss";
-@import "@/styles/mixins.scss";
+@import '@/styles/variables.scss';
+@import '@/styles/mixins.scss';
 
 .profile-container {
   min-height: 100vh;

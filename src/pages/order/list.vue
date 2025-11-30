@@ -249,13 +249,20 @@ const evaluate = (orderId: string) => {
 </script>
 
 <style scoped lang="scss">
+/* 全局样式重置 */
+* {
+  box-sizing: border-box;
+}
+
+/* 主容器 */
 .order-list {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #f8f9ff;
+  background: #f5f7fa;
 }
 
+/* 顶部标签栏 */
 .tabs {
   display: flex;
   background: white;
@@ -263,193 +270,257 @@ const evaluate = (orderId: string) => {
   position: sticky;
   top: 0;
   z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
+/* 标签项 */
 .tabs .tab-item {
   flex: 1;
   position: relative;
-  padding: 14px 0;
+  padding: 16px 0;
   text-align: center;
-  font-size: 14px;
+  font-size: 15px;
   color: #666;
   cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
 }
 
+/* 激活标签 */
 .tabs .tab-item.active {
   color: #548163;
-  font-weight: 600;
+  font-weight: 700;
   border-bottom: 3px solid #548163;
 }
 
+/* 标签徽章 */
 .tabs .tab-item .badge {
   position: absolute;
-  top: 8px;
+  top: 10px;
   right: 20px;
-  min-width: 18px;
-  height: 18px;
-  line-height: 18px;
-  padding: 0 5px;
-  background: #ff3b30;
+  min-width: 20px;
+  height: 20px;
+  line-height: 20px;
+  padding: 0 6px;
+  background: linear-gradient(135deg, #ff3b30 0%, #ff6b6b 100%);
   color: white;
-  font-size: 10px;
-  border-radius: 9px;
+  font-size: 11px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(255, 59, 48, 0.3);
 }
 
+/* 订单滚动区域 */
 .order-scroll {
   flex: 1;
-  padding: 12px;
+  padding: 16px;
 }
 
+/* 订单卡片 */
 .order-card {
   background: white;
-  border-radius: 12px;
-  margin-bottom: 12px;
+  border-radius: 16px;
+  margin-bottom: 16px;
   overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+/* 订单卡片点击效果 */
+.order-card:active {
+  transform: translateY(2px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
+/* 订单头部 */
 .order-card .order-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid #f5f5f5;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
+/* 订单号 */
 .order-card .order-header .order-no {
-  font-size: 13px;
+  font-size: 14px;
   color: #666;
+  font-weight: 500;
 }
 
+/* 订单状态 */
 .order-card .order-header .order-status {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
 }
 
+/* 待付款状态 */
 .order-card .order-header .order-status.status-pending_payment {
   color: #ff9500;
 }
 
+/* 待发货状态 */
 .order-card .order-header .order-status.status-pending_shipped {
   color: #548163;
 }
 
+/* 待收货状态 */
 .order-card .order-header .order-status.status-pending_receipt {
   color: #00c853;
 }
 
+/* 已完成状态 */
 .order-card .order-header .order-status.status-completed {
   color: #999;
 }
 
+/* 已取消状态 */
 .order-card .order-header .order-status.status-cancelled {
   color: #999;
 }
 
+/* 订单商品列表 */
 .order-card .order-items {
-  padding: 12px 16px;
+  padding: 16px 20px;
 }
 
+/* 单个商品项 */
 .order-card .order-item {
   display: flex;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: flex-start;
 }
 
+/* 最后一个商品项 */
 .order-card .order-item:last-child {
   margin-bottom: 0;
 }
 
+/* 商品图片 */
 .order-card .order-item image {
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
+  width: 90px;
+  height: 90px;
+  border-radius: 12px;
   background: #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
 
+/* 商品信息 */
 .order-card .order-item .item-info {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  min-height: 90px;
 }
 
+/* 商品名称 */
 .order-card .order-item .item-info .item-name {
-  font-size: 14px;
+  font-size: 15px;
   color: #333;
-  font-weight: 500;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
+/* 商品规格 */
 .order-card .order-item .item-info .item-spec {
-  font-size: 12px;
+  font-size: 13px;
   color: #999;
+  margin-bottom: 8px;
 }
 
+/* 商品底部信息 */
 .order-card .order-item .item-info .item-bottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+/* 商品价格 */
 .order-card .order-item .item-info .item-bottom .item-price {
-  font-size: 14px;
+  font-size: 16px;
   color: #e74c3c;
-  font-weight: 600;
+  font-weight: 700;
 }
 
+/* 商品数量 */
 .order-card .order-item .item-info .item-bottom .item-quantity {
-  font-size: 13px;
+  font-size: 14px;
   color: #999;
+  font-weight: 500;
 }
 
+/* 订单底部 */
 .order-card .order-footer {
-  padding: 12px 16px;
-  border-top: 1px solid #f5f5f5;
+  padding: 16px 20px;
+  border-top: 1px solid #f0f0f0;
 }
 
+/* 订单总计 */
 .order-card .order-footer .order-total {
-  font-size: 13px;
+  font-size: 14px;
   color: #666;
   text-align: right;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  font-weight: 500;
 }
 
+/* 总计价格 */
 .order-card .order-footer .order-total .total-price {
   color: #e74c3c;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
 }
 
+/* 订单操作按钮组 */
 .order-card .order-footer .order-actions {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   justify-content: flex-end;
 }
 
+/* 操作按钮基础样式 */
 .order-card .order-footer .order-actions button {
-  padding: 6px 16px;
-  border: 1px solid #ddd;
-  border-radius: 16px;
-  font-size: 13px;
+  padding: 10px 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
   background: white;
   color: #666;
   cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 80px;
 }
 
+/* 按钮点击效果 */
 .order-card .order-footer .order-actions button:active {
-  opacity: 0.8;
+  transform: translateY(1px);
+  opacity: 0.9;
 }
 
+/* 取消按钮 */
 .order-card .order-footer .order-actions button.btn-cancel {
   color: #999;
+  border-color: #e0e0e0;
 }
 
+/* 支付按钮 */
 .order-card .order-footer .order-actions button.btn-pay {
-  background: #548163;
+  background: linear-gradient(135deg, #548163 0%, #456a52 100%);
   color: white;
   border: none;
+  box-shadow: 0 2px 8px rgba(84, 129, 99, 0.3);
 }
 
+/* 确认收货、查看物流、评价按钮 */
 .order-card .order-footer .order-actions button.btn-confirm,
 .order-card .order-footer .order-actions button.btn-logistics,
 .order-card .order-footer .order-actions button.btn-evaluate {
@@ -457,20 +528,34 @@ const evaluate = (orderId: string) => {
   color: #548163;
 }
 
+/* 加载中状态 */
 .loading,
 .no-more {
   text-align: center;
-  padding: 20px;
+  padding: 24px;
   color: #999;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 500;
 }
 
+/* 空状态 */
 .empty {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 100px 20px;
   color: #999;
-  font-size: 14px;
+  font-size: 16px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* 空状态图标 */
+.empty::before {
+  content: '📋';
+  font-size: 56px;
+  margin-bottom: 20px;
+  opacity: 0.5;
 }
 </style>

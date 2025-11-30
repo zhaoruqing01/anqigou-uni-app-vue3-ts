@@ -282,264 +282,189 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped lang="scss">
+/* 全局样式重置 */
+* {
+  box-sizing: border-box;
+}
+
+/* 主容器 */
 .address-edit {
   min-height: 100vh;
-  background: #f8f9ff;
-  padding: 12px;
-  padding-bottom: 80px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px 16px 100px;
 }
 
+/* 表单容器 */
 .form {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
 }
 
+/* 表单项 */
 .form-item {
   display: flex;
   align-items: center;
-  padding: 14px 16px;
-  border-bottom: 1px solid #f5f5f5;
-  min-height: 50px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  min-height: 60px;
+  transition: all 0.3s ease;
 }
 
+/* 最后一个表单项 */
 .form-item:last-child {
   border-bottom: none;
 }
 
+/* 标签样式 */
 .label {
-  min-width: 80px;
-  font-size: 14px;
+  min-width: 90px;
+  font-size: 15px;
+  color: #333;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* 输入框基础样式 */
+input,
+textarea {
+  flex: 1;
+  font-size: 16px;
+  color: #333;
+  border: none;
+  background: transparent;
+  line-height: 1.4;
+  padding: 4px 0;
+}
+
+/* 输入框占位符样式 */
+input::placeholder,
+textarea::placeholder {
+  color: #999;
+  font-weight: 400;
+}
+
+/* 文本域样式 */
+textarea {
+  min-height: 80px;
+  padding: 8px 0;
+  line-height: 1.6;
+  resize: none;
+}
+
+/* 省市区选择文本 */
+.region-text {
+  flex: 1;
+  font-size: 16px;
+  color: #333;
+  line-height: 1.4;
+}
+
+/* 省市区占位符 */
+.region-text .placeholder {
+  color: #999;
+}
+
+/* 省市区已选择文本 */
+.region-text .selected-region {
   color: #333;
   font-weight: 500;
 }
 
-input,
-textarea {
-  flex: 1;
-  font-size: 14px;
-  color: #333;
-  border: none;
-  background: transparent;
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: #999;
-}
-
-input:disabled,
-textarea:disabled {
-  color: #333;
-}
-
-textarea {
-  min-height: 60px;
-  padding: 8px 0;
-  line-height: 1.5;
-}
-
-.arrow {
-  font-family: 'uniapp';
-  font-size: 12px;
-  color: #999;
-  margin-left: 8px;
-}
-
+/* 复选框项 */
 .checkbox-item {
-  gap: 8px;
-  padding-left: 16px;
+  gap: 12px;
+  padding-left: 20px;
+  justify-content: flex-start;
 }
 
+/* 复选框文本 */
 .checkbox-item text {
-  font-size: 14px;
-  color: #666;
+  font-size: 15px;
+  color: #333;
+  font-weight: 500;
 }
 
+/* 底部按钮组 */
 .button-group {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 12px 16px;
+  padding: 16px;
   background: white;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
 }
 
+/* 保存按钮 */
 .btn-submit {
   width: 100%;
-  padding: 14px;
-  background: #548163;
+  padding: 16px;
+  background: linear-gradient(135deg, #548163 0%, #456a52 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
+  border-radius: 28px;
+  font-size: 17px;
+  font-weight: 700;
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(84, 129, 99, 0.3);
 }
 
+/* 保存按钮点击效果 */
 .btn-submit:active {
-  opacity: 0.9;
+  transform: translateY(2px);
+  box-shadow: 0 2px 8px rgba(84, 129, 99, 0.2);
+  opacity: 0.95;
 }
 
-/* 省市区选择样式 */
-.region-text {
-  flex: 1;
-  font-size: 14px;
-  color: #333;
-}
-
-.region-text .placeholder {
-  color: #999;
-}
-
+/* 省市区选择弹窗 */
 .popup-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
+  padding: 16px 20px;
   border-bottom: 1px solid #f0f0f0;
   background: #fff;
 }
 
+/* 弹窗按钮 */
 .cancel-btn,
 .confirm-btn {
-  font-size: 14px;
-  padding: 6px 12px;
+  font-size: 16px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
+/* 取消按钮 */
 .cancel-btn {
   color: #999;
 }
 
+/* 确认按钮 */
 .confirm-btn {
   color: #548163;
-  font-weight: 500;
 }
 
+/* 省市区选择器 */
 .region-picker {
-  height: 240px;
+  height: 280px;
   background: #fff;
 }
 
+/* 选择器选项 */
 .picker-item {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 40px;
-  font-size: 14px;
+  height: 50px;
+  font-size: 16px;
   color: #333;
-}
-
-.container {
-  min-height: 100vh;
-  background: #f5f5f5;
-  padding: 16px;
-}
-
-.form-section {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.form-item {
-  margin-bottom: 20px;
-}
-
-.form-item:last-child {
-  margin-bottom: 0;
-}
-
-.label {
-  font-size: 14px;
-  color: #333;
-  margin-bottom: 8px;
   font-weight: 500;
-}
-
-input,
-textarea {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  background: #fafafa;
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: #999;
-}
-
-input:focus,
-textarea:focus {
-  outline: none;
-  border-color: #548163;
-  background: white;
-}
-
-input:disabled,
-textarea:disabled {
-  background: #f5f5f5;
-  color: #999;
-}
-
-.checkbox-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.checkbox-item text {
-  font-size: 14px;
-  color: #333;
-}
-
-.delete-section {
-  padding: 0 16px;
-}
-
-.btn-delete {
-  width: 100%;
-  padding: 14px;
-  background: white;
-  color: #e74c3c;
-  border: 1px solid #e74c3c;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-delete:active {
-  background: #ffebee;
-}
-
-.btn-save {
-  width: 100%;
-  padding: 14px;
-  background: #548163;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 12px;
-}
-
-.btn-save:active {
-  background: #456a52;
 }
 </style>
