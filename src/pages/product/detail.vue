@@ -64,7 +64,7 @@
       :data="geekSkuData"
       :defaultCover="product.images?.[0] || ''"
       :defaultNum="quantity"
-      :themeColor="[226, 35, 26]"
+      :themeColor="[84, 129, 99]"
       @skuChange="onSkuChange"
       @confirm="onSkuConfirm"
       @numChange="quantity = $event"
@@ -266,7 +266,7 @@ const onSkuConfirm = (e: any) => {
 };
 
 // 加入购物车
-const addToCart = () => {
+const addToCart = async () => {
   if (!selectedSku.value) {
     showSkuModal.value = true; // 未选规格，打开选择弹窗
     return;
@@ -281,7 +281,7 @@ const addToCart = () => {
   }
 
   // 加入购物车（复用原有逻辑）
-  cartStore.addItem({
+  await cartStore.addItem({
     id: Date.now().toString(),
     productId: product.value.id,
     productName: product.value.name,
@@ -300,7 +300,7 @@ const addToCart = () => {
 };
 
 // 立即购买
-const buyNow = () => {
+const buyNow = async () => {
   if (!selectedSku.value) {
     showSkuModal.value = true; // 未选规格，打开选择弹窗
     return;
@@ -311,7 +311,9 @@ const buyNow = () => {
   }
 
   // 先加入购物车，再跳结算页（复用原有逻辑）
-  addToCart();
+  await addToCart();
+  console.log(cartStore.items, 'cartStore.items');
+
   setTimeout(() => {
     uni.navigateTo({ url: '/pages/order/checkout' });
   }, 500);

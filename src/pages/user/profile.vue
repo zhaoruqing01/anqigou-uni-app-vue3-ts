@@ -96,7 +96,8 @@
 
 <script setup lang="ts">
 import { useUserStore } from '@/stores/user';
-import { onMounted, ref } from 'vue';
+import { onShow } from '@dcloudio/uni-app';
+import { ref } from 'vue';
 
 const userStore = useUserStore();
 const userInfo = ref({
@@ -108,7 +109,7 @@ const userInfo = ref({
   availablePoints: 0,
 });
 
-onMounted(() => {
+onShow(() => {
   const user = JSON.parse(uni.getStorageSync('userData'));
   if (user) {
     userInfo.value = {

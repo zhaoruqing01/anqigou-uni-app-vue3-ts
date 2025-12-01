@@ -88,18 +88,6 @@
           type="number"
           maxlength="11"
         />
-        <view class="verify-code-section">
-          <input
-            v-model="verifyCode"
-            class="input-field verify-code-input"
-            placeholder="请输入验证码"
-            type="number"
-            maxlength="6"
-          />
-          <button class="send-code-btn" :disabled="isSendingCode" @click="sendVerifyCode">
-            {{ isSendingCode ? `${countdown}s后重发` : '发送验证码' }}
-          </button>
-        </view>
         <button class="confirm-btn" @click="savePhone">确定</button>
       </view>
     </uni-popup>
@@ -126,7 +114,7 @@
 </template>
 
 <script setup lang="ts">
-import { getUserInfo, sendVerifyCode as sendSmsCode, updateUserInfo } from '@/api/auth';
+import { getUserInfo, updateUserInfo } from '@/api/auth';
 import { useUserStore } from '@/stores/user';
 import { onMounted, reactive, ref } from 'vue';
 
@@ -187,21 +175,56 @@ const closeAvatarPopup = () => {
 };
 
 const chooseFromAlbum = () => {
-  // 这里应该集成实际的图片选择逻辑
-  closeAvatarPopup();
-  uni.showToast({
-    title: '请选择图片',
-    icon: 'none',
+  uni.chooseImage({
+    count: 1,
+    success: async (res) => {
+      const tempFilePath = res.tempFilePaths[0];
+      const resInfo: any = await updateUserInfo({
+        avatar: tempFilePath,
+      });
+      if (resInfo.code === 0) {
+        userInfo.avatar = tempFilePath;
+        userStore.setUser({
+          ...userStore.user!,
+          avatar: tempFilePath,
+        });
+        closeAvatarPopup();
+        uni.showToast({
+          title: '修改成功了',
+          icon: 'success',
+        });
+        loadUserInfo();
+      }
+    },
   });
 };
 
 const takePhoto = () => {
-  // 这里应该集成实际的拍照逻辑
-  closeAvatarPopup();
-  uni.showToast({
-    title: '请拍照',
-    icon: 'none',
+  uni.chooseImage({
+    count: 1,
+    sourceType: ['camera'],
+    success: async (res) => {
+      const tempFilePath = res.tempFilePaths[0];
+      const resInfo: any = await updateUserInfo({
+        avatar: tempFilePath,
+      });
+      if (resInfo.code === 0) {
+        userInfo.avatar = tempFilePath;
+        userStore.setUser({
+          ...userStore.user!,
+          avatar: tempFilePath,
+        });
+        closeAvatarPopup();
+        uni.showToast({
+          title: '修改成功了',
+          icon: 'success',
+        });
+        loadUserInfo();
+      }
+    },
   });
+
+  closeAvatarPopup();
 };
 
 // 修改用户名
@@ -236,7 +259,7 @@ const saveNickname = async () => {
       nickname: newNickname.value,
     });
 
-    if (res.code === 200) {
+    if (res.code === 0) {
       userInfo.nickname = newNickname.value;
       userStore.setUser({
         ...userStore.user!,
@@ -247,6 +270,7 @@ const saveNickname = async () => {
         title: '修改成功',
         icon: 'success',
       });
+      loadUserInfo();
     } else {
       uni.showToast({
         title: res.message || '修改失败',
@@ -279,50 +303,6 @@ const closePhonePopup = () => {
   countdown.value = 60;
 };
 
-const sendVerifyCode = async () => {
-  if (!/^1[3-9]\d{9}$/.test(newPhone.value)) {
-    uni.showToast({
-      title: '请输入正确的手机号',
-      icon: 'none',
-    });
-    return;
-  }
-
-  try {
-    const res: any = await sendSmsCode(newPhone.value);
-    if (res.code === 200) {
-      uni.showToast({
-        title: '验证码已发送',
-        icon: 'success',
-      });
-
-      // 开始倒计时
-      isSendingCode.value = true;
-      countdownTimer = setInterval(() => {
-        countdown.value--;
-        if (countdown.value <= 0) {
-          if (countdownTimer) {
-            clearInterval(countdownTimer);
-            countdownTimer = null;
-          }
-          isSendingCode.value = false;
-          countdown.value = 60;
-        }
-      }, 1000);
-    } else {
-      uni.showToast({
-        title: res.message || '发送失败',
-        icon: 'none',
-      });
-    }
-  } catch (error) {
-    uni.showToast({
-      title: '网络异常，请稍后再试',
-      icon: 'none',
-    });
-  }
-};
-
 const savePhone = async () => {
   if (!/^1[3-9]\d{9}$/.test(newPhone.value)) {
     uni.showToast({
@@ -332,15 +312,27 @@ const savePhone = async () => {
     return;
   }
 
-  if (!verifyCode.value) {
+  const res: any = await updateUserInfo({
+    phone: newPhone.value,
+  });
+  if (res.code === 0) {
+    userInfo.phone = newPhone.value;
+    userStore.setUser({
+      ...userStore.user!,
+      phone: newPhone.value,
+    });
+    closeNicknamePopup();
     uni.showToast({
-      title: '请输入验证码',
+      title: '修改成功',
+      icon: 'success',
+    });
+    loadUserInfo();
+  } else {
+    uni.showToast({
+      title: res.message || '修改失败',
       icon: 'none',
     });
-    return;
   }
-
-  // 实际项目中这里会调用修改手机号的API
   uni.showToast({
     title: '手机号修改成功',
     icon: 'success',

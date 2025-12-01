@@ -70,23 +70,33 @@ export const useCartStore = defineStore('cart', () => {
   const loadCart = async () => {
     try {
       loading.value = true;
-      const res = await getCartList();
+      const res: any = await getCartList();
       if (res.code === 0 && res.data) {
+        // 保存当前选中状态
+        const currentCheckedState: Record<string, boolean> = {};
+        items.value.forEach((item) => {
+          currentCheckedState[item.skuId] = item.checked;
+        });
+
         // 后端返回的数据需要转换为前端CartItem格式
-        items.value = res.data.map((item: any) => ({
-          id: item.skuId, // 临时使用skuId作为id
-          productId: item.productId || '',
-          productName: item.productName || '商品名称',
-          price: item.price || 10000,
-          mainImage: item.mainImage || '',
-          skuId: item.skuId || '',
-          specInfo: item.specInfo || '默认规格',
-          quantity: item.quantity || 1,
-          checked: false, // 默认不选中
-          sellerId: 'default',
-          sellerName: '默认商家',
-          stock: item.stock || 999,
-        }));
+        items.value = res.data.map((item: any) => {
+          const skuId = item.skuId || '';
+          return {
+            id: skuId, // 临时使用skuId作为id
+            productId: item.productId || '',
+            productName: item.productName || '商品名称',
+            price: item.price || 10000,
+            mainImage: item.mainImage || '',
+            skuId: skuId,
+            specInfo: item.specInfo || '默认规格',
+            quantity: item.quantity || 1,
+            // 保持原有的选中状态，如果没有则默认不选中
+            checked: currentCheckedState[skuId] ?? false,
+            sellerId: 'default',
+            sellerName: '默认商家',
+            stock: item.stock || 999,
+          };
+        });
       }
     } catch (error) {
       console.error('加载购物车失败', error);
@@ -107,6 +117,19 @@ export const useCartStore = defineStore('cart', () => {
 
       // 添加成功后重新加载购物车
       await loadCart();
+      
+      // 确保刚添加的商品被设置为选中状态
+      // 如果由于某些原因商品没有出现在购物车列表中，我们手动添加它
+      const addedItem = items.value.find(i => i.skuId === item.skuId);
+      if (addedItem) {
+        addedItem.checked = true;
+      } else {
+        // 如果商品没有出现在列表中，手动添加它
+        items.value.push({
+          ...item,
+          checked: true
+        });
+      }
 
       uni.showToast({ title: '已加入购物车', icon: 'success' });
     } catch (error) {

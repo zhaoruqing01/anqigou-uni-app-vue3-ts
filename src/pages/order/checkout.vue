@@ -12,7 +12,9 @@
           </text>
           <text class="address">{{ selectedAddress.fullAddress }}</text>
         </view>
-        <button @click="changeAddress">更换</button>
+        <view class="address-change-btn">
+          <button @click="changeAddress">更换</button>
+        </view>
       </view>
       <button v-else class="btn-add-address" @click="changeAddress">添加收货地址</button>
     </view>
@@ -149,8 +151,9 @@ const shippingFee = computed(() => {
 });
 const totalAmount = computed(() => productAmount.value + shippingFee.value);
 
-// 钩子不对
 onShow(() => {
+  console.log(cartStore, 'cartStore');
+
   // 获取当前页（订单页）实例
   const pages = getCurrentPages();
   const currentPage = pages[pages.length - 1] as {
@@ -266,6 +269,11 @@ const submitOrder = async () => {
   border-radius: 8px;
   border-left: 4px solid #548163;
   transition: all 0.3s ease;
+  .address-change-btn {
+    display: flex;
+    align-items: flex-end;
+    cursor: pointer;
+  }
 }
 
 .address-box:active {

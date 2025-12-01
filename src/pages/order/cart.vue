@@ -113,7 +113,8 @@
 
 <script setup lang="ts">
 import { useCartStore } from '@/stores/cart';
-import { computed, onMounted } from 'vue';
+import { onShow } from '@dcloudio/uni-app';
+import { computed } from 'vue';
 
 const cartStore = useCartStore();
 
@@ -121,7 +122,7 @@ const cartStore = useCartStore();
 cartStore.restoreFromStorage();
 
 // 页面加载时更新商品库存
-onMounted(async () => {
+onShow(async () => {
   await cartStore.updateCartStock();
 });
 

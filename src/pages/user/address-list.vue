@@ -36,7 +36,8 @@
 
 <script setup lang="ts">
 import request from '@/utils/request';
-import { onMounted, ref } from 'vue';
+import { onShow } from '@dcloudio/uni-app';
+import { ref } from 'vue';
 
 interface Address {
   id: string;
@@ -52,7 +53,7 @@ interface Address {
 
 const addressList = ref<Address[]>([]);
 
-onMounted(() => {
+onShow(() => {
   loadAddressList();
 });
 
