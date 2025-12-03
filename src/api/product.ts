@@ -50,7 +50,7 @@ export const getHotProducts = (limit: number = 10) => {
 export const getRecommendedProducts = (limit: number = 10) => {
   return request.get('/api/product/recommended', {
     params: {
-      limit
+      limit,
     },
   });
 };
@@ -69,7 +69,7 @@ export const listFirstLevelCategories = () => {
 export const listSubCategories = (parentId: string) => {
   return request.get('/api/product/categories/sub', {
     params: {
-      parentId
+      parentId,
     },
   });
 };

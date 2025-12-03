@@ -1,4 +1,4 @@
-import request from "@/utils/request";
+import request from '@/utils/request';
 
 /**
  * 物流轨迹信息
@@ -52,7 +52,7 @@ export interface LogisticsEvaluateParams {
 export function getLogisticsDetail(orderId: string): Promise<LogisticsDetail> {
   return request<LogisticsDetail>({
     url: `/api/logistics/order/${orderId}`,
-    method: "GET",
+    method: 'GET',
   }).then((res) => res.data);
 }
 
@@ -63,7 +63,7 @@ export function getLogisticsDetail(orderId: string): Promise<LogisticsDetail> {
 export function getLogisticsTracks(logisticsId: string) {
   return request<LogisticsTrack[]>({
     url: `/api/logistics/tracks/${logisticsId}`,
-    method: "GET",
+    method: 'GET',
   });
 }
 
@@ -73,8 +73,8 @@ export function getLogisticsTracks(logisticsId: string) {
  */
 export function evaluateLogistics(params: LogisticsEvaluateParams) {
   return request({
-    url: "/api/logistics/evaluate",
-    method: "POST",
+    url: '/api/logistics/evaluate',
+    method: 'POST',
     data: params,
   });
 }

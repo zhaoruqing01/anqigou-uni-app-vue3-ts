@@ -1,4 +1,4 @@
-import request from "@/utils/request";
+import request from '@/utils/request';
 
 /**
  * 用户收藏API
@@ -16,14 +16,14 @@ export const cancelFavorite = (productId: string) => {
 
 // 批量取消收藏
 export const batchCancelFavorite = (productIds: string[]) => {
-  return request.delete("/api/user/favorite/batch-cancel", {
+  return request.delete('/api/user/favorite/batch-cancel', {
     data: productIds,
   });
 };
 
 // 查询收藏列表
 export const listFavorites = (pageNum: number = 1, pageSize: number = 10) => {
-  return request.get("/api/user/favorite/list", {
+  return request.get('/api/user/favorite/list', {
     params: {
       pageNum,
       pageSize,

@@ -1,4 +1,4 @@
-import request from "@/utils/request";
+import request from '@/utils/request';
 
 /**
  * 用户设备API
@@ -6,7 +6,7 @@ import request from "@/utils/request";
 
 // 获取设备列表
 export const listDevices = () => {
-  return request.get("/api/device/list");
+  return request.get('/api/device/list');
 };
 
 // 下线指定设备
@@ -16,7 +16,7 @@ export const offlineDevice = (deviceId: string) => {
 
 // 下线除当前设备外的所有设备
 export const offlineOtherDevices = (currentDeviceToken: string) => {
-  return request.post("/api/device/offline-others", {
+  return request.post('/api/device/offline-others', {
     params: {
       currentDeviceToken,
     },
