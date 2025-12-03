@@ -6,44 +6,28 @@
         <view
           :class="['tab', { active: loginType === 'password' }]"
           @click="loginType = 'password'"
-          >密码登录</view
         >
-        <view
-          :class="['tab', { active: loginType === 'code' }]"
-          @click="loginType = 'code'"
-          >验证码登录</view
-        >
+          密码登录
+        </view>
+        <view :class="['tab', { active: loginType === 'code' }]" @click="loginType = 'code'">
+          验证码登录
+        </view>
       </view>
 
       <!-- 密码登录 -->
       <view v-if="loginType === 'password'">
-        <input
-          v-model="password.phone"
-          placeholder="手机号"
-          type="text"
-          class="input"
-        />
-        <input
-          v-model="password.password"
-          placeholder="密码"
-          type="password"
-          class="input"
-        />
+        <input v-model="password.phone" placeholder="手机号" type="text" class="input" />
+        <input v-model="password.password" placeholder="密码" type="password" class="input" />
         <button class="btn-login" @click="passwordLogin">登录</button>
       </view>
 
       <!-- 验证码登录 -->
       <view v-if="loginType === 'code'">
-        <input
-          v-model="code.phone"
-          placeholder="手机号"
-          type="text"
-          class="input"
-        />
+        <input v-model="code.phone" placeholder="手机号" type="text" class="input" />
         <view class="code-input">
           <input v-model="code.verifyCode" placeholder="验证码" type="text" />
           <button :disabled="countdownTime > 0" @click="sendCode">
-            {{ countdownTime > 0 ? `${countdownTime}s` : "获取验证码" }}
+            {{ countdownTime > 0 ? `${countdownTime}s` : '获取验证码' }}
           </button>
         </view>
         <button class="btn-login" @click="codeLogin">登录</button>
@@ -51,34 +35,35 @@
 
       <!-- 微信登录 -->
       <view class="wechat-login">
-        <button class="wechat-btn" @click="wechatLogin">微信登录</button>
+        <button class="wechat-btn" @click="handleWechatLogin">微信登录</button>
       </view>
 
       <!-- 注册链接 -->
       <view class="register-link">
-        没有账号？<text @click="goToRegister">立即注册</text>
+        没有账号？
+        <text @click="goToRegister">立即注册</text>
       </view>
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
-import { login, loginWithVerifyCode, sendVerifyCode } from "@/api/auth";
-import { useUserStore } from "@/stores/user";
-import { ref } from "vue";
+import { login, loginWithVerifyCode, sendVerifyCode, wechatLogin } from '@/api/auth';
+import { useUserStore } from '@/stores/user';
+import { ref } from 'vue';
 
 const userStore = useUserStore();
-const loginType = ref("password");
+const loginType = ref('password');
 const countdownTime = ref(0);
 
 const password = ref({
-  phone: "",
-  password: "",
+  phone: '',
+  password: '',
 });
 
 const code = ref({
-  phone: "",
-  verifyCode: "",
+  phone: '',
+  verifyCode: '',
 });
 
 // 密码登录
@@ -98,12 +83,12 @@ const passwordLogin = async () => {
       totalConsumption: 0,
       availablePoints: 0,
     });
-    uni.showToast({ title: "登录成功", icon: "success" });
+    uni.showToast({ title: '登录成功', icon: 'success' });
     setTimeout(() => {
-      uni.switchTab({ url: "/pages/index/index" });
+      uni.switchTab({ url: '/pages/index/index' });
     }, 500);
   } catch (e) {
-    console.error("Login failed", e);
+    console.error('Login failed', e);
   }
 };
 
@@ -124,13 +109,13 @@ const codeLogin = async () => {
       totalConsumption: 0,
       availablePoints: 0,
     });
-    uni.showToast({ title: "登录成功", icon: "success" });
+    uni.showToast({ title: '登录成功', icon: 'success' });
     setTimeout(() => {
       // 跳转tabbar
-      uni.switchTab({ url: "/pages/index/index" });
+      uni.switchTab({ url: '/pages/index/index' });
     }, 500);
   } catch (e) {
-    console.error("Code login failed", e);
+    console.error('Code login failed', e);
   }
 };
 
@@ -138,7 +123,7 @@ const codeLogin = async () => {
 const sendCode = async () => {
   try {
     await sendVerifyCode(code.value.phone);
-    uni.showToast({ title: "验证码已发送", icon: "success" });
+    uni.showToast({ title: '验证码已发送', icon: 'success' });
     countdownTime.value = 60;
     const timer = setInterval(() => {
       countdownTime.value--;
@@ -147,33 +132,62 @@ const sendCode = async () => {
       }
     }, 1000);
   } catch (e) {
-    console.error("Failed to send code", e);
+    console.error('Failed to send code', e);
   }
 };
 
 // 跳转到注册页
 const goToRegister = () => {
-  uni.navigateTo({ url: "/pages/auth/register" });
+  uni.navigateTo({ url: '/pages/auth/register' });
 };
 
 // 微信登录
-const wechatLogin = () => {
-  uni.showToast({ title: "微信授权登录功能开发中", icon: "none" });
-  // 实际开发中，这里应该调用微信登录API
-  // uni.login({
-  //   provider: 'weixin',
-  //   success: (res) => {
-  //     // 发送code到后端获取token
-  //     const code = res.code;
-  //     // 调用后端API进行微信登录
-  //   }
-  // });
+const handleWechatLogin = async () => {
+  try {
+    // 调用微信登录API获取code
+    const loginRes = await new Promise<any>((resolve, reject) => {
+      uni.login({
+        provider: 'weixin',
+        success: resolve,
+        fail: reject,
+      });
+    });
+
+    const { code } = loginRes;
+    if (!code) {
+      throw new Error('Failed to get wechat code');
+    }
+
+    // 调用后端微信登录接口
+    const res = await wechatLogin(code);
+    console.log(res);
+
+    // 保存token和用户信息
+    userStore.setToken(res.data.token);
+    userStore.setUser({
+      userId: res.data.userId,
+      phone: res.data.phone || '',
+      nickname: res.data.nickname || '',
+      avatar: res.data.avatar || '',
+      memberLevel: res.data.memberLevel || 0,
+      totalConsumption: res.data.totalConsumption || 0,
+      availablePoints: res.data.availablePoints || 0,
+    });
+
+    uni.showToast({ title: '登录成功', icon: 'success' });
+    setTimeout(() => {
+      uni.switchTab({ url: '/pages/index/index' });
+    }, 500);
+  } catch (e) {
+    console.error('微信登录失败', e);
+    uni.showToast({ title: '微信登录失败', icon: 'none' });
+  }
 };
 </script>
 
 <style scoped lang="scss">
-@import "@/styles/variables.scss";
-@import "@/styles/mixins.scss";
+@import '@/styles/variables.scss';
+@import '@/styles/mixins.scss';
 
 .container {
   min-height: 100vh;
@@ -244,7 +258,7 @@ const wechatLogin = () => {
     font-weight: $font-semibold;
 
     &::after {
-      content: "";
+      content: '';
       position: absolute;
       bottom: -2px;
       left: 50%;

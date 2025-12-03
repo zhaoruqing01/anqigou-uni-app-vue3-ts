@@ -249,11 +249,18 @@ const evaluate = (orderId: string) => {
 </script>
 
 <style scoped lang="scss">
-/* 全局样式重置 */
-* {
+/* 小程序样式重置 - 替换通配符选择器 */
+page,
+view,
+text,
+button,
+input,
+image,
+navigator,
+picker,
+picker-view {
   box-sizing: border-box;
 }
-
 /* 主容器 */
 .order-list {
   display: flex;

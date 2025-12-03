@@ -12,7 +12,7 @@ interface ApiResponse<T = any> {
 
 // 创建 axios 实例 - 统一通过网关访问
 const service = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: 'http://coexj3s0em2t.ngrok.xiaomiqiu123.top',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

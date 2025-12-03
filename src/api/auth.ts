@@ -33,3 +33,10 @@ export const getUserInfo = () => {
 export const updateUserInfo = (data: any) => {
   return request.put('/api/auth/user-info', data);
 };
+
+// 微信登录
+export const wechatLogin = (code: string) => {
+  return request.post('/api/auth/wechat-login', {
+    code
+  });
+};
