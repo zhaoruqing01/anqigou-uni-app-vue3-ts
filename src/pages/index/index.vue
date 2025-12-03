@@ -141,6 +141,22 @@ const goToOrders = () => {
 const goToFavorites = () => {
   uni.navigateTo({ url: '/pages/user/favorite' });
 };
+
+// 配置页面转发
+defineOptions({
+  onShareAppMessage: (res) => {
+    return {
+      title: '首页',
+      path: `/pages/index/index`,
+      success: () => {
+        uni.showToast({ title: '转发成功', icon: 'success' });
+      },
+      fail: () => {
+        uni.showToast({ title: '转发失败', icon: 'none' });
+      },
+    };
+  },
+});
 </script>
 
 <style scoped lang="scss">

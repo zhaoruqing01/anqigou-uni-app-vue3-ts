@@ -195,8 +195,6 @@ const goHome = () => {
 
 // 侧滑删除事件处理
 const onSwipeActionClick = (event: any, itemId: string) => {
-  console.log(event, 'event');
-
   if (event.content.text === '删除') {
     removeItem(itemId);
   }
@@ -208,10 +206,11 @@ const onSwipeActionClick = (event: any, itemId: string) => {
 @import '@/styles/mixins.scss';
 
 .container {
-  @include flex-center;
-  flex-direction: column;
   min-height: 100vh;
   background: $bg-color;
+  padding: 8px 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 // 空购物车状态
@@ -243,11 +242,12 @@ const onSwipeActionClick = (event: any, itemId: string) => {
 
 // 购物车内容
 .cart-content {
-  @include flex-center;
+  display: flex;
   flex-direction: column;
   flex: 1;
   width: 100%;
   padding-bottom: 70px;
+  box-sizing: border-box;
 }
 
 .cart-list {
@@ -255,6 +255,7 @@ const onSwipeActionClick = (event: any, itemId: string) => {
   width: 100%;
   padding: $spacing-md;
   overflow-y: auto;
+  box-sizing: border-box;
 
   &::-webkit-scrollbar {
     width: 4px;
@@ -273,6 +274,8 @@ const onSwipeActionClick = (event: any, itemId: string) => {
   margin-bottom: $spacing-md;
   overflow: hidden;
   @include slide-up;
+  width: 100%;
+  box-sizing: border-box;
 
   .seller-header {
     padding: $spacing-md $spacing-lg;
@@ -291,6 +294,12 @@ const onSwipeActionClick = (event: any, itemId: string) => {
   }
 }
 
+.seller-items {
+  padding: $spacing-sm;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 // 购物车商品项
 .cart-item {
   @include flex-align-center;
@@ -301,6 +310,8 @@ const onSwipeActionClick = (event: any, itemId: string) => {
   gap: $spacing-md;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
   transition: all $transition-base;
+  width: 100%;
+  box-sizing: border-box;
 
   &:last-child {
     margin-bottom: 0;
@@ -351,12 +362,13 @@ const onSwipeActionClick = (event: any, itemId: string) => {
   }
 
   .item-info {
-    @include flex-center;
-    flex-direction: column;
     flex: 1;
+    display: flex;
+    flex-direction: column;
     gap: $spacing-xs;
     min-height: 75px;
     align-items: flex-start;
+    min-width: 0; // 允许在flex容器中正确收缩
 
     .product-name {
       @include multi-ellipsis(2);
@@ -378,11 +390,14 @@ const onSwipeActionClick = (event: any, itemId: string) => {
       @include flex-between;
       width: 100%;
       margin-top: auto;
+      min-width: 0; // 允许在flex容器中正确收缩
 
       .price {
         font-size: $font-lg;
         font-weight: $font-bold;
         color: $error-color;
+        flex-shrink: 1; // 允许价格文本适当收缩
+        min-width: 80px; // 确保价格显示的基本宽度
       }
     }
   }
@@ -395,11 +410,13 @@ const onSwipeActionClick = (event: any, itemId: string) => {
   background: $bg-secondary;
   border-radius: $radius-xl;
   padding: 4px;
+  flex-shrink: 0;
+  min-width: 120px; // 确保在小屏幕上也有足够宽度
 
   .btn-quantity {
     @include flex-center;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border: none;
     background: $white;
     border-radius: $radius-round;
@@ -409,6 +426,7 @@ const onSwipeActionClick = (event: any, itemId: string) => {
     cursor: pointer;
     transition: all $transition-fast;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0; // 防止按钮被压缩
 
     &:active {
       background: $bg-hover;
@@ -417,14 +435,113 @@ const onSwipeActionClick = (event: any, itemId: string) => {
   }
 
   .quantity-input {
-    width: 36px;
-    height: 28px;
+    width: 40px;
+    height: 32px;
     text-align: center;
     border: none;
     background: transparent;
     font-size: $font-base;
     color: $text-primary;
     font-weight: $font-medium;
+    flex-shrink: 0; // 防止输入框被压缩
+  }
+}
+
+// 移动端适配
+@media (max-width: 750px) {
+  .cart-item {
+    padding: $spacing-sm;
+    gap: $spacing-sm;
+  }
+
+  .product-image {
+    width: 65px;
+    height: 65px;
+  }
+
+  .item-info {
+    gap: $spacing-xs;
+
+    .product-name {
+      font-size: $font-sm;
+    }
+
+    .spec-info {
+      font-size: $font-xs;
+    }
+
+    .price-row {
+      .price {
+        font-size: $font-base;
+        min-width: 70px;
+      }
+    }
+  }
+
+  .quantity-control {
+    min-width: 110px;
+    gap: $spacing-xs;
+    padding: 2px;
+
+    .btn-quantity {
+      width: 28px;
+      height: 28px;
+      font-size: $font-sm;
+    }
+
+    .quantity-input {
+      width: 36px;
+      height: 28px;
+      font-size: $font-sm;
+    }
+  }
+}
+
+// 小屏幕设备进一步优化
+@media (max-width: 400px) {
+  .cart-item {
+    padding: $spacing-xs;
+    gap: $spacing-xs;
+  }
+
+  .product-image {
+    width: 60px;
+    height: 60px;
+  }
+
+  .item-info {
+    .product-name {
+      font-size: $font-sm;
+    }
+
+    .spec-info {
+      font-size: $font-xs;
+    }
+
+    .price-row {
+      .price {
+        font-size: $font-sm;
+        min-width: 60px;
+      }
+    }
+  }
+
+  .quantity-control {
+    min-width: 100px;
+    gap: 2px;
+    padding: 1px;
+
+    .btn-quantity {
+      width: 24px;
+      height: 24px;
+      font-size: $font-xs;
+    }
+
+    .quantity-input {
+      width: 32px;
+      height: 24px;
+      font-size: $font-xs;
+    }
   }
 }
 
@@ -432,10 +549,8 @@ const onSwipeActionClick = (event: any, itemId: string) => {
 .cart-footer {
   @include flex-between;
   position: fixed;
-  /* #ifdef MP-WEIXIN */
+
   bottom: 0;
-  /* #endif */
-  bottom: 50px;
 
   left: 0;
   right: 0;
