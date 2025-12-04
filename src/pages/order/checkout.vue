@@ -204,7 +204,7 @@ const submitOrder = async () => {
     uni.showToast({ title: '订单创建成功', icon: 'success' });
     setTimeout(() => {
       uni.navigateTo({
-        url: `/pages/order/payment?orderId=${res.data.orderId}`,
+        url: `/pages/payment/payment?orderId=${res.data}`,
       });
     }, 500);
   } catch (e) {

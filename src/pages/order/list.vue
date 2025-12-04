@@ -261,12 +261,15 @@ picker,
 picker-view {
   box-sizing: border-box;
 }
+
 /* 主容器 */
 .order-list {
   display: flex;
   flex-direction: column;
   height: 100vh;
   background: #f5f7fa;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* 顶部标签栏 */
@@ -278,11 +281,15 @@ picker-view {
   top: 0;
   z-index: 10;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 /* 标签项 */
 .tabs .tab-item {
   flex: 1;
+  min-width: 80px;
   position: relative;
   padding: 16px 0;
   text-align: center;
@@ -304,7 +311,7 @@ picker-view {
 .tabs .tab-item .badge {
   position: absolute;
   top: 10px;
-  right: 20px;
+  right: 10px;
   min-width: 20px;
   height: 20px;
   line-height: 20px;
@@ -319,24 +326,28 @@ picker-view {
 /* 订单滚动区域 */
 .order-scroll {
   flex: 1;
-  padding: 16px;
+  padding: 8px;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* 订单卡片 */
 .order-card {
   background: white;
-  border-radius: 16px;
-  margin-bottom: 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  width: 100%;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 /* 订单卡片点击效果 */
 .order-card:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transform: translateY(1px);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 
 /* 订单头部 */
@@ -344,20 +355,21 @@ picker-view {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f5f5f5;
+  background: #fafafa;
 }
 
 /* 订单号 */
 .order-card .order-header .order-no {
-  font-size: 14px;
+  font-size: 13px;
   color: #666;
   font-weight: 500;
 }
 
 /* 订单状态 */
 .order-card .order-header .order-status {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -388,14 +400,14 @@ picker-view {
 
 /* 订单商品列表 */
 .order-card .order-items {
-  padding: 16px 20px;
+  padding: 14px 16px;
 }
 
 /* 单个商品项 */
 .order-card .order-item {
   display: flex;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 12px;
+  margin-bottom: 14px;
   align-items: flex-start;
 }
 
@@ -406,11 +418,11 @@ picker-view {
 
 /* 商品图片 */
 .order-card .order-item image {
-  width: 90px;
-  height: 90px;
-  border-radius: 12px;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
   background: #f0f0f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
@@ -420,12 +432,12 @@ picker-view {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 90px;
+  min-height: 80px;
 }
 
 /* 商品名称 */
 .order-card .order-item .item-info .item-name {
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
   font-weight: 600;
   line-height: 1.4;
@@ -438,9 +450,9 @@ picker-view {
 
 /* 商品规格 */
 .order-card .order-item .item-info .item-spec {
-  font-size: 13px;
+  font-size: 12px;
   color: #999;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 /* 商品底部信息 */
@@ -452,59 +464,60 @@ picker-view {
 
 /* 商品价格 */
 .order-card .order-item .item-info .item-bottom .item-price {
-  font-size: 16px;
+  font-size: 15px;
   color: #e74c3c;
   font-weight: 700;
 }
 
 /* 商品数量 */
 .order-card .order-item .item-info .item-bottom .item-quantity {
-  font-size: 14px;
+  font-size: 13px;
   color: #999;
   font-weight: 500;
 }
 
 /* 订单底部 */
 .order-card .order-footer {
-  padding: 16px 20px;
-  border-top: 1px solid #f0f0f0;
+  padding: 14px 16px;
+  border-top: 1px solid #f5f5f5;
+  background: #fafafa;
 }
 
 /* 订单总计 */
 .order-card .order-footer .order-total {
-  font-size: 14px;
+  font-size: 13px;
   color: #666;
   text-align: right;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   font-weight: 500;
 }
 
 /* 总计价格 */
 .order-card .order-footer .order-total .total-price {
   color: #e74c3c;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
 }
 
 /* 订单操作按钮组 */
 .order-card .order-footer .order-actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   justify-content: flex-end;
 }
 
 /* 操作按钮基础样式 */
 .order-card .order-footer .order-actions button {
-  padding: 10px 20px;
+  padding: 8px 16px;
   border: 1px solid #e0e0e0;
-  border-radius: 20px;
-  font-size: 14px;
+  border-radius: 16px;
+  font-size: 13px;
   font-weight: 600;
   background: white;
   color: #666;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-width: 80px;
+  min-width: 70px;
 }
 
 /* 按钮点击效果 */
@@ -524,7 +537,7 @@ picker-view {
   background: linear-gradient(135deg, #548163 0%, #456a52 100%);
   color: white;
   border: none;
-  box-shadow: 0 2px 8px rgba(84, 129, 99, 0.3);
+  box-shadow: 0 2px 6px rgba(84, 129, 99, 0.3);
 }
 
 /* 确认收货、查看物流、评价按钮 */
@@ -539,9 +552,9 @@ picker-view {
 .loading,
 .no-more {
   text-align: center;
-  padding: 24px;
+  padding: 20px;
   color: #999;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
 }
 
@@ -551,9 +564,9 @@ picker-view {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 100px 20px;
+  padding: 80px 20px;
   color: #999;
-  font-size: 16px;
+  font-size: 15px;
   text-align: center;
   font-weight: 500;
 }
@@ -561,8 +574,8 @@ picker-view {
 /* 空状态图标 */
 .empty::before {
   content: '📋';
-  font-size: 56px;
-  margin-bottom: 20px;
+  font-size: 48px;
+  margin-bottom: 16px;
   opacity: 0.5;
 }
 </style>

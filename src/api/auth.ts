@@ -35,8 +35,9 @@ export const updateUserInfo = (data: any) => {
 };
 
 // 微信登录
-export const wechatLogin = (code: string) => {
+export const wechatLogin = (code: string, userInfo?: any) => {
   return request.post('/api/auth/wechat-login', {
-    code
+    code,
+    userInfo
   });
 };

@@ -11,8 +11,10 @@ interface ApiResponse<T = any> {
 }
 
 // 创建 axios 实例 - 统一通过网关访问
+const URL_NGROK = 'http://ge66349e.natappfree.cc';
+//  const LOCAL_URL = 'http://localhost:8080';
 const service = axios.create({
-  baseURL: 'http://coexj3s0em2t.ngrok.xiaomiqiu123.top',
+  baseURL: `${URL_NGROK}`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -52,8 +54,12 @@ service.interceptors.response.use(
 
     const data = response.data;
 
+    // 特殊处理：购物车中不存在商品的情况不视为错误
+    const isCartRemovalSuccess =
+      data.message && data.message.includes('Remove item from cart failed: 购物车中不存在该商品');
+
     // 检查响应码（后端成功返回200）
-    if (data.code !== 200 && data.code !== 0) {
+    if (data.code !== 200 && data.code !== 0 && !isCartRemovalSuccess) {
       const errorMsg = data.message || '请求失败';
       console.error('[接口错误] ', {
         url: response.config?.url,
@@ -68,6 +74,16 @@ service.interceptors.response.use(
       });
       return Promise.reject(data);
     }
+
+    // 如果是购物车移除操作且商品不存在，返回成功状态
+    if (isCartRemovalSuccess) {
+      return {
+        code: 200,
+        message: '删除成功',
+        data: null,
+      };
+    }
+
     return data;
   },
   (error: any) => {

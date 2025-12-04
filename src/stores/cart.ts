@@ -117,17 +117,17 @@ export const useCartStore = defineStore('cart', () => {
 
       // 添加成功后重新加载购物车
       await loadCart();
-      
+
       // 确保刚添加的商品被设置为选中状态
       // 如果由于某些原因商品没有出现在购物车列表中，我们手动添加它
-      const addedItem = items.value.find(i => i.skuId === item.skuId);
+      const addedItem = items.value.find((i) => i.skuId === item.skuId);
       if (addedItem) {
         addedItem.checked = true;
       } else {
         // 如果商品没有出现在列表中，手动添加它
         items.value.push({
           ...item,
-          checked: true
+          checked: true,
         });
       }
 
@@ -180,18 +180,11 @@ export const useCartStore = defineStore('cart', () => {
     const checkedItems = items.value.filter((i) => i.checked);
     if (checkedItems.length === 0) return;
 
-    try {
-      // 批量删除
-      await Promise.all(checkedItems.map((item) => removeCartItemAPI(item.skuId)));
-
-      // 从本地列表移除
-      items.value = items.value.filter((i) => !i.checked);
-
-      uni.showToast({ title: '已删除', icon: 'success' });
-    } catch (error) {
-      console.error('批量删除失败', error);
-      uni.showToast({ title: '删除失败', icon: 'error' });
-    }
+    // 批量删除
+    await Promise.all(checkedItems.map((item) => removeCartItemAPI(item.skuId)));
+    // 从本地列表移除
+    items.value = items.value.filter((i) => !i.checked);
+    uni.showToast({ title: '已删除' });
   };
 
   // 切换商品选中状态（仅前端操作）
