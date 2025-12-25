@@ -33,6 +33,20 @@
       </view>
     </view>
 
+    <!-- 爆款推荐 -->
+    <view class="hot-recommend">
+      <view class="section">
+        <view class="section-title">爆款推荐</view>
+        <view class="product-grid-recommend">
+          <view class="img-container">
+            <image :src="hotProducts[8].mainImage" mode="aspectFill" />
+          </view>
+          <view class="img-container">
+            <image :src="hotProducts[5].mainImage" mode="aspectFill" />
+          </view>
+        </view>
+      </view>
+    </view>
     <!-- 热门商品 -->
     <HotProduct />
   </view>
@@ -256,6 +270,19 @@ defineOptions({
   font-size: $font-sm;
   color: $text-secondary;
   font-weight: $font-medium;
+}
+
+// 爆款推荐
+.product-grid-recommend {
+  display: flex;
+  justify-content: space-around;
+  .img-container {
+    border-radius: $radius-md;
+    overflow: hidden;
+    box-shadow: $shadow-sm;
+    width: 95%;
+    height: 180px;
+  }
 }
 
 // 商品区域

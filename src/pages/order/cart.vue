@@ -5,6 +5,8 @@
       <image src="/static/images/cart-empty.png" mode="aspectFill" class="empty-img" />
       <text class="empty-text">购物车空空如也~</text>
       <button class="btn-go-shopping" @click="goHome">去购物</button>
+      <!-- 热门商品 -->
+      <HotProduct />
     </view>
 
     <!-- 购物车列表 -->
@@ -112,6 +114,7 @@
 </template>
 
 <script setup lang="ts">
+import HotProduct from '@/components/hot-product/index.vue';
 import { useCartStore } from '@/stores/cart';
 import { onShow } from '@dcloudio/uni-app';
 import { computed } from 'vue';
@@ -218,7 +221,7 @@ const onSwipeActionClick = (event: any, itemId: string) => {
   @include flex-center;
   flex-direction: column;
   flex: 1;
-  padding: $spacing-xxxl;
+  // padding: $spacing-xxxl;
   @include fade-in;
 
   .empty-img {

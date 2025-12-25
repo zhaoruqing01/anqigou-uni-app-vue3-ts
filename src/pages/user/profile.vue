@@ -26,6 +26,10 @@
         <view class="stat-value">¥{{ (userInfo.totalConsumption / 100).toFixed(2) }}</view>
         <view class="stat-label">总消费</view>
       </view>
+      <view class="stat-item">
+        <view class="stat-value">¥{{ userInfo.balance }}</view>
+        <view class="stat-label">余额</view>
+      </view>
     </view>
 
     <!-- 功能菜单 -->
@@ -46,34 +50,10 @@
         <text class="arrow">›</text>
       </view>
 
-      <view class="menu-item" @click="goToWallet">
-        <view class="menu-left">
-          <text class="icon">💰</text>
-          <text class="label">钱包</text>
-        </view>
-        <text class="arrow">›</text>
-      </view>
-
       <view class="menu-item" @click="goToFavorites">
         <view class="menu-left">
           <text class="icon">❤️</text>
           <text class="label">我的收藏</text>
-        </view>
-        <text class="arrow">›</text>
-      </view>
-
-      <view class="menu-item" @click="goToDevices">
-        <view class="menu-left">
-          <text class="icon">📱</text>
-          <text class="label">设备管理</text>
-        </view>
-        <text class="arrow">›</text>
-      </view>
-
-      <view class="menu-item" @click="goToSettings">
-        <view class="menu-left">
-          <text class="icon">⚙️</text>
-          <text class="label">设置</text>
         </view>
         <text class="arrow">›</text>
       </view>
@@ -85,12 +65,19 @@
         </view>
         <text class="arrow">›</text>
       </view>
+      <view class="menu-item" @click="goToSettings">
+        <view class="menu-left">
+          <text class="icon">⚙️</text>
+          <text class="label">设置</text>
+        </view>
+        <text class="arrow">›</text>
+      </view>
     </view>
 
     <!-- 退出登录 -->
-    <view class="logout-section">
+    <!-- <view class="logout-section">
       <button class="btn-logout" @click="handleLogout">退出登录</button>
-    </view>
+    </view> -->
   </view>
 </template>
 
@@ -105,8 +92,9 @@ const userInfo = ref({
   phone: '',
   avatar: '',
   memberLevel: 0,
-  totalConsumption: 0,
-  availablePoints: 0,
+  totalConsumption: 9912,
+  availablePoints: 231123,
+  balance: 89213,
 });
 
 onShow(() => {
@@ -117,8 +105,9 @@ onShow(() => {
       phone: user.phone || '',
       avatar: user.avatar || '',
       memberLevel: user.memberLevel || 0,
-      totalConsumption: user.totalConsumption || 0,
-      availablePoints: user.availablePoints || 0,
+      totalConsumption: 9912,
+      availablePoints: 231123,
+      balance: 89213,
     };
   }
 });
@@ -231,6 +220,8 @@ const handleLogout = () => {
   border-radius: $radius-md;
   box-shadow: $shadow-sm;
   gap: $spacing-xxxl;
+  display: flex;
+  justify-content: space-around;
 
   .stat-item {
     @include flex-center;
@@ -244,7 +235,8 @@ const handleLogout = () => {
     }
 
     .stat-label {
-      font-size: $font-sm;
+      font-size: 14px;
+      font-weight: bold;
       color: $text-secondary;
     }
   }
