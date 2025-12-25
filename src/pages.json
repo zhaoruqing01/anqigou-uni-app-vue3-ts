@@ -1,0 +1,186 @@
+{
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
+    }
+  },
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "安琦购"
+      }
+    },
+    {
+      "path": "pages/auth/login",
+      "style": {
+        "navigationBarTitleText": "登录"
+      }
+    },
+    {
+      "path": "pages/auth/register",
+      "style": {
+        "navigationBarTitleText": "注册"
+      }
+    },
+    {
+      "path": "pages/order/cart",
+      "style": {
+        "navigationBarTitleText": "购物车"
+      }
+    },
+    {
+      "path": "pages/order/checkout",
+      "style": {
+        "navigationBarTitleText": "确认订单"
+      }
+    },
+    {
+      "path": "pages/payment/payment",
+      "style": {
+        "navigationBarTitleText": "选择支付方式"
+      }
+    },
+    {
+      "path": "pages/logistics/detail",
+      "style": {
+        "navigationBarTitleText": "物流详情"
+      }
+    },
+    {
+      "path": "pages/logistics/evaluate",
+      "style": {
+        "navigationBarTitleText": "物流评价"
+      }
+    },
+    {
+      "path": "pages/user/profile",
+      "style": {
+        "navigationBarTitleText": "我的"
+      }
+    },
+    {
+      "path": "pages/product/detail",
+      "style": {
+        "navigationBarTitleText": "商品详情"
+      }
+    },
+    {
+      "path": "pages/product/list",
+      "style": {
+        "navigationBarTitleText": "商品列表"
+      }
+    },
+    {
+      "path": "pages/order/list",
+      "style": {
+        "navigationBarTitleText": "我的订单"
+      }
+    },
+    {
+      "path": "pages/user/address-list",
+      "style": {
+        "navigationBarTitleText": "收货地址"
+      }
+    },
+    {
+      "path": "pages/user/address-edit",
+      "style": {
+        "navigationBarTitleText": "编辑地址"
+      }
+    },
+    {
+      "path": "pages/user/favorite",
+      "style": {
+        "navigationBarTitleText": "我的收藏"
+      }
+    },
+    {
+      "path": "pages/user/device",
+      "style": {
+        "navigationBarTitleText": "设备管理"
+      }
+    },
+    {
+      "path": "pages/user/privacy",
+      "style": {
+        "navigationBarTitleText": "隐私设置"
+      }
+    },
+    {
+      "path": "pages/order/detail",
+      "style": {
+        "navigationBarTitleText": "订单详情"
+      }
+    },
+    {
+      "path": "pages/user/feedback-list",
+      "style": {
+        "navigationBarTitleText": "我的反馈"
+      }
+    },
+    {
+      "path": "pages/user/feedback-submit",
+      "style": {
+        "navigationBarTitleText": "提交反馈"
+      }
+    },
+    {
+      "path": "pages/user/feedback-detail",
+      "style": {
+        "navigationBarTitleText": "反馈详情"
+      }
+    },
+    {
+      "path": "pages/product/search-view",
+      "style": {
+        "navigationBarTitleText": "搜索"
+      }
+    },
+    {
+      "path": "pages/user/setting",
+      "style": {
+        "navigationBarTitleText": "设置"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "安琦购",
+    "navigationBarBackgroundColor": "#548163",
+    "backgroundColor": "#f5f5f5"
+  },
+  "tabBar": {
+    "borderStyle": "black",
+    "backgroundColor": "#ffffff",
+    "color": "#000000",
+    "selectedColor": "#2ecaa6",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "iconPath": "static/home.png",
+        "selectedIconPath": "static/home-active.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/product/list",
+        "iconPath": "static/category.png",
+        "selectedIconPath": "static/category-active.png",
+        "text": "分类"
+      },
+      {
+        "pagePath": "pages/order/cart",
+        "iconPath": "static/cart.png",
+        "selectedIconPath": "static/cart-active.png",
+        "text": "购物车"
+      },
+      {
+        "pagePath": "pages/user/profile",
+        "iconPath": "static/user.png",
+        "selectedIconPath": "static/user-active.png",
+        "text": "我的"
+      }
+    ]
+  }
+}

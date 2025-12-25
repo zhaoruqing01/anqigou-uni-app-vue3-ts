@@ -1,0 +1,14 @@
+# 依赖文件夹
+node_modules
+# 打包输出文件夹
+dist
+unpackage
+# 类型声明文件
+*.d.ts
+# 系统文件
+.DS_Store
+# 配置文件（避免格式化后破坏语法）
+package.json
+package-lock.json
+.eslintrc.js
+.prettierrc.js
