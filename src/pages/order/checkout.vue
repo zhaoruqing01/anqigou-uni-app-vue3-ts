@@ -187,6 +187,9 @@ const submitOrder = async () => {
   }
 
   try {
+    // 请求订阅权限
+    await requestSubscribeMessage();
+
     const orderData = {
       addressId: selectedAddress.value.id,
       items: cartItems.value.map((i) => ({
@@ -209,6 +212,28 @@ const submitOrder = async () => {
     }, 500);
   } catch (e) {
     console.error('Failed to create order', e);
+  }
+};
+
+const requestSubscribeMessage = async () => {
+  try {
+    const res = await uni.requestSubscribeMessage({
+      tmplIds: ['d0sQiPZZa1vh3Hp6Q0N9FzXe1bDIEOFic8cv80Xv78E'],
+    });
+    console.log('订阅消息结果:', res);
+    if (res['d0sQiPZZa1vh3Hp6Q0N9FzXe1bDIEOFic8cv80Xv78E'] === 'accept') {
+      console.log('用户同意订阅');
+      return true;
+    } else if (res['d0sQiPZZa1vh3Hp6Q0N9FzXe1bDIEOFic8cv80Xv78E'] === 'reject') {
+      console.log('用户拒绝订阅');
+      return false;
+    } else {
+      console.log('用户关闭弹窗');
+      return false;
+    }
+  } catch (e) {
+    console.error('请求订阅消息失败', e);
+    return false;
   }
 };
 </script>

@@ -11,7 +11,7 @@ interface ApiResponse<T = any> {
 }
 
 // 创建 axios 实例 - 统一通过网关访问
-const URL_NGROK = 'http://f3c49496.natappfree.cc';
+const URL_NGROK = 'http://y6252f63.natappfree.cc';
 // const LOCAL_URL = 'http://localhost:8080';
 const service = axios.create({
   baseURL: URL_NGROK,
