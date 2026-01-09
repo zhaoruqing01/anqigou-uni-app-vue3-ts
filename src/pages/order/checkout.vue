@@ -127,6 +127,7 @@
 
 <script setup lang="ts">
 import { createOrder } from '@/api/order';
+import { saveSubscribeStatus } from '@/api/subscribe';
 import { useCartStore } from '@/stores/cart';
 import type { Address } from '@/types/address/index';
 import { onShow } from '@dcloudio/uni-app';
@@ -188,7 +189,7 @@ const submitOrder = async () => {
 
   try {
     // 请求订阅权限
-    await requestSubscribeMessage();
+    const isSubscribed = await requestSubscribeMessage();
 
     const orderData = {
       addressId: selectedAddress.value.id,
@@ -204,6 +205,22 @@ const submitOrder = async () => {
 
     const res = await createOrder(orderData);
     cartStore.removeCheckedItems();
+
+    // 保存订阅状态
+    if (isSubscribed) {
+      try {
+        await saveSubscribeStatus({
+          orderId: res.data,
+          templateId: 'd0sQiPZZa1vh3Hp6Q0N9FzXe1bDIEOFic8cv80Xv78E',
+          status: 'accept',
+        });
+        console.log('订阅状态保存成功');
+      } catch (saveError) {
+        console.error('保存订阅状态失败', saveError);
+        // 订阅状态保存失败不影响订单创建流程
+      }
+    }
+
     uni.showToast({ title: '订单创建成功', icon: 'success' });
     setTimeout(() => {
       uni.navigateTo({

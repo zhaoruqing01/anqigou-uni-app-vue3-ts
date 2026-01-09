@@ -191,6 +191,7 @@ const goToRegister = () => {
 const handleWechatLogin = async (e: any) => {
   // 1. 判断用户是否拒绝授权
   if (!e?.detail?.userInfo) {
+    console.log('用户拒绝了微信授权');
     uni.showToast({ title: '您拒绝了授权，无法完成微信登录', icon: 'none' });
     return;
   }
@@ -198,6 +199,8 @@ const handleWechatLogin = async (e: any) => {
 
   try {
     isLoginIng.value = true;
+    console.log('开始微信登录流程');
+
     // 2. 获取微信登录code（小程序默认provider为微信，无需显式指定）
     const loginRes = await new Promise<any>((resolve, reject) => {
       uni.login({
@@ -209,15 +212,20 @@ const handleWechatLogin = async (e: any) => {
     if (!loginRes.code) {
       throw new Error('获取微信登录凭证失败');
     }
+    console.log('成功获取微信登录code:', loginRes.code);
 
     // 3. 提取用户信息
     const { userInfo } = e.detail;
+    console.log('微信用户信息:', userInfo);
 
     // 4. 调用后端微信登录接口
+    console.log('开始调用后端微信登录接口');
     const res = await wechatLogin(loginRes.code, userInfo);
+    console.log('后端微信登录接口返回:', res);
 
     // 5. 存储登录态
     if (res?.data?.token) {
+      console.log('微信登录成功，开始存储登录态');
       userStore.setToken(res.data.token);
       userStore.setUser({
         userId: res.data.userId,
@@ -228,21 +236,27 @@ const handleWechatLogin = async (e: any) => {
         totalConsumption: res.data.totalConsumption || 0,
         availablePoints: res.data.availablePoints || 0,
       });
+      console.log('登录态存储完成，准备跳转首页');
 
       uni.showToast({ title: '微信登录成功', icon: 'success' });
       setTimeout(() => {
         uni.switchTab({ url: '/pages/index/index' });
       }, 500);
+    } else {
+      console.error('微信登录失败：后端返回数据异常', res);
+      uni.showToast({ title: '微信登录失败，后端返回数据异常', icon: 'none' });
     }
   } catch (e: any) {
     console.error('微信登录失败', e);
     // 区分用户主动取消和系统错误
     if (e.errMsg && e.errMsg.includes('cancel')) {
+      console.log('用户主动取消微信登录');
       return;
     }
     uni.showToast({ title: '微信登录失败，请重试', icon: 'none' });
   } finally {
     isLoginIng.value = false;
+    console.log('微信登录流程结束');
   }
 };
 </script>
