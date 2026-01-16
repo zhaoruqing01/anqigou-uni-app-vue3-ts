@@ -11,10 +11,10 @@ interface ApiResponse<T = any> {
 }
 
 // 创建 axios 实例 - 统一通过网关访问
-const URL_NGROK = 'http://y6252f63.natappfree.cc';
-// const LOCAL_URL = 'http://localhost:8080';
+const URL_NGROK = 'http://zcc6af26.natappfree.cc';
+const LOCAL_URL = 'http://localhost:8080';
 const service = axios.create({
-  baseURL: URL_NGROK,
+  baseURL: LOCAL_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
