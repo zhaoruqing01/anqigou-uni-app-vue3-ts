@@ -505,7 +505,7 @@ picker-view {
 /* 订单操作按钮组 */
 .order-card .order-footer .order-actions {
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
   gap: 8px;
 }
 

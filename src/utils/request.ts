@@ -11,10 +11,10 @@ interface ApiResponse<T = any> {
 }
 
 // 创建 axios 实例 - 统一通过网关访问
-const URL_NGROK = 'http://zcc6af26.natappfree.cc';
+const URL_NGROK = 'http://u672f936.natappfree.cc';
 const LOCAL_URL = 'http://localhost:8080';
 const service = axios.create({
-  baseURL: LOCAL_URL,
+  baseURL: URL_NGROK,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -122,10 +122,12 @@ service.interceptors.response.use(
       console.error('[400 错误详情]', error.response?.data);
     } else if (!error.response) {
       // 网络不可用，一般是后端未启动
-      uni.showToast({
-        title: '无法连接到服务器，请确保后端已启动',
-        icon: 'error',
-      });
+      console.error('网络不可用，后端未启动');
+
+      // uni.showToast({
+      //   title: '无法连接到服务器，请确保后端已启动',
+      //   icon: 'error',
+      // });
     } else if (error.response?.status >= 400 && error.response?.status < 500) {
       // 客户端错误
       const errorData = error.response?.data;
